@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 @Configuration
@@ -13,12 +12,13 @@ public class ClientConfig {
     @Bean
     CommandLineRunner commandLineRunner(ClientRepository clientRepository) {
         return args -> {
+            clientRepository.deleteAll();
             String[] pays = {"Tunisie","Allemagne","Algerie","USA","France","Maroc","Congo","Italie",
             "Espagne","Mexique","Canada","Australie","Norvege","Chine","Japon","Russie"};
 
             ArrayList<Client> clients = new ArrayList<>();
 
-            for(int i=0;i<9997;i++){
+            for(int i=0;i<11000;i++){
                 Random rng = new Random();
                 int min = 18;
                 int max = 100;

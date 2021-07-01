@@ -1,25 +1,31 @@
-package com.ram.config;
+package com.example.Balayage.batch;
 
 import com.example.Balayage.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ExecutionContext;
+
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.ResultSet;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -57,8 +63,38 @@ public class BatchConfiguration {
                 .reader(clientReader)
                 .writer(clientProcessingWriter)
                 .processor(clientProcessor)
+                .listener(myjoblistener())
+                .allowStartIfComplete(true)
                 .build();
         return jobBuilderFactory.get("Scan_Clients").start(step).build();
+    }
+
+    @Bean
+    public JobExecutionListener myjoblistener() {
+
+        JobExecutionListener listener = new JobExecutionListener() {
+
+            @Override
+            public void beforeJob(JobExecution jobExecution) {
+
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void afterJob(JobExecution jobExecution) {
+
+                try {
+                    Files.write(Paths.get(""), Arrays.asList("foo"),
+                            StandardOpenOption.APPEND);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                System.out.println("Job has been completed");
+            }
+        };
+
+        return listener ;
     }
 
     @Bean
@@ -86,8 +122,13 @@ public class BatchConfiguration {
 
     @Bean
     public ItemProcessor<Client, String> processor() {
-        System.out.println("Inside processor method");
-        return new RecordProcessor();
+        return new ItemProcessor<Client, String>() {
+            @Override
+            public String process(Client item) throws Exception {
+                System.out.println("Client " + item.getId() + " Processed");
+                return "Client " + item.getId() + " Processed"; //TODO Change this, adapt it to business rules scan
+            }
+        };
     }
 
     @Bean
@@ -95,67 +136,19 @@ public class BatchConfiguration {
         return new ItemWriter<String>() {
             @Override
             public void write(List<? extends String> items) throws Exception {
-                System.out.println("Result of chunk: ");
-                for (String str : items){
-                    System.out.println(str);
+
+                BufferedWriter outputWriter = null;
+                outputWriter = new BufferedWriter(new FileWriter("D:\\MyDesktop\\Algebre\\Vneuron-Balayage_Regles_Metier\\src\\main\\java\\com\\example\\Balayage\\batch\\report"));
+                for (int i = 0; i < items.size(); i++) {
+                    // Maybe:
+                    outputWriter.write(items.get(i)+"");
+                    outputWriter.newLine();
                 }
+                outputWriter.flush();
+                outputWriter.close();
             }
         };
-    }
+    };
 }
 
-/*    *//**
-     * The reader() method is used to read the data from the CSV file
-     *//*
-    @Bean
-    public FlatFileItemReader<Client> reader()
-    {
-        System.out.println("-----------Inside reader() method--------");
-        FlatFileItemReader<Client> reader = new FlatFileItemReader<Client>();
-        reader.setResource();//TODO COMPLETE);
-        reader.setLineMapper(new DefaultLineMapper<Client>()
-        {
-            {
-                setLineTokenizer(new DelimitedLineTokenizer()
-                {
-                    {
-                        setNames(new String[] { "name", "age", "salary" });
-                    }
-                });
-                setFieldSetMapper(new BeanWrapperFieldSetMapper<Client>()
-                {
-                    {
-                        setTargetType(Client.class);
-                    }
-                });
-            }
-        });
-        return reader;
-    }
-
-    *//**
-     * Intermediate processor to do the operations after the reading the data from the CSV file and
-     * before writing the data into SQL.
-     *//*
-    @Bean
-    public ClientItemProcessor processor()
-    {
-        System.out.println("-----------Inside  processor() method--------");
-        return new ClientItemProcessor();
-    }
-
-    *//**
-     * The writer() method is used to write a data into the SQL.
-     *//*
-    @Bean
-    public JdbcBatchItemWriter<Client> writer()
-    {
-        System.out.println("-----------Inside writer() method--------");
-        JdbcBatchItemWriter<Client> writer = new JdbcBatchItemWriter<Client>();
-        writer.setItemSqlParameterSourceProvider(
-                new BeanPropertyItemSqlParameterSourceProvider<Client>());
-        writer.setSql("INSERT INTO Employee (NAME, AGE, SALARY) VALUES (:name, :age, :salary)");
-        writer.setDataSource(dataSource);
-        return writer;
-    }
 
