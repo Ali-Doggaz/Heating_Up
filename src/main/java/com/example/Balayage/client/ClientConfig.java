@@ -1,4 +1,4 @@
-package com.example.Balayage.client;
+/*package com.example.Balayage.client;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -33,4 +33,4 @@ public class ClientConfig {
             clientRepository.saveAll(clients);
         };
     }
-}
+}*/
