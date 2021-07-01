@@ -84,4 +84,14 @@ public class Client {
         this.suspect = suspect;
     }
 
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", nationalite='" + nationalite + '\'' +
+                ", age=" + age +
+                ", revenus=" + revenus +
+                ", suspect=" + suspect +
+                '}';
+    }
 }

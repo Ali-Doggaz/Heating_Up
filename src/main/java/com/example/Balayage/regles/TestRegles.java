@@ -1,12 +1,19 @@
-package com.example.Balayage;
+package com.example.Balayage.regles;
 
 import com.example.Balayage.client.Client;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 public class TestRegles {
 
     public static void fireAll(Client client) {
+
+        // create EvaluationContext from bean
+        //Client clientBean = new Client();
+        //StandardEvaluationContext testContext = new StandardEvaluationContext(clientBean);
+
+
         // 1. Method invocation
         ExpressionParser parser = new SpelExpressionParser();
         String message = (String) parser.parseExpression("'Hello World'.concat('!')").getValue();
