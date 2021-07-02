@@ -13,26 +13,28 @@ public class ClientTestResult{
 
     // Contient le nombre de declenchement totale de chaque regle durant le balayage
     private static ArrayList<Integer> nbrDeclenchementRegles;
-    static {
-        nbrDeclenchementRegles = new ArrayList<>(Collections.nCopies(5, 0));
-    }
+    private static Integer nbrSuspectsDetectes;
+    private static Integer nbrClientsTestes;
+
     private long id;                // id du client
     private boolean testsReussis;   // true si tous les tests ont été réussis, false sinon
     private int numTestRate;        // Si un test n'a pas été réussi, le numéro de ce test sera stocké ici
 
     //constructeur à appeler en cas de succes
-    ClientTestResult(Long id, boolean testsReussis){
+    ClientTestResult(Long id){
         this.id = id;
-        this.testsReussis = testsReussis;
+        this.testsReussis = true;
         numTestRate = -1;
     }
 
     // Constructeur à appeler en cas d'echec d'un test
-    ClientTestResult(Long id, boolean testsReussis, int numTestRate){
+    ClientTestResult(Long id, int numTestRate){
         this.id = id;
-        this.testsReussis = testsReussis;
+        this.testsReussis = false;
         this.numTestRate = numTestRate;
         nbrDeclenchementRegles.set(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
+        nbrClientsTestes++;
+        nbrSuspectsDetectes++;
     }
 
     public static ArrayList<Integer> getNbrDeclenchementRegles() {
@@ -49,6 +51,22 @@ public class ClientTestResult{
 
     public static void setNbrDeclenchementRegles(ArrayList<Integer> nbrDeclenchementRegles) {
         ClientTestResult.nbrDeclenchementRegles = nbrDeclenchementRegles;
+    }
+
+    public static Integer getNbrSuspectsDetectes() {
+        return nbrSuspectsDetectes;
+    }
+
+    public static void setNbrSuspectsDetectes(Integer nbrSuspectsDetectes) {
+        ClientTestResult.nbrSuspectsDetectes = nbrSuspectsDetectes;
+    }
+
+    public static Integer getNbrClientsTestes() {
+        return nbrClientsTestes;
+    }
+
+    public static void setNbrClientsTestes(Integer nbrClientsTestes) {
+        ClientTestResult.nbrClientsTestes = nbrClientsTestes;
     }
 
     public long getId() {

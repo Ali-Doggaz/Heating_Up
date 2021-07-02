@@ -27,14 +27,15 @@ public class TestRegles {
             System.out.println("Result of test= " + boolTestResult);
             //Si le test a echoué, on creer le clientTestResult et on arrete le traitement
             if (!boolTestResult) {
-                ClientTestResult clientTestResult = new ClientTestResult(client.getId(),false, i);
+                ClientTestResult clientTestResult = new ClientTestResult(client.getId(), i);
+                client.setSuspect(true);
                 return clientTestResult;
             }
         }
 
         //Si tous les test ont été reussis
-        return(new ClientTestResult(client.getId(), true));
-
+        client.setSuspect(false);
+        return(new ClientTestResult(client.getId()));
 
     }
 

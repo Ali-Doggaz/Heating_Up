@@ -79,23 +79,19 @@ public class BatchConfiguration {
 
             @Override
             public void beforeJob(JobExecution jobExecution) {
-
+                //TODO Change the 5 with an injected variable containing the number of rules
+                ClientTestResult.setNbrDeclenchementRegles(new ArrayList<>(Collections.nCopies(5, 0)));
+                ClientTestResult.setNbrSuspectsDetectes(0);
+                System.out.println("Starting job yessss");
                 // TODO Auto-generated method stub
             }
 
             @Override
             public void afterJob(JobExecution jobExecution) {
 
-                try {
-                    Files.write(Paths.get(""), Arrays.asList("foo"),
-                            StandardOpenOption.APPEND);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                System.out.println("Job has been completed");
-                //TODO Change the 5 with an injected variable containing the number of rules
-                ClientTestResult.setNbrDeclenchementRegles(new ArrayList<>(Collections.nCopies(5, 0)));
+                System.out.println("Job has been completed, generating report");
+                //TODO Generate Jasper Report
+
             }
         };
 
