@@ -1,6 +1,9 @@
+
 package com.example.Balayage.batch;
 
 import com.example.Balayage.client.Client;
+import com.example.Balayage.regles.ClientTestResult;
+import com.example.Balayage.regles.TestRegles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
@@ -17,16 +20,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 @Configuration
@@ -48,10 +51,10 @@ public class BatchConfiguration {
     private ItemReader<Client> clientReader;
 
     @Autowired
-    private ItemWriter<String> clientProcessingWriter;
+    private ItemWriter<ClientTestResult> clientProcessingWriter;
 
     @Autowired
-    private ItemProcessor<Client, String> clientProcessor;
+    private ItemProcessor<Client, ClientTestResult> clientProcessor;
 
     //@Autowired
     //private DataSource dataSource;
@@ -59,7 +62,7 @@ public class BatchConfiguration {
     @Bean
     public Job MyJob() {
         Step step = stepBuilderFactory.get("Traitement-donnees-client")
-                .<Client, String>chunk(1000)
+                .<Client, ClientTestResult>chunk(1000)
                 .reader(clientReader)
                 .writer(clientProcessingWriter)
                 .processor(clientProcessor)
@@ -91,6 +94,8 @@ public class BatchConfiguration {
                     e.printStackTrace();
                 }
                 System.out.println("Job has been completed");
+                //TODO Change the 5 with an injected variable containing the number of rules
+                ClientTestResult.setNbrDeclenchementRegles(new ArrayList<>(Collections.nCopies(5, 0)));
             }
         };
 
@@ -121,34 +126,44 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public ItemProcessor<Client, String> processor() {
-        return new ItemProcessor<Client, String>() {
+    public ItemProcessor<Client, ClientTestResult> processor() {
+        return new ItemProcessor<Client, ClientTestResult>() {
             @Override
-            public String process(Client item) throws Exception {
-                System.out.println("Client " + item.getId() + " Processed");
-                return "Client " + item.getId() + " Processed"; //TODO Change this, adapt it to business rules scan
+            public ClientTestResult process(Client client) throws Exception {
+                System.out.println("Traitement en cours - client " + client.getId());
+                //on effectue les tests et on retourne le resultat sous forme d'instance de
+                //la classe ClientTestResult
+                return(TestRegles.fireAll(client));
             }
         };
     }
 
     @Bean
-    public ItemWriter<String> writer() {
-        return new ItemWriter<String>() {
+    public ItemWriter<ClientTestResult> writer() {
+        return new ItemWriter<ClientTestResult>() {
             @Override
-            public void write(List<? extends String> items) throws Exception {
+            public void write(List<? extends ClientTestResult> testResults) throws Exception {
+                String[] resultStrings = Stream.of(testResults).map(result -> result.toString()).toArray(String[]::new);
+                System.out.println(ClientTestResult.getStringifiedNbrDeclenchementRegles());
+                ObjectOutputStream oos = null;
+                try {
+                    FileOutputStream faos = new FileOutputStream("src/main/java/com/example/Balayage/batch/report");
+                    oos = new ObjectOutputStream(faos);
+                    oos.writeObject(resultStrings);
+                    oos.flush();
+                } catch (EOFException eof) {
+                    eof.printStackTrace();
 
-                BufferedWriter outputWriter = null;
-                outputWriter = new BufferedWriter(new FileWriter("D:\\MyDesktop\\Algebre\\Vneuron-Balayage_Regles_Metier\\src\\main\\java\\com\\example\\Balayage\\batch\\report"));
-                for (int i = 0; i < items.size(); i++) {
-                    // Maybe:
-                    outputWriter.write(items.get(i)+"");
-                    outputWriter.newLine();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                outputWriter.flush();
-                outputWriter.close();
+                finally {
+                    oos.close();
+                }
             }
         };
     };
 }
+
 
 
