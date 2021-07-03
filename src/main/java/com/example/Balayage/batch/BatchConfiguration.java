@@ -60,16 +60,19 @@ public class BatchConfiguration {
     //private DataSource dataSource;
 
     @Bean
-    public Job MyJob() {
+    public Job ScanJob() {
+        JobExecutionListener listener = myjoblistener();
         Step step = stepBuilderFactory.get("Traitement-donnees-client")
                 .<Client, ClientTestResult>chunk(1000)
                 .reader(clientReader)
                 .writer(clientProcessingWriter)
                 .processor(clientProcessor)
-                .listener(myjoblistener())
                 .allowStartIfComplete(true)
                 .build();
-        return jobBuilderFactory.get("Scan_Clients").start(step).build();
+        return jobBuilderFactory.get("Scan_Clients")
+                .start(step)
+                .listener(listener)
+                .build();
     }
 
     @Bean
@@ -80,10 +83,10 @@ public class BatchConfiguration {
             @Override
             public void beforeJob(JobExecution jobExecution) {
                 //TODO Change the 5 with an injected variable containing the number of rules
+                System.out.println("Initialisation de ClientTestResult");
                 ClientTestResult.setNbrDeclenchementRegles(new ArrayList<>(Collections.nCopies(5, 0)));
                 ClientTestResult.setNbrSuspectsDetectes(0);
-                System.out.println("Starting job yessss");
-                // TODO Auto-generated method stub
+                ClientTestResult.setNbrClientsTestes(0);
             }
 
             @Override
@@ -105,17 +108,14 @@ public class BatchConfiguration {
                 .rowMapper((ResultSet resultSet, int rowNum) -> {
                     if (!(resultSet.isAfterLast()) && !(resultSet.isBeforeFirst())) {
                         Client client = new Client();
-
                         client.setId(resultSet.getLong("id"));
                         client.setNationalite(resultSet.getString("nationalite"));
                         client.setAge(resultSet.getInt("age"));
                         client.setRevenus(resultSet.getDouble("revenus"));
                         client.setSuspect(resultSet.getBoolean("suspect"));
-
-                        LOGGER.info("RowMapper record : {}", client);
                         return client;
+
                     } else {
-                        LOGGER.info("Returning null from rowMapper");
                         return null;
                     }
                 }).build();
@@ -139,23 +139,16 @@ public class BatchConfiguration {
         return new ItemWriter<ClientTestResult>() {
             @Override
             public void write(List<? extends ClientTestResult> testResults) throws Exception {
-                String[] resultStrings = Stream.of(testResults).map(result -> result.toString()).toArray(String[]::new);
+                // affiche le nombre de declenchement de chaque regle a la console
                 System.out.println(ClientTestResult.getStringifiedNbrDeclenchementRegles());
-                ObjectOutputStream oos = null;
-                try {
-                    FileOutputStream faos = new FileOutputStream("src/main/java/com/example/Balayage/batch/report");
-                    oos = new ObjectOutputStream(faos);
-                    oos.writeObject(resultStrings);
-                    oos.flush();
-                } catch (EOFException eof) {
-                    eof.printStackTrace();
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                finally {
-                    oos.close();
-                }
+                // TODO check if this is necessary, maybe we just have to print the general stats after each chunk
+                // TODO append a la fin du fichier log.txt, et non pas overwrite
+                // on commence par ne selectionner que les clients suspectés
+                // testResults = testResults.stream().filter(clientTestResult -> !clientTestResult.isTestsReussis()).collect(Collectors.toList());;
+                // Convertit les instances de ClientTestResult selectionné en des strings, qu'on ecrira dans un fichier "log.txt"
+                // String[] resultStrings = Stream.of(testResults).map(result -> result.toString()).toArray(String[]::new);
+
             }
         };
     };
