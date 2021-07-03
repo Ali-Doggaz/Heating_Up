@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -36,7 +37,7 @@ import java.util.stream.Stream;
 @EnableBatchProcessing
 public class BatchConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BatchConfiguration.class);
+    private static ArrayList<ClientTestResult> clientSuspects;
 
     @Autowired
     private DataSource dataSource;  //TODO CHECK THIS
@@ -87,6 +88,7 @@ public class BatchConfiguration {
                 ClientTestResult.setNbrDeclenchementRegles(new ArrayList<>(Collections.nCopies(5, 0)));
                 ClientTestResult.setNbrSuspectsDetectes(0);
                 ClientTestResult.setNbrClientsTestes(0);
+                clientSuspects = new ArrayList<>();
             }
 
             @Override
@@ -141,12 +143,10 @@ public class BatchConfiguration {
                 // affiche le nombre de declenchement de chaque regle a la console
                 System.out.println(ClientTestResult.getStatsReport());
 
-                // TODO check if this is necessary, maybe we just have to print the general stats after each chunk
-                // TODO append a la fin du fichier log.txt, et non pas overwrite
-                // on commence par ne selectionner que les clients suspectés
-                // testResults = testResults.stream().filter(clientTestResult -> !clientTestResult.isTestsReussis()).collect(Collectors.toList());;
-                // Convertit les instances de ClientTestResult selectionné en des strings, qu'on ecrira dans un fichier "log.txt"
-                // String[] resultStrings = Stream.of(testResults).map(result -> result.toString()).toArray(String[]::new);
+
+                // ajoute les nouveaux clients suspectés a la liste
+                testResults = testResults.stream().filter(clientTestResult -> !clientTestResult.isTestsReussis()).collect(Collectors.toList());
+                clientSuspects.addAll(testResults);
 
             }
         };

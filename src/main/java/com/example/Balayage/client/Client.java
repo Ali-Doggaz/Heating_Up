@@ -21,12 +21,12 @@ public class Client {
             updatable = false,
             nullable = false
     )
-    private Long id;
+    protected Long id;
 
-    private String nationalite;
-    private int age;
-    private double revenus;
-    private boolean suspect;
+    protected String nationalite;
+    protected int age;
+    protected double revenus;
+    protected boolean suspect;
 
     public Client() {
     }
@@ -42,6 +42,14 @@ public class Client {
         this.nationalite = nationalite;
         this.age = age;
         this.revenus = revenus;
+    }
+
+    public Client(Long id, String nationalite, int age, double revenus) {
+        this.id = id;
+        this.nationalite = nationalite;
+        this.age = age;
+        this.revenus = revenus;
+        this.suspect = suspect;
     }
 
     public Long getId() {

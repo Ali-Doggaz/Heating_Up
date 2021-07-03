@@ -8,7 +8,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ClientTestResult{
+public class ClientTestResult extends Client{
     //TODO change 5 for an injected variable containing the number of rules
 
     // Contient le nombre de declenchement totale de chaque regle durant le balayage
@@ -16,21 +16,21 @@ public class ClientTestResult{
     private static Integer nbrSuspectsDetectes;
     private static Integer nbrClientsTestes;
 
-    private long id;                // id du client
     private boolean testsReussis;   // true si tous les tests ont été réussis, false sinon
     private int numTestRate;        // Si un test n'a pas été réussi, le numéro de ce test sera stocké ici
 
     //constructeur à appeler en cas de succes
-    ClientTestResult(Long id){
-        this.id = id;
+    public ClientTestResult(Long id, String nationalite, int age, double revenus) {
+        super(id, nationalite, age, revenus);
         this.testsReussis = true;
         numTestRate = -1;
         nbrClientsTestes++;
     }
 
+
     // Constructeur à appeler en cas d'echec d'un test
-    ClientTestResult(Long id, int numTestRate){
-        this.id = id;
+    public ClientTestResult(Long id, String nationalite, int age, double revenus, int numTestRate){
+        super(id, nationalite, age, revenus);
         this.testsReussis = false;
         this.numTestRate = numTestRate;
         nbrDeclenchementRegles.set(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
@@ -72,7 +72,7 @@ public class ClientTestResult{
         ClientTestResult.nbrClientsTestes = nbrClientsTestes;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

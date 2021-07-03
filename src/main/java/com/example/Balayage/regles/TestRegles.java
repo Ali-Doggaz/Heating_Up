@@ -25,7 +25,7 @@ public class TestRegles {
                     .getValue(clientContext, Boolean.class);
             //Si le test a echoué, on creer le clientTestResult et on arrete le traitement
             if (!boolTestResult) {
-                ClientTestResult clientTestResult = new ClientTestResult(client.getId(), i);
+                ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(), i);
                 client.setSuspect(true);
                 return clientTestResult;
             }
@@ -33,8 +33,7 @@ public class TestRegles {
 
         //Si tous les test ont été reussis
         client.setSuspect(false);
-        return(new ClientTestResult(client.getId()));
-
+        return(new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus()));
     }
 
 }
