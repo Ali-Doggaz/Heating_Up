@@ -126,7 +126,6 @@ public class BatchConfiguration {
         return new ItemProcessor<Client, ClientTestResult>() {
             @Override
             public ClientTestResult process(Client client) throws Exception {
-                System.out.println("Traitement en cours - client " + client.getId());
                 //on effectue les tests et on retourne le resultat sous forme d'instance de
                 //la classe ClientTestResult
                 return(TestRegles.fireAll(client));
@@ -140,7 +139,7 @@ public class BatchConfiguration {
             @Override
             public void write(List<? extends ClientTestResult> testResults) throws Exception {
                 // affiche le nombre de declenchement de chaque regle a la console
-                System.out.println(ClientTestResult.getStringifiedNbrDeclenchementRegles());
+                System.out.println(ClientTestResult.getStatsReport());
 
                 // TODO check if this is necessary, maybe we just have to print the general stats after each chunk
                 // TODO append a la fin du fichier log.txt, et non pas overwrite

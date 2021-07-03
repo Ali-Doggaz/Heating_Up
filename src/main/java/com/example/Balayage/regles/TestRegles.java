@@ -21,10 +21,8 @@ public class TestRegles {
                 "nationalite!='Tunisie'", "age < 90 && age > 20", "age != 35"));
         for (int i=0; i<regles.size(); i++) {
             String regle = regles.get(i);
-            System.out.println("Regle:" + regle);
             Boolean boolTestResult = parser.parseExpression(regle)
                     .getValue(clientContext, Boolean.class);
-            System.out.println("Result of test= " + boolTestResult);
             //Si le test a echoué, on creer le clientTestResult et on arrete le traitement
             if (!boolTestResult) {
                 ClientTestResult clientTestResult = new ClientTestResult(client.getId(), i);

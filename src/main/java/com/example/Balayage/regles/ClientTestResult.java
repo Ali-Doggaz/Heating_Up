@@ -25,6 +25,7 @@ public class ClientTestResult{
         this.id = id;
         this.testsReussis = true;
         numTestRate = -1;
+        nbrClientsTestes++;
     }
 
     // Constructeur à appeler en cas d'echec d'un test
@@ -41,8 +42,10 @@ public class ClientTestResult{
         return nbrDeclenchementRegles;
     }
 
-    public static String getStringifiedNbrDeclenchementRegles() {
-        String str = "Nombre de declenchement de chaque regle: ";
+    public static String getStatsReport() {
+        String str = "Nombre de clients testes: " + nbrClientsTestes;
+        str+="\nNombre de suspects detectes: " + nbrSuspectsDetectes + " (" + ((float)nbrSuspectsDetectes/nbrClientsTestes *100) + "%)";
+        str += "\nNombre de declenchement de chaque regle: ";
         for (int i=0; i< nbrDeclenchementRegles.size(); i++) {
             str += "\nRegle " + (i+1) + " declenchee " + nbrDeclenchementRegles.get(i) + " fois";
         }
