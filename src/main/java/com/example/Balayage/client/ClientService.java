@@ -18,10 +18,6 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
-    public List<Client> getClientsById(ArrayList<Long> ids){
-        return clientRepository.findAllById(ids);
-    }
-
     @Transactional
     public void updateClientToSuspect(Client client) {client.setSuspect(true);}
 

@@ -14,8 +14,8 @@ public class ClientReportDataAssembler {
     //(titre, Nom de la banque, stats des clients testés, liste des suspects)
     public static ClientReportInput assemble(ArrayList<ClientTestResult> clientsSuspects) {
         ClientReportInput ClientReportInput = new ClientReportInput();
-        ClientReportInput.setReportTitle("Rapport De Balayage - " + java.time.LocalDate.now()
-                .format(DateTimeFormatter.ofPattern("dd-MMM-yy"))
+        ClientReportInput.setReportTitle("Rapport De Balayage Du " +
+                (java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yy")))
         );
         ClientReportInput.setStats(ClientTestResult.getStatsReport());
 

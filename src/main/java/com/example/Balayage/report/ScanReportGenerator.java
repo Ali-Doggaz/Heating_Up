@@ -18,6 +18,7 @@ public class ScanReportGenerator {
             //JRMapArrayDataSource dataSource = new JRMapArrayDataSource(new Object[]{clientReportInput.getDataSource()});
 
             //load file and compile it
+            //TODO update path
             File file = ResourceUtils.getFile("D:\\MyDesktop\\Algebre\\Vneuron-Balayage_Regles_Metier\\src\\main\\resources\\clientReport.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,

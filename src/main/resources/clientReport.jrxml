@@ -59,10 +59,10 @@
                 </textElement>
                 <text><![CDATA[]]></text>
             </staticText>
-            <textField evaluationTime="Report">
+            <textField textAdjust="ScaleFont" evaluationTime="Report">
                 <reportElement x="260" y="10" width="270" height="40" uuid="8d8cf20b-5ca3-41a5-9593-c14f271f9be6"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
-                    <font size="25"/>
+                    <font size="18" isBold="true"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$P{REPORT_TITLE}]]></textFieldExpression>
             </textField>
