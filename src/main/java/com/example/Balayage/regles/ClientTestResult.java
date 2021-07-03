@@ -32,7 +32,7 @@ public class ClientTestResult extends Client{
     public ClientTestResult(Long id, String nationalite, int age, double revenus, int numTestRate){
         super(id, nationalite, age, revenus);
         this.testsReussis = false;
-        this.numTestRate = numTestRate;
+        this.numTestRate = numTestRate+1;
         nbrDeclenchementRegles.set(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
         nbrClientsTestes++;
         nbrSuspectsDetectes++;

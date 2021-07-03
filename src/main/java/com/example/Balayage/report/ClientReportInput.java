@@ -31,12 +31,13 @@ public class ClientReportInput {
     }
     public Map<String, Object> getParameters() {
         Map<String,Object> parameters = new HashMap<>();
-        parameters.put("P_REPORT_TITLE", getReportTitle());
-        parameters.put("P_STATS", getStats());
+        parameters.put("REPORT_TITLE", getReportTitle());
+        parameters.put("STATS", getStats());
+        parameters.put("clientDataSource", getClientDataSource());
 
         return parameters;
     }
-    public Map<String, Object> getDataSources() {
+    public Map<String, Object> getDataSource() {
         Map<String,Object> dataSources = new HashMap<>();
         dataSources.put("clientDataSource", clientDataSource);
 

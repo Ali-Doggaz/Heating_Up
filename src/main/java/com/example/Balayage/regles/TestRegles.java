@@ -1,6 +1,9 @@
 package com.example.Balayage.regles;
 
 import com.example.Balayage.client.Client;
+import com.example.Balayage.client.ClientRepository;
+import com.example.Balayage.client.ClientService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -9,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestRegles {
+
 
     public static ClientTestResult fireAll(Client client) {
 
@@ -26,7 +30,9 @@ public class TestRegles {
             //Si le test a echoué, on creer le clientTestResult et on arrete le traitement
             if (!boolTestResult) {
                 ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(), i);
-                client.setSuspect(true);
+                client.setSuspect(true); // Update le client locally
+                //TODO  rendre le changement du client persistant dans la bd
+                //clientService.updateClientToSuspect(client); // Update le client dans la BD
                 return clientTestResult;
             }
         }

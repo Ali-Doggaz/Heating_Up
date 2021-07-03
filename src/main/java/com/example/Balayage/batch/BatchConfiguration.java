@@ -4,6 +4,7 @@ package com.example.Balayage.batch;
 import com.example.Balayage.client.Client;
 import com.example.Balayage.regles.ClientTestResult;
 import com.example.Balayage.regles.TestRegles;
+import com.example.Balayage.report.ScanReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
@@ -40,7 +41,7 @@ public class BatchConfiguration {
     private static ArrayList<ClientTestResult> clientSuspects;
 
     @Autowired
-    private DataSource dataSource;  //TODO CHECK THIS
+    private DataSource dataSource;
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -96,7 +97,13 @@ public class BatchConfiguration {
 
                 System.out.println("Job has been completed, generating report");
                 //TODO Generate Jasper Report
-
+                try {
+                    ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
+                    scanReportGenerator.generateReport(clientSuspects);
+                }
+                catch(IOException e){
+                    e.printStackTrace();
+                }
             }
         };
 
