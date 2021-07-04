@@ -10,6 +10,7 @@ public class ClientReportInput {
     private String stats;
 
     private JRBeanCollectionDataSource clientDataSource;
+    private JRBeanCollectionDataSource statsReglesDataSource;
 
     public String getStats() { return stats; }
 
@@ -29,18 +30,21 @@ public class ClientReportInput {
     public void setClientDataSource(JRBeanCollectionDataSource clientDataSource) {
         this.clientDataSource = clientDataSource;
     }
+
+    public JRBeanCollectionDataSource getStatsReglesDataSource() {
+        return statsReglesDataSource;
+    }
+
+    public void setStatsReglesDataSource(JRBeanCollectionDataSource statsReglesDataSource) {
+        this.statsReglesDataSource = statsReglesDataSource;
+    }
+
     public Map<String, Object> getParameters() {
         Map<String,Object> parameters = new HashMap<>();
         parameters.put("REPORT_TITLE", getReportTitle());
         parameters.put("STATS", getStats());
         parameters.put("clientDataSource", getClientDataSource());
-
+        parameters.put("statsReglesDataSource", getStatsReglesDataSource());
         return parameters;
-    }
-    public Map<String, Object> getDataSource() {
-        Map<String,Object> dataSources = new HashMap<>();
-        dataSources.put("clientDataSource", clientDataSource);
-
-        return dataSources;
     }
 }

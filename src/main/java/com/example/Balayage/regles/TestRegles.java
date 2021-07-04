@@ -47,8 +47,8 @@ public class TestRegles {
         //ArrayList<String> regles = new ArrayList<>();
         //regles.addAll(List.of("revenus < 850000 || (revenus <= 800000 && age<60)", "age > 19 || revenus > 100000",
                 //"nationalite!='Tunisie'", "age < 90 && age > 20", "age != 35"));
-        for (int i=0; i<regles.length; i++) {
-            String regle = regles[i];
+        for (int i=1; i<=regles.length; i++) {
+            String regle = regles[i-1];
             Boolean boolTestResult = parser.parseExpression(regle)
                     .getValue(clientContext, Boolean.class);
             //Si un test a echoué, on creer le clientTestResult et on arrete le traitement
@@ -66,6 +66,10 @@ public class TestRegles {
             clientService.updateClientSuspicionStatus(client, false);
         }
         return(new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus()));
+    }
+
+    public String[] getRegles() {
+        return regles;
     }
 
 }
