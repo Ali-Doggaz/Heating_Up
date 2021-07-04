@@ -38,6 +38,9 @@ import java.util.stream.Stream;
 @EnableBatchProcessing
 public class BatchConfiguration {
 
+    @Autowired
+    private TestRegles testRegles;
+
     private static ArrayList<ClientTestResult> clientSuspects;
 
     @Autowired
@@ -137,7 +140,7 @@ public class BatchConfiguration {
             public ClientTestResult process(Client client) throws Exception {
                 //on effectue les tests et on retourne le resultat sous forme d'instance de
                 //la classe ClientTestResult
-                return(TestRegles.fireAll(client));
+                return(testRegles.fireAll(client));
             }
         };
     }

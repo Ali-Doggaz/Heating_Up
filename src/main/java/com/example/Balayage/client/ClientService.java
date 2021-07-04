@@ -19,7 +19,10 @@ public class ClientService {
     }
 
     @Transactional
-    public void updateClientToSuspect(Client client) {client.setSuspect(true);}
+    public void updateClientSuspicionStatus(Client client, boolean suspect) {
+        client.setSuspect(suspect);
+        clientRepository.save(client);
+    }
 
 
 }
