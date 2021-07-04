@@ -12,6 +12,10 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 
+import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
+import org.springframework.batch.core.launch.support.SimpleJobOperator;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -20,16 +24,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.batch.operations.JobOperator;
+import javax.batch.runtime.BatchRuntime;
 import javax.sql.DataSource;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,8 +64,6 @@ public class BatchConfiguration {
     @Autowired
     private ItemProcessor<Client, ClientTestResult> clientProcessor;
 
-    //@Autowired
-    //private DataSource dataSource;
 
     @Bean
     public Job ScanJob() {
@@ -93,6 +94,14 @@ public class BatchConfiguration {
                 ClientTestResult.setNbrSuspectsDetectes(0);
                 ClientTestResult.setNbrClientsTestes(0);
                 clientSuspects = new ArrayList<>();
+                try {
+                    testRegles.readRulesFromFile();
+                }
+                catch(IOException e){
+                    final JobOperator jobOperator = BatchRuntime.getJobOperator();
+                    jobOperator.stop(jobExecution.getId());
+                    System.out.println("Le chemin du fichier contenant les règles metiers est introuvable...");
+                }
             }
 
             @Override
@@ -112,6 +121,7 @@ public class BatchConfiguration {
 
         return listener ;
     }
+
 
     @Bean
     public ItemReader<Client> reader() {
