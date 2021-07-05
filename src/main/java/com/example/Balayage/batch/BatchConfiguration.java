@@ -3,6 +3,7 @@ package com.example.Balayage.batch;
 
 import com.example.Balayage.client.Client;
 import com.example.Balayage.regles.ClientTestResult;
+import com.example.Balayage.regles.StatsRegle;
 import com.example.Balayage.regles.TestRegles;
 import com.example.Balayage.report.ScanReportGenerator;
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ public class BatchConfiguration {
     private TestRegles testRegles;
 
     private static ArrayList<ClientTestResult> clientSuspects;
+    private static ArrayList<StatsRegle> statsRegles;
 
     @Autowired
     private DataSource dataSource;
@@ -88,30 +90,43 @@ public class BatchConfiguration {
 
             @Override
             public void beforeJob(JobExecution jobExecution) {
-                //TODO Change the 5 with an injected variable containing the number of rules
-                System.out.println("Initialisation de ClientTestResult");
-                ClientTestResult.setNbrDeclenchementRegles(new ArrayList<>(Collections.nCopies(5, 0)));
-                ClientTestResult.setNbrSuspectsDetectes(0);
-                ClientTestResult.setNbrClientsTestes(0);
-                clientSuspects = new ArrayList<>();
+                System.out.println("Initialisation du scan...");
                 try {
                     testRegles.readRulesFromFile();
                 }
                 catch(IOException e){
                     final JobOperator jobOperator = BatchRuntime.getJobOperator();
                     jobOperator.stop(jobExecution.getId());
-                    System.out.println("Le chemin du fichier contenant les règles metiers est introuvable...");
+                    System.out.println("Le fichier contenant les règles metiers est introuvable...");
                 }
+                //Initialise le nombre de declenchement de chaque regle à 0
+                Map<Integer, Integer> nbrDeclenchementRegles = new HashMap<>();
+                for (int i = 1; i <= testRegles.getRegles().length; i++) {
+                    nbrDeclenchementRegles.put(i, 0);
+                }
+                ClientTestResult.setNbrDeclenchementRegles(nbrDeclenchementRegles);
+                //Initialise le reste des variables statiques à 0
+                ClientTestResult.setNbrSuspectsDetectes(0);
+                ClientTestResult.setNbrClientsTestes(0);
+                //Initialise le nombre de suspects detectés a 0
+                clientSuspects = new ArrayList<>();
             }
 
             @Override
             public void afterJob(JobExecution jobExecution) {
 
                 System.out.println("Job has been completed, generating report");
+                //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
+                statsRegles = new ArrayList<StatsRegle>();
+                for (Map.Entry<Integer, Integer> statRegle : ClientTestResult.getNbrDeclenchementRegles().entrySet()) {
+                    statsRegles.add(new StatsRegle(statRegle.getKey(), statRegle.getValue()));
+                }
+                Collections.sort(statsRegles);
+                Collections.reverse(statsRegles);
                 //TODO Generate Jasper Report
                 try {
                     ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
-                    scanReportGenerator.generateReport(clientSuspects);
+                    scanReportGenerator.generateReport(clientSuspects, statsRegles);
                 }
                 catch(IOException e){
                     e.printStackTrace();

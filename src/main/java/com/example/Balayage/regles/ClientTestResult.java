@@ -7,12 +7,13 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 
 public class ClientTestResult extends Client{
     //TODO change 5 for an injected variable containing the number of rules
 
     // Contient le nombre de declenchement totale de chaque regle durant le balayage
-    private static ArrayList<Integer> nbrDeclenchementRegles;
+    private static Map<Integer, Integer> nbrDeclenchementRegles;
     private static Integer nbrSuspectsDetectes;
     private static Integer nbrClientsTestes;
 
@@ -33,26 +34,22 @@ public class ClientTestResult extends Client{
         super(id, nationalite, age, revenus);
         this.testsReussis = false;
         this.numTestRate = numTestRate+1;
-        nbrDeclenchementRegles.set(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
+        nbrDeclenchementRegles.put(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
         nbrClientsTestes++;
         nbrSuspectsDetectes++;
     }
 
-    public static ArrayList<Integer> getNbrDeclenchementRegles() {
+    public static Map<Integer, Integer> getNbrDeclenchementRegles() {
         return nbrDeclenchementRegles;
     }
 
     public static String getStatsReport() {
         String str = "Nombre de clients testes: " + nbrClientsTestes;
         str+="\nNombre de suspects detectes: " + nbrSuspectsDetectes + " (" + ((float)nbrSuspectsDetectes/nbrClientsTestes *100) + "%)";
-        str += "\nNombre de declenchement de chaque regle: ";
-        for (int i=0; i< nbrDeclenchementRegles.size(); i++) {
-            str += "\nRegle " + (i+1) + " declenchee " + nbrDeclenchementRegles.get(i) + " fois";
-        }
         return str;
     }
 
-    public static void setNbrDeclenchementRegles(ArrayList<Integer> nbrDeclenchementRegles) {
+    public static void setNbrDeclenchementRegles(Map<Integer, Integer> nbrDeclenchementRegles) {
         ClientTestResult.nbrDeclenchementRegles = nbrDeclenchementRegles;
     }
 

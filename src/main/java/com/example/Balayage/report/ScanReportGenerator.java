@@ -1,6 +1,7 @@
 package com.example.Balayage.report;
 
 import com.example.Balayage.regles.ClientTestResult;
+import com.example.Balayage.regles.StatsRegle;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRMapArrayDataSource;
 import org.springframework.util.ResourceUtils;
@@ -10,8 +11,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class ScanReportGenerator {
-    public void generateReport(ArrayList<ClientTestResult> clientSuspects) throws IOException {
-        ClientReportInput clientReportInput = ClientReportDataAssembler.assemble(clientSuspects);
+    public void generateReport(ArrayList<ClientTestResult> clientsSuspects, ArrayList<StatsRegle> statsRegles) throws IOException {
+        ClientReportInput clientReportInput = ClientReportDataAssembler.assemble(clientsSuspects, statsRegles);
 
         try {
             //TODO remove
