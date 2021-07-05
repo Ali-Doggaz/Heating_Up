@@ -5,7 +5,6 @@ import com.example.Balayage.client.Client;
 import java.util.Map;
 
 public class ClientTestResult extends Client{
-    //TODO change 5 for an injected variable containing the number of rules
 
     // Contient le nombre de declenchement totale de chaque regle durant le balayage
     private static Map<Integer, Integer> nbrDeclenchementRegles;
@@ -28,7 +27,7 @@ public class ClientTestResult extends Client{
     public ClientTestResult(Long id, String nationalite, int age, double revenus, int numTestRate){
         super(id, nationalite, age, revenus);
         this.testsReussis = false;
-        this.numTestRate = numTestRate+1;
+        this.numTestRate = numTestRate;
         nbrDeclenchementRegles.put(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
         nbrClientsTestes++;
         nbrSuspectsDetectes++;

@@ -1,6 +1,5 @@
 package com.example.Balayage.regles;
 
-//Cette classe est utilisée pour generer la piechart du Jasper Report
 public class StatsRegle implements Comparable<StatsRegle>{
     private int id;
     private int triggerNumber;
@@ -12,7 +11,7 @@ public class StatsRegle implements Comparable<StatsRegle>{
 
     @Override
     public int compareTo(StatsRegle statsRegle) {
-        return Integer.compare(this.triggerNumber, statsRegle.triggerNumber);
+        return -Integer.compare(this.triggerNumber, statsRegle.triggerNumber);
     }
 
     public int getId() {

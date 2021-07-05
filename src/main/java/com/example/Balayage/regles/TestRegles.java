@@ -21,6 +21,10 @@ public class TestRegles {
     private String[] regles;
     private final String RULES_FOLDER = "src/main/resources/rules.txt";
 
+    /**
+     * Lis toutes les règles métiers à partir du fichier
+     * "RULES_FOLDER" (attribut statique)
+     */
     public void readRulesFromFile() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(RULES_FOLDER));
         String line;
@@ -32,15 +36,21 @@ public class TestRegles {
         regles = sb.toString().split("---------------------RULE---------------------");
     }
 
+
+    /**
+     * Fais passer tous les tests (règles metier) au client passé
+     * en parametre, et génére une instance de ClientTestResult
+     * contenant les résultats de ces tests
+     *
+     * @param client -- client à tester
+     * @return ClientTestResult -- Instance contenant les stats du balayage/Scan
+     */
     public ClientTestResult fireAll(Client client) {
 
         ExpressionParser parser = new SpelExpressionParser();
         //create EvaluationContext
         StandardEvaluationContext clientContext = new StandardEvaluationContext(client);
-
-        //ArrayList<String> regles = new ArrayList<>();
-        //regles.addAll(List.of("revenus < 850000 || (revenus <= 800000 && age<60)", "age > 19 || revenus > 100000",
-                //"nationalite!='Tunisie'", "age < 90 && age > 20", "age != 35"));
+        //Boucle sur toutes les règles et c
         for (int i=1; i<=regles.length; i++) {
             String regle = regles[i-1];
             Boolean boolTestResult = parser.parseExpression(regle)
@@ -49,7 +59,8 @@ public class TestRegles {
             if (!boolTestResult) {
                 ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(), i);
                 if(!client.isSuspect()) {
-                    clientService.updateClientSuspicionStatus(client, true); // Update le client dans la BD
+                    // Update le client dans la BD
+                    clientService.updateClientSuspicionStatus(client, true);
                 }
                 return clientTestResult;
             }

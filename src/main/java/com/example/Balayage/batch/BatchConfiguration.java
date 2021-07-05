@@ -13,6 +13,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -60,7 +61,6 @@ public class BatchConfiguration {
 
     @Autowired
     private ItemProcessor<Client, ClientTestResult> clientProcessor;
-
 
     @Bean
     public Job ScanJob() {
@@ -130,7 +130,6 @@ public class BatchConfiguration {
                     statsRegles.add(new StatsRegle(statRegle.getKey(), statRegle.getValue()));
                 }
                 Collections.sort(statsRegles);
-                Collections.reverse(statsRegles);
                 //TODO Generate Jasper Report
                 try {
                     ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
