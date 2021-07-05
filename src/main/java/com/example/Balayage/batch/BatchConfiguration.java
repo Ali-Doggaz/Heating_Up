@@ -155,7 +155,7 @@ public class BatchConfiguration {
     @Bean
     public ItemReader<Client> reader() {
         return new JdbcCursorItemReaderBuilder<Client>().name("the-reader")
-                .sql("select id, nationalite, age, revenus, suspect from client").dataSource(dataSource)
+                .sql("select * from client").dataSource(dataSource)
                 .rowMapper((ResultSet resultSet, int rowNum) -> {
                     if (!(resultSet.isAfterLast()) && !(resultSet.isBeforeFirst())) {
                         //TODO "allfields" change to an attribute
