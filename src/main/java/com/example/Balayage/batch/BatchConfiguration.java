@@ -17,7 +17,11 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
+import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
+import org.springframework.batch.item.database.support.PostgresPagingQueryProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +34,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -154,10 +159,23 @@ public class BatchConfiguration {
      */
     @Bean
     public ItemReader<Client> reader() {
-        return new JdbcCursorItemReaderBuilder<Client>().name("the-reader")
-                .sql("select id, nationalite, age, revenus, suspect from client").dataSource(dataSource)
+        Map<String, Object> parameterValues = new HashMap();
+        //TODO change max
+        parameterValues.put("max", 10);
+        Map<String, Order> sortKeys = new HashMap<>(); sortKeys.put("id", Order.ASCENDING);
+        PostgresPagingQueryProvider provider = new PostgresPagingQueryProvider();
+        provider.setSelectClause("SELECT id, age, nationalite");
+        provider.setFromClause("FROM client");
+        provider.setSortKeys(sortKeys);
+
+        return new JdbcPagingItemReaderBuilder<Client>().name("scan-reader")
+                .selectClause("SELECT *")
+                .fromClause("FROM client")
+                .sortKeys(sortKeys)
+                .dataSource(dataSource)
+                .pageSize(1000)
+                .parameterValues(parameterValues)
                 .rowMapper((ResultSet resultSet, int rowNum) -> {
-                    if (!(resultSet.isAfterLast()) && !(resultSet.isBeforeFirst())) {
                         //TODO "allfields" change to an attribute
                         Field[] allFields = Client.class.getDeclaredFields();
 
@@ -180,10 +198,6 @@ public class BatchConfiguration {
                         }
                         System.out.println(client.toString());
                         return client;
-
-                    } else {
-                        return null;
-                    }
                 }).build();
     }
 
