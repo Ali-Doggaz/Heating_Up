@@ -29,7 +29,10 @@ import java.sql.ResultSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+/**
+ * Créer la configuration initiale de Spring Batch en créant le Job de scan
+ * (reader, processor, writer, listener)
+ */
 @Configuration
 @EnableBatchProcessing
 public class BatchConfiguration {
@@ -79,7 +82,12 @@ public class BatchConfiguration {
     public JobExecutionListener myjoblistener() {
 
         JobExecutionListener listener = new JobExecutionListener() {
-
+            /**
+             * S'occupe de l'initialisation du job de scan
+             * 1. Lecture des règles metiers depuis le fichier texte specifié (voir classe TestRegles)
+             * 2. Initialiser le nombre de declenchement de chaque règle à 0
+             * 3. Initialiser les stats (nbr total de clients testés, nbr de clients suspects identifiés, etc...) à 0
+             */
             @Override
             public void beforeJob(JobExecution jobExecution) {
                 System.out.println("Initialisation du scan...");
@@ -104,11 +112,19 @@ public class BatchConfiguration {
                 clientSuspects = new ArrayList<>();
             }
 
+            /**
+             * S'occupe de l'initialisation du job de scan
+             * 1. Lecture des règles metiers depuis le fichier texte specifié (voir classe TestRegles)
+             * 2. Initialiser le nombre de declenchement de chaque règle à 0
+             * 3. Initialiser les stats (nbr total de clients testés, nbr de clients suspects identifiés, etc...) à 0
+             */
+
             @Override
             public void afterJob(JobExecution jobExecution) {
 
                 System.out.println("Job has been completed, generating report");
                 //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
+                //Et qui sera utilisée pour la generation du rapport (JasperReport)
                 statsRegles = new ArrayList<StatsRegle>();
                 for (Map.Entry<Integer, Integer> statRegle : ClientTestResult.getNbrDeclenchementRegles().entrySet()) {
                     statsRegles.add(new StatsRegle(statRegle.getKey(), statRegle.getValue()));
@@ -129,7 +145,9 @@ public class BatchConfiguration {
         return listener ;
     }
 
-
+    /**
+     * Récupére les clients un par un depuis la base de données
+     */
     @Bean
     public ItemReader<Client> reader() {
         return new JdbcCursorItemReaderBuilder<Client>().name("the-reader")
@@ -150,6 +168,12 @@ public class BatchConfiguration {
                 }).build();
     }
 
+
+    /**
+     * Declenche la méthode "fireAll(Client c)" qui va tester toutes les
+     * règles métiers sur le client à traiter, et retourne une instance de ClientTestResult
+     * qui contient les résultat de ces tests
+     */
     @Bean
     public ItemProcessor<Client, ClientTestResult> processor() {
         return new ItemProcessor<Client, ClientTestResult>() {
@@ -162,6 +186,11 @@ public class BatchConfiguration {
         };
     }
 
+    /**
+     * Tous les 1000(chunk_size) clients traités, ce writer va s'occuper de
+     * 1. Generer un rapport sommaire des tests efféctués
+     * 2. Ajouter les nouveaux clients identifiés comme "suspects" à la liste "clientSuspects"
+     */
     @Bean
     public ItemWriter<ClientTestResult> writer() {
         return new ItemWriter<ClientTestResult>() {

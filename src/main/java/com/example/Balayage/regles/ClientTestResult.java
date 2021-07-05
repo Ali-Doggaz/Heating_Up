@@ -1,12 +1,7 @@
 package com.example.Balayage.regles;
 
 import com.example.Balayage.client.Client;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 
 public class ClientTestResult extends Client{
