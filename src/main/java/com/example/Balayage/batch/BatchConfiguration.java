@@ -21,12 +21,17 @@ import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuild
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.ReflectionUtils;
 
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -153,12 +158,27 @@ public class BatchConfiguration {
                 .sql("select id, nationalite, age, revenus, suspect from client").dataSource(dataSource)
                 .rowMapper((ResultSet resultSet, int rowNum) -> {
                     if (!(resultSet.isAfterLast()) && !(resultSet.isBeforeFirst())) {
+                        //TODO "allfields" change to an attribute
+                        Field[] allFields = Client.class.getDeclaredFields();
+
                         Client client = new Client();
-                        client.setId(resultSet.getLong("id"));
-                        client.setNationalite(resultSet.getString("nationalite"));
-                        client.setAge(resultSet.getInt("age"));
-                        client.setRevenus(resultSet.getDouble("revenus"));
-                        client.setSuspect(resultSet.getBoolean("suspect"));
+                        //On initialise le client avec le résultat de la query, sans hardcoder les attributs
+                        for(Field field : allFields){
+                            try {
+                                for (Method method : Client.class.getMethods()){
+                                    //si on est en train de manipuler le field "X", on appele que le setter nommé
+                                    // "set{X}" pour initialiser ce field
+                                    if(method.getName().equalsIgnoreCase("set"+field.getName())){
+                                        method.invoke(client, resultSet.getObject(field.getName()));
+                                    }
+                                }
+                            }
+                            catch (InvocationTargetException | IllegalAccessException e1){
+                                System.out.println("Une erreur s'est produite lors de la lecture du client...");
+                                e1.printStackTrace();
+                            }
+                        }
+                        System.out.println(client.toString());
                         return client;
 
                     } else {
