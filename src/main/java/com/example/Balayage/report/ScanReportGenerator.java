@@ -3,7 +3,6 @@ package com.example.Balayage.report;
 import com.example.Balayage.regles.ClientTestResult;
 import com.example.Balayage.regles.StatsRegle;
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.data.JRMapArrayDataSource;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
