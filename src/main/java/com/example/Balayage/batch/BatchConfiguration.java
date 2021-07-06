@@ -3,6 +3,7 @@ package com.example.Balayage.batch;
 
 import com.example.Balayage.client.Client;
 import com.example.Balayage.regles.ClientTestResult;
+import com.example.Balayage.regles.StatsException;
 import com.example.Balayage.regles.StatsRegle;
 import com.example.Balayage.regles.TestRegles;
 import com.example.Balayage.report.ScanReportGenerator;
@@ -112,6 +113,7 @@ public class BatchConfiguration {
                 ClientTestResult.setNbrClientsTestes(0);
                 //Initialise le nombre de suspects detectés a 0
                 clientSuspects = new ArrayList<>();
+                TestRegles.setStatsExceptions(new ArrayList<StatsException>());
             }
 
             /**
@@ -125,6 +127,10 @@ public class BatchConfiguration {
             public void afterJob(JobExecution jobExecution) {
 
                 System.out.println("Job has been completed, generating report");
+                System.out.println(TestRegles.getStatsExceptions().size());
+                for(StatsException statsException : TestRegles.getStatsExceptions()){
+                    System.out.println(statsException.toString());
+                }
                 //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
                 //Et qui sera utilisée pour la generation du rapport (JasperReport)
                 statsRegles = new ArrayList<StatsRegle>();

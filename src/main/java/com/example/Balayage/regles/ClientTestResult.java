@@ -2,12 +2,16 @@ package com.example.Balayage.regles;
 
 import com.example.Balayage.client.Client;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class ClientTestResult extends Client{
 
     // Contient le nombre de declenchement totale de chaque regle durant le balayage
     private static Map<Integer, Integer> nbrDeclenchementRegles;
+    // Contient le nombre d'exception declenchées par chaque règle
+    private static Map<Integer, Integer> nbrExceptionsRegles;
+
     private static Integer nbrSuspectsDetectes;
     private static Integer nbrClientsTestes;
 
