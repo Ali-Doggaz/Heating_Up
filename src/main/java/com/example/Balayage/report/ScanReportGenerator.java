@@ -1,7 +1,9 @@
 package com.example.Balayage.report;
 
 import com.example.Balayage.regles.ClientTestResult;
+import com.example.Balayage.regles.StatsException;
 import com.example.Balayage.regles.StatsRegle;
+import com.example.Balayage.regles.TestRegles;
 import net.sf.jasperreports.engine.*;
 import org.springframework.util.ResourceUtils;
 
@@ -10,8 +12,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class ScanReportGenerator {
-    public void generateReport(ArrayList<ClientTestResult> clientsSuspects, ArrayList<StatsRegle> statsRegles) throws IOException {
-        ClientReportInput clientReportInput = ClientReportDataAssembler.assemble(clientsSuspects, statsRegles);
+    public void generateReport(ArrayList<ClientTestResult> clientsSuspects, ArrayList<StatsRegle> statsRegles, ArrayList<StatsException> statsExceptions,
+                               int batchNumber) throws IOException {
+        ClientReportInput clientReportInput = ClientReportDataAssembler.assemble(clientsSuspects, statsRegles, statsExceptions);
 
         try {
             //TODO remove
@@ -19,12 +22,13 @@ public class ScanReportGenerator {
 
             //load file and compile it
             //TODO update path
-            File file = ResourceUtils.getFile("D:\\MyDesktop\\Algebre\\Vneuron-Balayage_Regles_Metier\\src\\main\\resources\\clientReport.jrxml");
+            File file = ResourceUtils.getFile("src\\main\\resources\\clientReport.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,
                     clientReportInput.getParameters(), new JREmptyDataSource());
             //generate report
-            JasperExportManager.exportReportToPdfFile(jasperPrint, "src\\main\\resources\\Final_Reports\\"+ clientReportInput.getReportTitle() + ".pdf");
+            JasperExportManager.exportReportToPdfFile(jasperPrint, "src\\main\\resources\\Final_Reports\\"+
+                    clientReportInput.getReportTitle() +" batch-" +batchNumber +".pdf");
         } catch (JRException e) {
             e.printStackTrace();
         } catch (Exception e) {

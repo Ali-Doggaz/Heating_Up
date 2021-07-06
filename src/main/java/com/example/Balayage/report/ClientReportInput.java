@@ -11,6 +11,7 @@ public class ClientReportInput {
 
     private JRBeanCollectionDataSource clientDataSource;
     private JRBeanCollectionDataSource statsReglesDataSource;
+    private JRBeanCollectionDataSource exceptionDataSource;
 
     public String getStats() { return stats; }
 
@@ -39,12 +40,21 @@ public class ClientReportInput {
         this.statsReglesDataSource = statsReglesDataSource;
     }
 
+    public JRBeanCollectionDataSource getExceptionDataSource() {
+        return exceptionDataSource;
+    }
+
+    public void setExceptionDataSource(JRBeanCollectionDataSource exceptionDataSource) {
+        this.exceptionDataSource = exceptionDataSource;
+    }
+
     public Map<String, Object> getParameters() {
         Map<String,Object> parameters = new HashMap<>();
         parameters.put("REPORT_TITLE", getReportTitle());
         parameters.put("STATS", getStats());
         parameters.put("clientDataSource", getClientDataSource());
         parameters.put("statsReglesDataSource", getStatsReglesDataSource());
+        parameters.put("exceptionDataSource", getExceptionDataSource());
         return parameters;
     }
 }

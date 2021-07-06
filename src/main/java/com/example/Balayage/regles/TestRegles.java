@@ -11,12 +11,17 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
 
 @Component
 public class TestRegles {
 
     @Autowired
     private ClientService clientService;
+
+    // Contient la liste de toutes les exceptions declenchées
+    private static ArrayList<StatsException> statsExceptions;
 
     private String[] regles;
     private final String RULES_FOLDER = "src/main/resources/rules.txt";
@@ -50,12 +55,39 @@ public class TestRegles {
         ExpressionParser parser = new SpelExpressionParser();
         //create EvaluationContext
         StandardEvaluationContext clientContext = new StandardEvaluationContext(client);
-        //Boucle sur toutes les règles et c
+        Boolean boolTestResult;
+        //Boucle sur toutes les règles
         for (int i=1; i<=regles.length; i++) {
             String regle = regles[i-1];
-            Boolean boolTestResult = parser.parseExpression(regle)
-                    .getValue(clientContext, Boolean.class);
-            //Si un test a echoué, on creer le clientTestResult et on arrete le traitement
+            try {
+                boolTestResult = parser.parseExpression(regle)
+                        .getValue(clientContext, Boolean.class);
+            }
+            catch(Exception e) {
+                // On est dans le cas ou la règle testée a provoqué une erreur imprévue
+
+                //Incrementer le nombre d'exceptions provoquée par la régle actuelle (numéro i)
+                ClientTestResult.incrementNbrExceptionsRegle(i);
+
+                for(StatsException statsException: statsExceptions) {
+                    // Si la meme exception (meme type et meme message) existe deja dans notre tableau de StatsException,
+                    // on incremente son nombre d'occurences
+                    if (statsException.equals(e)) {
+                        //On incremente le nbr de declenchement de cette exception
+                        statsException.setNombreOccurences(statsException.getNombreOccurences()+1);
+                        //Si la règle declenche cette exception pour la premiere fois, le signal a l'instance statsException
+                        if (!statsException.getReglesConcernees().contains(" "+i +" ")) {
+                            statsException.setReglesConcernees(statsException.getReglesConcernees()+", "+i +" ");
+                        }
+                        return null;
+                    }
+                }
+                //Si l'exception est provoquée pour la première fois, on l'ajoute a notre liste
+                statsExceptions.add(new StatsException(e.getClass().getCanonicalName(), e.getMessage(), 1, " "+i+" "));
+                return null;
+            }
+            // On est dans le cas ou le test a eu lieu sans exceptions/imprévus
+            //Si un test a echoué, on créer le clientTestResult et on arrete le traitement
             if (!boolTestResult) {
                 ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(), i);
                 if(!client.isSuspect()) {
@@ -70,11 +102,20 @@ public class TestRegles {
         if(client.isSuspect()) {
             clientService.updateClientSuspicionStatus(client, false);
         }
+
         return(new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus()));
     }
+
 
     public String[] getRegles() {
         return regles;
     }
 
+    public static ArrayList<StatsException> getStatsExceptions() {
+        return statsExceptions;
+    }
+
+    public static void setStatsExceptions(ArrayList<StatsException> statsExceptions) {
+        TestRegles.statsExceptions = statsExceptions;
+    }
 }

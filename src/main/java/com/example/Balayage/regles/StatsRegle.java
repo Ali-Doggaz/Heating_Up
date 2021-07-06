@@ -3,6 +3,8 @@ package com.example.Balayage.regles;
 public class StatsRegle implements Comparable<StatsRegle>{
     private int id;
     private int triggerNumber;
+    //TODO change this
+    private int exceptionsTriggeredNumber = 1;
 
     public StatsRegle(int id, int triggerNumber) {
         this.id = id;
@@ -28,5 +30,13 @@ public class StatsRegle implements Comparable<StatsRegle>{
 
     public void setTriggerNumber(int triggerNumber) {
         this.triggerNumber = triggerNumber;
+    }
+
+    public int getExceptionsTriggeredNumber() {
+        return exceptionsTriggeredNumber;
+    }
+
+    public void setExceptionsTriggeredNumber(int exceptionsTriggeredNumber) {
+        this.exceptionsTriggeredNumber = exceptionsTriggeredNumber;
     }
 }
