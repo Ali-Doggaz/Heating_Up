@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 @Component
 public class TestRegles {
@@ -64,8 +65,13 @@ public class TestRegles {
             }
             catch(Exception e) {
                 // On est dans le cas ou la règle testée a provoqué une erreur imprévue
+
+                //Incrementer le nombre d'exceptions provoquée par la régle actuelle (numéro i)
+                ClientTestResult.incrementNbrExceptionsRegle(i);
+
                 for(StatsException statsException: statsExceptions) {
-                    // Si la meme exception (meme type et meme message) existe deja, on incremente son nombre d'occurences
+                    // Si la meme exception (meme type et meme message) existe deja dans notre tableau de StatsException,
+                    // on incremente son nombre d'occurences
                     if (statsException.equals(e)) {
                         //On incremente le nbr de declenchement de cette exception
                         statsException.setNombreOccurences(statsException.getNombreOccurences()+1);

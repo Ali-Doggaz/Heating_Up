@@ -18,7 +18,7 @@ public class ClientTestResult extends Client{
     private boolean testsReussis;   // true si tous les tests ont été réussis, false sinon
     private int numTestRate;        // Si un test n'a pas été réussi, le numéro de ce test sera stocké ici
 
-    //constructeur à appeler en cas de succes
+    //constructeur à appeler en cas de succes des tests
     public ClientTestResult(Long id, String nationalite, int age, double revenus) {
         super(id, nationalite, age, revenus);
         this.testsReussis = true;
@@ -89,6 +89,18 @@ public class ClientTestResult extends Client{
 
     public void setNumTestRate(int numTestRate) {
         this.numTestRate = numTestRate;
+    }
+
+    public static Map<Integer, Integer> getNbrExceptionsRegles() {
+        return nbrExceptionsRegles;
+    }
+
+    public static void setNbrExceptionsRegles(Map<Integer, Integer> nbrExceptionsRegles) {
+        ClientTestResult.nbrExceptionsRegles = nbrExceptionsRegles;
+    }
+
+    public static void incrementNbrExceptionsRegle(int numRegle){
+        nbrExceptionsRegles.put(numRegle, nbrExceptionsRegles.get(numRegle)+1);
     }
 
     @Override

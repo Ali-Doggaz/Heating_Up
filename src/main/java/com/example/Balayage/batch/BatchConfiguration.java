@@ -43,6 +43,9 @@ public class BatchConfiguration {
 
     private static ArrayList<ClientTestResult> clientSuspects;
     private static ArrayList<StatsRegle> statsRegles;
+    private int batchNumber;
+    private int chunkSize = 1000;
+    private int pageSize = 1000;
 
     @Autowired
     private DataSource dataSource;
@@ -69,7 +72,7 @@ public class BatchConfiguration {
     public Job ScanJob() {
         JobExecutionListener listener = myjoblistener();
         Step step = stepBuilderFactory.get("Traitement-donnees-client")
-                .<Client, ClientTestResult>chunk(1000)
+                .<Client, ClientTestResult>chunk(chunkSize)
                 .reader(clientReader)
                 .writer(clientProcessingWriter)
                 .processor(clientProcessor)
@@ -102,6 +105,7 @@ public class BatchConfiguration {
                     jobOperator.stop(jobExecution.getId());
                     System.out.println("Le fichier contenant les règles metiers est introuvable...");
                 }
+
                 //Initialise le nombre de declenchement de chaque regle à 0
                 Map<Integer, Integer> nbrDeclenchementRegles = new HashMap<>();
                 for (int i = 1; i <= testRegles.getRegles().length; i++) {
@@ -112,37 +116,15 @@ public class BatchConfiguration {
                 ClientTestResult.setNbrSuspectsDetectes(0);
                 ClientTestResult.setNbrClientsTestes(0);
                 //Initialise le nombre de suspects detectés a 0
-                clientSuspects = new ArrayList<>();
                 TestRegles.setStatsExceptions(new ArrayList<StatsException>());
+
+                batchNumber = 0;
             }
 
-            /**
-             * S'occupe de l'initialisation du job de scan
-             * 1. Lecture des règles metiers depuis le fichier texte specifié (voir classe TestRegles)
-             * 2. Initialiser le nombre de declenchement de chaque règle à 0
-             * 3. Initialiser les stats (nbr total de clients testés, nbr de clients suspects identifiés, etc...) à 0
-             */
 
             @Override
             public void afterJob(JobExecution jobExecution) {
 
-                System.out.println("Job has been completed, generating report");
-                //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
-                //Et qui sera utilisée pour la generation du rapport (JasperReport)
-                statsRegles = new ArrayList<StatsRegle>();
-                for (Map.Entry<Integer, Integer> statRegle : ClientTestResult.getNbrDeclenchementRegles().entrySet()) {
-                    //TODO modify constructor to take number of exceptions triggered
-                    statsRegles.add(new StatsRegle(statRegle.getKey(), statRegle.getValue()));
-                }
-                Collections.sort(statsRegles);
-                //TODO Generate Jasper Report
-                try {
-                    ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
-                    scanReportGenerator.generateReport(clientSuspects, statsRegles, TestRegles.getStatsExceptions());
-                }
-                catch(IOException e){
-                    e.printStackTrace();
-                }
             }
         };
 
@@ -159,7 +141,8 @@ public class BatchConfiguration {
         return new JpaPagingItemReaderBuilder<Client>().name("scan-reader")
                 .queryString(Query)
                 .entityManagerFactory(entityManagerFactory)
-                .pageSize(1000).build();
+                .pageSize(pageSize)
+                .build();
     }
 
 
@@ -190,14 +173,35 @@ public class BatchConfiguration {
         return new ItemWriter<ClientTestResult>() {
             @Override
             public void write(List<? extends ClientTestResult> testResults) throws Exception {
-                // affiche le nombre de declenchement de chaque regle a la console
-                System.out.println(ClientTestResult.getStatsReport());
-
-
-                // ajoute les nouveaux clients suspectés a la liste
-                testResults = testResults.stream().filter(clientTestResult -> !clientTestResult.isTestsReussis()).collect(Collectors.toList());
+                batchNumber++;
+                clientSuspects = new ArrayList<>();
                 clientSuspects.addAll(testResults);
-
+                //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
+                //Et qui sera utilisée pour la generation du rapport (JasperReport)
+                statsRegles = new ArrayList<StatsRegle>();
+                for (Map.Entry<Integer, Integer> statRegle : ClientTestResult.getNbrDeclenchementRegles().entrySet()) {
+                    //TODO modify constructor to take number of exceptions triggered
+                    statsRegles.add(new StatsRegle(statRegle.getKey(), statRegle.getValue()));
+                }
+                Collections.sort(statsRegles);
+                try {
+                    ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
+                    scanReportGenerator.generateReport(clientSuspects, statsRegles, TestRegles.getStatsExceptions(), batchNumber);
+                }
+                catch(IOException e){
+                    e.printStackTrace();
+                }
+                //Reinitialise tous les parametres pour generer le rapport du prochain batch
+                //Reinitialise le nombre de declenchement de chaque regle à 0
+                Map<Integer, Integer> nbrDeclenchementRegles = new HashMap<>();
+                for (int i = 1; i <= testRegles.getRegles().length; i++) {
+                    nbrDeclenchementRegles.put(i, 0);
+                }
+                ClientTestResult.setNbrDeclenchementRegles(nbrDeclenchementRegles);
+                //Initialise le reste des variables statiques à 0
+                ClientTestResult.setNbrSuspectsDetectes(0);
+                ClientTestResult.setNbrClientsTestes(0);
+                TestRegles.setStatsExceptions(new ArrayList<StatsException>());
             }
         };
     };
