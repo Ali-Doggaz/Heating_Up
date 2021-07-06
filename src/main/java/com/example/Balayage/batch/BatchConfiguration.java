@@ -108,10 +108,13 @@ public class BatchConfiguration {
 
                 //Initialise le nombre de declenchement de chaque regle à 0
                 Map<Integer, Integer> nbrDeclenchementRegles = new HashMap<>();
+                Map<Integer, Integer> nbrDeclenchementExceptionsRegle = new HashMap<>();
                 for (int i = 1; i <= testRegles.getRegles().length; i++) {
                     nbrDeclenchementRegles.put(i, 0);
+                    nbrDeclenchementExceptionsRegle.put(i, 0);
                 }
                 ClientTestResult.setNbrDeclenchementRegles(nbrDeclenchementRegles);
+                ClientTestResult.setNbrExceptionsRegles(nbrDeclenchementExceptionsRegle);
                 //Initialise le reste des variables statiques à 0
                 ClientTestResult.setNbrSuspectsDetectes(0);
                 ClientTestResult.setNbrClientsTestes(0);
@@ -181,7 +184,13 @@ public class BatchConfiguration {
                 statsRegles = new ArrayList<StatsRegle>();
                 for (Map.Entry<Integer, Integer> statRegle : ClientTestResult.getNbrDeclenchementRegles().entrySet()) {
                     //TODO modify constructor to take number of exceptions triggered
-                    statsRegles.add(new StatsRegle(statRegle.getKey(), statRegle.getValue()));
+                    int numRegle = statRegle.getKey();
+                    statsRegles.add(new StatsRegle(
+                            numRegle,
+                            statRegle.getValue(),
+                            ClientTestResult.getNbrExceptionsRegles().get(numRegle)
+                            )
+                    );
                 }
                 Collections.sort(statsRegles);
                 try {
@@ -192,12 +201,17 @@ public class BatchConfiguration {
                     e.printStackTrace();
                 }
                 //Reinitialise tous les parametres pour generer le rapport du prochain batch
-                //Reinitialise le nombre de declenchement de chaque regle à 0
+                //Reinitialise le nombre de declenchement de chaque regle à 0, ainsi que le
+                //nombre d'exception generé par chaque règle à 0
                 Map<Integer, Integer> nbrDeclenchementRegles = new HashMap<>();
+                Map<Integer, Integer> nbrDeclenchementExceptionsRegle = new HashMap<>();
                 for (int i = 1; i <= testRegles.getRegles().length; i++) {
                     nbrDeclenchementRegles.put(i, 0);
+                    nbrDeclenchementExceptionsRegle.put(i, 0);
                 }
                 ClientTestResult.setNbrDeclenchementRegles(nbrDeclenchementRegles);
+                ClientTestResult.setNbrExceptionsRegles(nbrDeclenchementExceptionsRegle);
+
                 //Initialise le reste des variables statiques à 0
                 ClientTestResult.setNbrSuspectsDetectes(0);
                 ClientTestResult.setNbrClientsTestes(0);

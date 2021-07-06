@@ -57,6 +57,7 @@ public class TestRegles {
         StandardEvaluationContext clientContext = new StandardEvaluationContext(client);
         Boolean boolTestResult;
         //Boucle sur toutes les règles
+        outLoop:
         for (int i=1; i<=regles.length; i++) {
             String regle = regles[i-1];
             try {
@@ -68,7 +69,6 @@ public class TestRegles {
 
                 //Incrementer le nombre d'exceptions provoquée par la régle actuelle (numéro i)
                 ClientTestResult.incrementNbrExceptionsRegle(i);
-
                 for(StatsException statsException: statsExceptions) {
                     // Si la meme exception (meme type et meme message) existe deja dans notre tableau de StatsException,
                     // on incremente son nombre d'occurences
@@ -79,12 +79,12 @@ public class TestRegles {
                         if (!statsException.getReglesConcernees().contains(" "+i +" ")) {
                             statsException.setReglesConcernees(statsException.getReglesConcernees()+", "+i +" ");
                         }
-                        return null;
+                        continue outLoop;
                     }
                 }
                 //Si l'exception est provoquée pour la première fois, on l'ajoute a notre liste
                 statsExceptions.add(new StatsException(e.getClass().getCanonicalName(), e.getMessage(), 1, " "+i+" "));
-                return null;
+                continue;
             }
             // On est dans le cas ou le test a eu lieu sans exceptions/imprévus
             //Si un test a echoué, on créer le clientTestResult et on arrete le traitement
