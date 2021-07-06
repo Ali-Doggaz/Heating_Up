@@ -33,7 +33,7 @@ public class BalayageApplication {
 	//TODO modifier ca (la ca s'active toutes les 1 minutes)
 	//Genere un rapport tous les jours, à 8heures
 
-	@Scheduled(cron = "0 * 8 * * *")
+	@Scheduled(cron = "0 */1 * * * *")
 	public void schedule() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
 		{
 			jobLauncher.run(scanJob, new JobParametersBuilder()
