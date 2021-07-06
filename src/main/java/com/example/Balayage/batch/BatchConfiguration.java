@@ -13,25 +13,19 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.ReflectionUtils;
 
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,6 +45,9 @@ public class BatchConfiguration {
 
     @Autowired
     private DataSource dataSource;
+
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -154,37 +151,12 @@ public class BatchConfiguration {
      */
     @Bean
     public ItemReader<Client> reader() {
-        return new JdbcCursorItemReaderBuilder<Client>().name("the-reader")
-                .sql("select * from client").dataSource(dataSource)
-                .rowMapper((ResultSet resultSet, int rowNum) -> {
-                    if (!(resultSet.isAfterLast()) && !(resultSet.isBeforeFirst())) {
-                        //TODO "allfields" change to an attribute
-                        Field[] allFields = Client.class.getDeclaredFields();
-
-                        Client client = new Client();
-                        //On initialise le client avec le résultat de la query, sans hardcoder les attributs
-                        for(Field field : allFields){
-                            try {
-                                for (Method method : Client.class.getMethods()){
-                                    //si on est en train de manipuler le field "X", on appele que le setter nommé
-                                    // "set{X}" pour initialiser ce field
-                                    if(method.getName().equalsIgnoreCase("set"+field.getName())){
-                                        method.invoke(client, resultSet.getObject(field.getName()));
-                                    }
-                                }
-                            }
-                            catch (InvocationTargetException | IllegalAccessException e1){
-                                System.out.println("Une erreur s'est produite lors de la lecture du client...");
-                                e1.printStackTrace();
-                            }
-                        }
-                        System.out.println(client.toString());
-                        return client;
-
-                    } else {
-                        return null;
-                    }
-                }).build();
+        String Query = "FROM client ORDER BY id";
+        //TODO maybe change page size dynamically
+        return new JpaPagingItemReaderBuilder<Client>().name("scan-reader")
+                .queryString(Query)
+                .entityManagerFactory(entityManagerFactory)
+                .pageSize(1000).build();
     }
 
 
