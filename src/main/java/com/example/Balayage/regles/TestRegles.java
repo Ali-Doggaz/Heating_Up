@@ -68,7 +68,7 @@ public class TestRegles {
                     // Si la meme exception (meme type et meme message) existe deja, on incremente son nombre d'occurences
                     if (statsException.equals(e)) {
                         //On incremente le nbr de declenchement de cette exception
-                        statsException.setNombre(statsException.getNombre()+1);
+                        statsException.setNombreOccurences(statsException.getNombreOccurences()+1);
                         //Si la règle declenche cette exception pour la premiere fois, le signal a l'instance statsException
                         if (!statsException.getReglesConcernees().contains(" "+i +" ")) {
                             statsException.setReglesConcernees(statsException.getReglesConcernees()+", "+i +" ");

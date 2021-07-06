@@ -127,21 +127,18 @@ public class BatchConfiguration {
             public void afterJob(JobExecution jobExecution) {
 
                 System.out.println("Job has been completed, generating report");
-                System.out.println(TestRegles.getStatsExceptions().size());
-                for(StatsException statsException : TestRegles.getStatsExceptions()){
-                    System.out.println(statsException.toString());
-                }
                 //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
                 //Et qui sera utilisée pour la generation du rapport (JasperReport)
                 statsRegles = new ArrayList<StatsRegle>();
                 for (Map.Entry<Integer, Integer> statRegle : ClientTestResult.getNbrDeclenchementRegles().entrySet()) {
+                    //TODO modify constructor to take number of exceptions triggered
                     statsRegles.add(new StatsRegle(statRegle.getKey(), statRegle.getValue()));
                 }
                 Collections.sort(statsRegles);
                 //TODO Generate Jasper Report
                 try {
                     ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
-                    scanReportGenerator.generateReport(clientSuspects, statsRegles);
+                    scanReportGenerator.generateReport(clientSuspects, statsRegles, TestRegles.getStatsExceptions());
                 }
                 catch(IOException e){
                     e.printStackTrace();

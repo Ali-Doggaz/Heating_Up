@@ -1,25 +1,25 @@
 package com.example.Balayage.regles;
 
 public class StatsException {
-    private String Type;
+    private String type;
     private String message;
-    private Integer nombre;
+    private Integer nombreOccurences;
     private String reglesConcernees;
 
 
-    public StatsException(String type, String message, Integer nombre, String reglesConcernees) {
-        Type = type;
+    public StatsException(String type, String message, Integer nombreOccurences, String reglesConcernees) {
+        this.type = type;
         this.message = message;
-        this.nombre = nombre;
+        this.nombreOccurences = nombreOccurences;
         this.reglesConcernees = reglesConcernees;
     }
 
     public String getType() {
-        return Type;
+        return type;
     }
 
     public void setType(String type) {
-        Type = type;
+        type = type;
     }
 
     public String getMessage() {
@@ -30,12 +30,12 @@ public class StatsException {
         this.message = message;
     }
 
-    public Integer getNombre() {
-        return nombre;
+    public void setNombreOccurences(Integer nombreOccurences) {
+        this.nombreOccurences = nombreOccurences;
     }
 
-    public void setNombre(Integer nombre) {
-        this.nombre = nombre;
+    public Integer getNombreOccurences() {
+        return nombreOccurences;
     }
 
     public String getReglesConcernees() {
@@ -53,9 +53,9 @@ public class StatsException {
     @Override
     public String toString() {
         return "StatsException{" +
-                "Type='" + Type + '\'' +
+                "Type='" + type + '\'' +
                 ", message='" + message + '\'' +
-                ", nombre=" + nombre +
+                ", nombre=" + nombreOccurences +
                 ", reglesConcernees='" + reglesConcernees + '\'' +
                 '}';
     }
