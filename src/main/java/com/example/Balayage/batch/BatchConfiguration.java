@@ -44,9 +44,10 @@ public class BatchConfiguration {
 
     private static ArrayList<ClientTestResult> clientSuspects;
     private static ArrayList<StatsRegle> statsRegles;
+    private static int chunkSize = 1000;
+    private static int pageSize = 1000;
     private int batchNumber;
-    private int chunkSize = 1000;
-    private int pageSize = 1000;
+
 
     @Autowired
     private JobExplorer jobExplorer;
@@ -86,6 +87,22 @@ public class BatchConfiguration {
                 .build();
     }
 
+    public static int getChunkSize() {
+        return chunkSize;
+    }
+
+    public static void setChunkSize(int chunkSize) {
+        BatchConfiguration.chunkSize = chunkSize;
+    }
+
+    public static int getPageSize() {
+        return pageSize;
+    }
+
+    public static void setPageSize(int pageSize) {
+        BatchConfiguration.pageSize = pageSize;
+    }
+
     @Bean
     public JobExecutionListener myjoblistener() {
 
@@ -110,7 +127,7 @@ public class BatchConfiguration {
                     testRegles.readRulesFromFile();
                 }
                 catch(IOException e){
-                    final JobOperator jobOperator = BatchRuntime.getJobOperator();
+                    JobOperator jobOperator = BatchRuntime.getJobOperator();
                     jobOperator.stop(jobExecution.getId());
                     System.out.println("Le fichier contenant les règles metiers est introuvable...");
                 }
