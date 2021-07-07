@@ -14,6 +14,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -48,7 +49,7 @@ public class BatchConfiguration {
     private int pageSize = 1000;
 
     @Autowired
-    private DataSource dataSource;
+    private JobExplorer jobExplorer;
 
     @Autowired
     private EntityManagerFactory entityManagerFactory;
@@ -77,6 +78,7 @@ public class BatchConfiguration {
                 .writer(clientProcessingWriter)
                 .processor(clientProcessor)
                 .allowStartIfComplete(true)
+                .throttleLimit(1)
                 .build();
         return jobBuilderFactory.get("Scan_Clients")
                 .start(step)
@@ -96,6 +98,13 @@ public class BatchConfiguration {
              */
             @Override
             public void beforeJob(JobExecution jobExecution) {
+                // Si un scan est deja en cours, annule le declenchement du nouveau Job en levant une exception
+                int runningJobsCount = jobExplorer.findRunningJobExecutions(jobExecution.getJobInstance().getJobName()).size();
+                if(runningJobsCount > 1){
+                    throw new RuntimeException("Veuillez attendre la fin du balayage en cours");
+                }
+
+
                 System.out.println("Initialisation du scan...");
                 try {
                     testRegles.readRulesFromFile();
