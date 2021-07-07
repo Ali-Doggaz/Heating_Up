@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 import java.util.Date;
@@ -63,6 +64,7 @@ public class ScanController {
             for (JobExecution jobExecution : jobExecutions) {
                 jobOperator.stop(jobExecution.getId());
                }
+            return true;
             }
         catch(Exception e){
             e.printStackTrace();
@@ -72,7 +74,7 @@ public class ScanController {
     }
 
     @PutMapping("Scan/setConfig")
-    public boolean setConfig(int chunkSize, int pageSize){
+    public boolean setConfig(@RequestParam int chunkSize,@RequestParam int pageSize){
         if(chunkSize<1 || pageSize<1) return false;
         try {
             BatchConfiguration.setChunkSize(chunkSize);
