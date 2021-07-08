@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<link th:href="@{/Style/main.css}" rel="stylesheet" />
+<head>
+  <meta charset="utf-8">
+  <title>Balayage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+  <span th:if="${errorMessage}"  th:text="${errorMessage}">Error</span>
+  <span th:if="${successMessage}"  th:text="${successMessage}">Error</span>
+  <div id="Fonctions">
+    <a href="Scan/Start">
+    <button class="--action" id="startScan">Commencer le balayage</button>  
+    </a>
+    <a href="Scan/Stop">
+    <button class="--danger" id="stopScan">Arreter le balayage en cours</button>
+    </a>
+  </div>
+  <div id="config">
+    <div id="parametres_generaux">
+      <p>Configuration du balayage </p>
+
+      <form action="Scan/setConfig" method="post">
+        <label for="chunkSize">Taille des chunks</label>
+        <input type="number" pattern="\d+" id="chunkSize">
+        <label for="pageSize">Taille des pages</label>
+        <input type="number" pattern="\d+" id="pageSize">
+        <input  type="hidden" name="cron" id="cron" rows="1" cols="80">
+        <input type="submit" value="Valider">
+      </form>
+    </div>
+  <div id="plannificateur">
+    <br><br>
+    Plannifier les scans 
+    <br>
+    *Selectionnez plusieurs champs en maintenant la touche CTRL appuyée
+    <form>
+    <table> 
+    <tr>
+    <td>Minute</td>
+    <td>Heure</td>
+    <td>Jour</td>
+    <td>Mois</td>
+    <td>Jour de la semaine</td>
+
+    </td>
+    </tr>
+    <tr>
+    <td>
+
+    <select name="minute" id="minute" multiple="multiple" required onChange="show_value();" class="cronbox">
+    <option value="*">Toutes</option>
+    <option value="0">0</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    <option value="13">13</option>
+    <option value="14">14</option>
+    <option value="15">15</option>
+    <option value="16">16</option>
+    <option value="17">17</option>
+    <option value="18">18</option>
+    <option value="19">19</option>
+    <option value="20">20</option>
+    <option value="21">21</option>
+    <option value="22">22</option>
+    <option value="23">23</option>
+    <option value="24">24</option>
+    <option value="25">25</option>
+    <option value="26">26</option>
+    <option value="27">27</option>
+    <option value="28">28</option>
+    <option value="29">29</option>
+    <option value="30">30</option>
+    <option value="31">31</option>
+    <option value="32">32</option>
+    <option value="33">33</option>
+    <option value="34">34</option>
+    <option value="35">35</option>
+    <option value="36">36</option>
+    <option value="37">37</option>
+    <option value="38">38</option>
+    <option value="39">39</option>
+    <option value="40">40</option>
+    <option value="41">41</option>
+    <option value="42">42</option>
+    <option value="43">43</option>
+    <option value="44">44</option>
+    <option value="45">45</option>
+    <option value="46">46</option>
+    <option value="47">47</option>
+    <option value="48">48</option>
+    <option value="49">49</option>
+    <option value="50">50</option>
+    <option value="51">51</option>
+    <option value="52">52</option>
+    <option value="53">53</option>
+    <option value="54">54</option>
+    <option value="55">55</option>
+    <option value="56">56</option>
+    <option value="57">57</option>
+    <option value="58">58</option>
+    <option value="59">59</option>
+    </select>
+    </div>
+
+    </td>
+    <td>
+
+    <select name="hour" id="hour" multiple="multiple" required onChange="show_value();" class="cronbox">
+    <option value="*">Toutes</option>
+    <option value="0">0</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    <option value="13">13</option>
+    <option value="14">14</option>
+    <option value="15">15</option>
+    <option value="16">16</option>
+    <option value="17">17</option>
+    <option value="18">18</option>
+    <option value="19">19</option>
+    <option value="20">20</option>
+    <option value="21">21</option>
+    <option value="22">22</option>
+    <option value="23">23</option>
+    </select>
+
+    </td>
+    <td>
+
+    <select name="day" id="day" multiple="multiple" required onChange="show_value();" class="cronbox">
+    <option value="*">Tous</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    <option value="13">13</option>
+    <option value="14">14</option>
+    <option value="15">15</option>
+    <option value="16">16</option>
+    <option value="17">17</option>
+    <option value="18">18</option>
+    <option value="19">19</option>
+    <option value="20">20</option>
+    <option value="21">21</option>
+    <option value="22">22</option>
+    <option value="23">23</option>
+    <option value="24">24</option>
+    <option value="25">25</option>
+    <option value="26">26</option>
+    <option value="27">27</option>
+    <option value="28">28</option>
+    <option value="29">29</option>
+    <option value="30">30</option>
+    <option value="31">31</option>
+    </select>
+
+    </td>
+    <td>
+
+
+
+    <select name="month" id="month" multiple="multiple" required onChange="show_value();" class="cronbox">
+    <option value="*">Tous</option>
+    <option value="1">Janvier</option>
+    <option value="2">Février</option>
+    <option value="3">Mars</option>
+    <option value="4">Avril</option>
+    <option value="5">Mai</option>
+    <option value="6">Juin</option>
+    <option value="7">Juillet</option>
+    <option value="8">Août</option>
+    <option value="9">Septembre</option>
+    <option value="10">Octobre</option>
+    <option value="11">Novembre</option>
+    <option value="12">Décembre</option>
+    </select>
+
+
+    </td>
+    <td>
+
+    <select name="weekday" id="weekday" multiple="multiple" required onChange="show_value();" class="cronbox">
+    <option value="*">Tous</option>
+    <option value="1">Lundi</option>
+    <option value="2">Mardi</option>
+    <option value="3">Mercredi</option>
+    <option value="4">Jeudi</option>
+    <option value="5">Vendredi</option>
+    <option value="6">Samedi</option>
+    <option value="0">Dimanche</option>
+    </select>
+    </td>
+    </tr>
+    </table>
+
+    <br><br>
+    </div>
+
+  </form>
+  </div>
+</body>
+<script th:src="@{/JS/cron.js}"></script>
+</html>

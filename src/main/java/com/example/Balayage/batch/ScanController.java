@@ -10,10 +10,10 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 
 import java.util.Date;
@@ -23,13 +23,14 @@ import java.util.Set;
 @Controller
 public class ScanController {
 
-    private final String scanJobName = "scanJob";
+    private final String scanJobName = "Scan_Clients";
 
     @Autowired
     Job scanJob;
 
     @Autowired
-    JobLauncher jobLauncher;
+    @Qualifier("asyncJobLauncher")
+    private JobLauncher jobLauncher;
 
     @Autowired
     JobExplorer jobExplorer;
@@ -38,26 +39,34 @@ public class ScanController {
     JobOperator jobOperator;
 
     @GetMapping("Scan/Start")
-    public boolean launchJob(){
+    public String launchJob(Model model){
         try {
             jobLauncher.run(scanJob, new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters());
-            return true;
+            model.addAttribute("boolResult", true);
+            model.addAttribute("successMessage","Scan demarré avec succès");
         }
         catch(Exception e){
             e.printStackTrace();
-            return false;
+            //TODO modify
+            model.addAttribute("boolResult", false);
+            model.addAttribute("errorMessage",e.getMessage());
+        }
+        finally{
+            return "index";
         }
     }
 
     @GetMapping("Scan/Status")
+    @ResponseBody
     public boolean isJobRunning(){
-        if (jobExplorer.findRunningJobExecutions("Scan_Clients").size() >= 1) return true;
+        if (jobExplorer.findRunningJobExecutions(scanJobName).size() >= 1) return true;
         return false;
     }
 
     @GetMapping("Scan/Stop")
+    @ResponseBody
     public boolean stopScanJob(){
         try {
             Set<JobExecution> jobExecutions = jobExplorer.findRunningJobExecutions(scanJobName);
@@ -70,11 +79,11 @@ public class ScanController {
             e.printStackTrace();
             return false;
         }
-
     }
 
-    @PutMapping("Scan/setConfig")
-    public boolean setConfig(@RequestParam int chunkSize,@RequestParam int pageSize){
+    @PostMapping("Scan/setConfig")
+    @ResponseBody
+    public boolean setConfig(@RequestParam int chunkSize, @RequestParam int pageSize){
         if(chunkSize<1 || pageSize<1) return false;
         try {
             BatchConfiguration.setChunkSize(chunkSize);
@@ -85,6 +94,16 @@ public class ScanController {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @GetMapping("/")
+    public String greeting(@RequestParam(name="boolResult", required=false) Boolean boolResult,
+                           @RequestParam(name="operationResult", required=false) String operationResult,
+                           Model model) {
+        if(boolResult == null || operationResult == null || operationResult=="") return "index";
+        if(!boolResult) model.addAttribute("errorMessage",operationResult);
+        else model.addAttribute("successMessage", operationResult);
+        return "index";
     }
 
 

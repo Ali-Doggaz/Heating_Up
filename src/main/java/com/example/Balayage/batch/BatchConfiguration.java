@@ -11,10 +11,15 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -22,6 +27,7 @@ import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilde
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
@@ -30,6 +36,8 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.apache.tomcat.jni.Time.sleep;
 
 /**
  * Créer la configuration initiale de Spring Batch en créant le Job de scan
@@ -63,6 +71,9 @@ public class BatchConfiguration {
 
     @Autowired
     private ItemReader<Client> clientReader;
+
+    @Autowired
+    JobRegistry jobRegistry;
 
     @Autowired
     private ItemWriter<ClientTestResult> clientProcessingWriter;
@@ -166,7 +177,6 @@ public class BatchConfiguration {
     @Bean
     public ItemReader<Client> reader() {
         String Query = "FROM client ORDER BY id";
-        //TODO maybe change page size dynamically
         return new JpaPagingItemReaderBuilder<Client>().name("scan-reader")
                 .queryString(Query)
                 .entityManagerFactory(entityManagerFactory)
@@ -244,7 +254,23 @@ public class BatchConfiguration {
                 TestRegles.setStatsExceptions(new ArrayList<StatsException>());
             }
         };
-    };
+    }
+
+    @Bean
+    public JobRegistryBeanPostProcessor jobRegistryBeanPostProcessor() {
+        JobRegistryBeanPostProcessor postProcessor = new JobRegistryBeanPostProcessor();
+        postProcessor.setJobRegistry(jobRegistry);
+        return postProcessor;
+    }
+
+    @Bean(name = "asyncJobLauncher")
+    public JobLauncher simpleJobLauncher(JobRepository jobRepository) throws Exception {
+        SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+        jobLauncher.setJobRepository(jobRepository);
+        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+        jobLauncher.afterPropertiesSet();
+        return jobLauncher;
+    }
 }
 
 
