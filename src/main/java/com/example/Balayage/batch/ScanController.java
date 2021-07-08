@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.Set;
 
+import static java.lang.Thread.sleep;
+
 
 @Controller
 public class ScanController {
@@ -41,17 +43,21 @@ public class ScanController {
     @GetMapping("Scan/Start")
     public String launchJob(Model model){
         try {
+            if (jobExplorer.findRunningJobExecutions(scanJobName).size() >= 1){
+                model.addAttribute("boolResult", false);
+                model.addAttribute("errorMessage","Veuillez Attendre la fin du balayage... en cours");
+                return "index";
+            }
             jobLauncher.run(scanJob, new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters());
+            sleep(500);
             model.addAttribute("boolResult", true);
             model.addAttribute("successMessage","Scan demarré avec succès");
         }
-        catch(Exception e){
-            e.printStackTrace();
-            //TODO modify
+        catch(Exception e1){
             model.addAttribute("boolResult", false);
-            model.addAttribute("errorMessage",e.getMessage());
+            model.addAttribute("errorMessage","Une erreur s'est produite...");
         }
         finally{
             return "index";
@@ -59,14 +65,12 @@ public class ScanController {
     }
 
     @GetMapping("Scan/Status")
-    @ResponseBody
     public boolean isJobRunning(){
         if (jobExplorer.findRunningJobExecutions(scanJobName).size() >= 1) return true;
         return false;
     }
 
     @GetMapping("Scan/Stop")
-    @ResponseBody
     public boolean stopScanJob(){
         try {
             Set<JobExecution> jobExecutions = jobExplorer.findRunningJobExecutions(scanJobName);
