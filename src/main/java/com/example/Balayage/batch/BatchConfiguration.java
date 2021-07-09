@@ -32,12 +32,8 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.apache.tomcat.jni.Time.sleep;
 
 /**
  * Créer la configuration initiale de Spring Batch en créant le Job de scan
@@ -54,11 +50,15 @@ public class BatchConfiguration {
     private static ArrayList<StatsRegle> statsRegles;
     private static int chunkSize = 1000;
     private static int pageSize = 1000;
+    private static String cronExpression = "* * 8 * * *";
     private int batchNumber;
 
 
     @Autowired
     private JobExplorer jobExplorer;
+
+    @Autowired
+    JobLauncher jobLauncher;
 
     @Autowired
     private EntityManagerFactory entityManagerFactory;
@@ -98,21 +98,6 @@ public class BatchConfiguration {
                 .build();
     }
 
-    public static int getChunkSize() {
-        return chunkSize;
-    }
-
-    public static void setChunkSize(int chunkSize) {
-        BatchConfiguration.chunkSize = chunkSize;
-    }
-
-    public static int getPageSize() {
-        return pageSize;
-    }
-
-    public static void setPageSize(int pageSize) {
-        BatchConfiguration.pageSize = pageSize;
-    }
 
     @Bean
     public JobExecutionListener myjoblistener() {
@@ -270,6 +255,31 @@ public class BatchConfiguration {
         jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
         jobLauncher.afterPropertiesSet();
         return jobLauncher;
+    }
+
+
+    public static int getChunkSize() {
+        return chunkSize;
+    }
+
+    public static void setChunkSize(int chunkSize) {
+        BatchConfiguration.chunkSize = chunkSize;
+    }
+
+    public static int getPageSize() {
+        return pageSize;
+    }
+
+    public static void setPageSize(int pageSize) {
+        BatchConfiguration.pageSize = pageSize;
+    }
+
+    public static String getCronExpression() {
+        return cronExpression;
+    }
+
+    public static void setCronExpression(String cronExpression) {
+        BatchConfiguration.cronExpression = cronExpression;
     }
 }
 

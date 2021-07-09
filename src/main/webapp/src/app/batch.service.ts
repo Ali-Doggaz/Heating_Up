@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import {batchConfig} from "./batchConfig";
 
 const httpOptionsPlain = {
   headers: new HttpHeaders({
@@ -22,7 +23,11 @@ export class BatchService {
   }
 
   public stopScan(): Observable<String> {
-    return this.http.get<String>(`${this.apiServerUrl}/Scan/Stop`);
+    return this.http.get(`${this.apiServerUrl}/Scan/Stop`, {responseType: 'text'});
+  }
+
+  public changeConfig(newConfig: batchConfig): Observable<String> {
+    return this.http.post(`${this.apiServerUrl}/Scan/SetConfig`, newConfig, {responseType: 'text'});
   }
 
 }

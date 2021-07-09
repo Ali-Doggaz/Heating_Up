@@ -17,11 +17,29 @@ export class HomeComponent implements OnInit {
   }
 
   public changeConfig(changeConfForm: NgForm):void{
-
+    this.batchService.changeConfig(changeConfForm.value).subscribe(
+      (response: String) => {
+        console.log(response);
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+      }
+    );
   }
 
   public startScan(): void{
     this.batchService.startScan().subscribe(
+      (response: String) => {
+        console.log(response);
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+      }
+    );
+  }
+
+  public stopScan(): void{
+    this.batchService.stopScan().subscribe(
       (response: String) => {
         console.log(response);
       },

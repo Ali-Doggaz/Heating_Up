@@ -45,10 +45,10 @@ public class ScanController {
             jobLauncher.run(scanJob, new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters());
-            return new ResponseEntity<>("Le scan a commencé avec succès...", HttpStatus.OK);
+            return new ResponseEntity<>("Succès: Le scan a commencé", HttpStatus.OK);
         }
         catch(Exception e1){
-            return new ResponseEntity<>("Une erreur s'est produite...", HttpStatus.OK);
+            return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
         }
     }
 
@@ -59,32 +59,40 @@ public class ScanController {
     }
 
     @GetMapping("Scan/Stop")
-    public boolean stopScanJob(){
+    public ResponseEntity<String> stopScanJob(){
         try {
             Set<JobExecution> jobExecutions = jobExplorer.findRunningJobExecutions(scanJobName);
+            if (jobExecutions.size() == 0) return new ResponseEntity<>("Erreur: Aucun balayage n'est en cours",
+                    HttpStatus.OK);
             for (JobExecution jobExecution : jobExecutions) {
                 jobOperator.stop(jobExecution.getId());
                }
-            return true;
+            return new ResponseEntity<>("Succès: Balayage arrêté", HttpStatus.OK;
             }
         catch(Exception e){
             e.printStackTrace();
-            return false;
+            return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
         }
     }
 
-    @PostMapping("Scan/setConfig")
+    @PostMapping("/Scan/SetConfig")
     @ResponseBody
-    public boolean setConfig(@RequestParam int chunkSize, @RequestParam int pageSize){
-        if(chunkSize<1 || pageSize<1) return false;
+    public ResponseEntity<String> setConfig(@RequestBody BatchConfigParams batchConfigParams){
+        int chunkSize = batchConfigParams.getChunkSize();
+        int pageSize = batchConfigParams.getPageSize();
+        String cronExpression = batchConfigParams.getCronExpression();
+        //TODO add this check in the form
+        //if(chunkSize<1 || pageSize<1) return "";
         try {
             BatchConfiguration.setChunkSize(chunkSize);
             BatchConfiguration.setPageSize(pageSize);
-            return true;
+            BatchConfiguration.setCronExpression(cronExpression);
+            //TODO trigger rescheduling
+            return new ResponseEntity<>("Succès: La configuration a été modifiée avec succès", HttpStatus.OK);
         }
         catch(Exception e){
             e.printStackTrace();
-            return false;
+            return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
         }
     }
 
