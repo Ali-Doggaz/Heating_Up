@@ -67,7 +67,7 @@ public class ScanController {
             for (JobExecution jobExecution : jobExecutions) {
                 jobOperator.stop(jobExecution.getId());
                }
-            return new ResponseEntity<>("Succès: Balayage arrêté", HttpStatus.OK;
+            return new ResponseEntity<>("Succès: Balayage arrêté", HttpStatus.OK);
             }
         catch(Exception e){
             e.printStackTrace();
