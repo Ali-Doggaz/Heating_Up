@@ -1,25 +1,21 @@
 package com.example.Balayage.batch;
 
-import org.hibernate.engine.jdbc.batch.spi.Batch;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
-import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.Date;
 import java.util.Set;
-
-import static java.lang.Thread.sleep;
 
 
 @Controller
@@ -41,26 +37,18 @@ public class ScanController {
     JobOperator jobOperator;
 
     @GetMapping("Scan/Start")
-    public String launchJob(Model model){
+    public ResponseEntity<String> launchJob(){
         try {
             if (jobExplorer.findRunningJobExecutions(scanJobName).size() >= 1){
-                model.addAttribute("boolResult", false);
-                model.addAttribute("errorMessage","Veuillez Attendre la fin du balayage... en cours");
-                return "index";
+                return new ResponseEntity<>("Veuillez attendre la fin du balayage en cours...", HttpStatus.OK);
             }
             jobLauncher.run(scanJob, new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters());
-            sleep(500);
-            model.addAttribute("boolResult", true);
-            model.addAttribute("successMessage","Scan demarré avec succès");
+            return new ResponseEntity<>("Le scan a commencé avec succès...", HttpStatus.OK);
         }
         catch(Exception e1){
-            model.addAttribute("boolResult", false);
-            model.addAttribute("errorMessage","Une erreur s'est produite...");
-        }
-        finally{
-            return "index";
+            return new ResponseEntity<>("Une erreur s'est produite...", HttpStatus.OK);
         }
     }
 
@@ -100,15 +88,6 @@ public class ScanController {
         }
     }
 
-    @GetMapping("/")
-    public String greeting(@RequestParam(name="boolResult", required=false) Boolean boolResult,
-                           @RequestParam(name="operationResult", required=false) String operationResult,
-                           Model model) {
-        if(boolResult == null || operationResult == null || operationResult=="") return "index";
-        if(!boolResult) model.addAttribute("errorMessage",operationResult);
-        else model.addAttribute("successMessage", operationResult);
-        return "index";
-    }
 
 
 }

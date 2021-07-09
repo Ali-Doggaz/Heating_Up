@@ -72,7 +72,6 @@
             },
             "development": {
               "browserTarget": "BalayageUI:build:development",
-              "port": 8080
             }
           },
           "defaultConfiguration": "development"

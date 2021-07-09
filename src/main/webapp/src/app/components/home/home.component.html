@@ -1,15 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Balayage</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-  <div id="Fonctions">
-    <a href="Scan/Start">
-    <button class="--action" id="startScan">Commencer le balayage</button>  
-    </a>
+<div ng-controller="Ctrl">
+<div id="Fonctions">
+    <button class="--action" id="startScan" type="input" (click)="startScan()">Commencer le balayage</button>
     <a href="Scan/Stop">
     <button class="--danger" id="stopScan">Arreter le balayage en cours</button>
     </a>
@@ -18,22 +9,22 @@
     <div id="parametres_generaux">
       <p>Configuration du balayage </p>
 
-      <form action="Scan/setConfig" method="post">
+      <form #changeConfForm="ngForm" (ngSubmit)="changeConfig(changeConfForm)">
         <label for="chunkSize">Taille des chunks</label>
-        <input type="number" pattern="\d+" id="chunkSize">
+        <input type="number" pattern="\d+" id="chunkSize" name="chunkSize" ngModel>
         <label for="pageSize">Taille des pages</label>
-        <input type="number" pattern="\d+" id="pageSize">
-        <input  type="hidden" name="cron" id="cron" rows="1" cols="80">
+        <input type="number" pattern="\d+" id="pageSize" name="pageSize" ngModel>
+        <input  type="hidden" id="cron" rows="1" cols="80" name="cron" ngModel>
         <input type="submit" value="Valider">
       </form>
     </div>
   <div id="plannificateur">
     <br><br>
-    Plannifier les scans 
+    Plannifier les scans
     <br>
     *Selectionnez plusieurs champs en maintenant la touche CTRL appuyée
     <form>
-    <table> 
+    <table>
     <tr>
     <td>Minute</td>
     <td>Heure</td>
@@ -221,3 +212,5 @@
 
   </form>
   </div>
+  </div>
+</div>
