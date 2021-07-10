@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { BatchService } from 'src/app/batch.service';
 
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
