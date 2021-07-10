@@ -1,5 +1,10 @@
 package com.example.Balayage;
 
+import com.example.Balayage.client.ClientRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.Trigger;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
@@ -20,6 +25,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.concurrent.ScheduledFuture;
 
 
 @SpringBootApplication
@@ -46,6 +52,7 @@ public class BalayageApplication {
 					.toJobParameters());
 		}
 	}
+
 
 	@Bean
 	public CorsFilter corsFilter() {

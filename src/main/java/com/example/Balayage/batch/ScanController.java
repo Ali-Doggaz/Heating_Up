@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +36,9 @@ public class ScanController {
 
     @Autowired
     JobOperator jobOperator;
+
+    @Autowired
+    ThreadPoolTaskScheduler taskScheduler;
 
     @GetMapping("Scan/Start")
     public ResponseEntity<String> launchJob(){
@@ -74,13 +79,26 @@ public class ScanController {
         int chunkSize = batchConfigParams.getChunkSize();
         int pageSize = batchConfigParams.getPageSize();
         String cronExpression = batchConfigParams.getCronExpression();
+        System.out.println(cronExpression);
         //TODO add this check in the form
         //if(chunkSize<1 || pageSize<1) return "";
         try {
             BatchConfiguration.setChunkSize(chunkSize);
             BatchConfiguration.setPageSize(pageSize);
             BatchConfiguration.setCronExpression(cronExpression);
-            //TODO trigger rescheduling
+            taskScheduler.shutdown();
+            taskScheduler.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        jobLauncher.run(scanJob, new JobParametersBuilder()
+                                .addDate("date", new Date())
+                                .toJobParameters());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, new CronTrigger(cronExpression));
             return new ResponseEntity<>("Succès: La configuration a été modifiée avec succès", HttpStatus.OK);
         }
         catch(Exception e){

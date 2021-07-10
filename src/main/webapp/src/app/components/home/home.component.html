@@ -5,7 +5,6 @@
       <p>Status: Aucun balayage en cours</p>
     </div>
     <div id="FunctionsTriggerButtons">
-      <button class="--action" id="consultLogs" type="input" (click)="showLog()">Consulter les logs</button>
       <button class="--action" id="startScan" type="input"
               [disabled]="isScanEnCours()"
               (click)="startScan()">Commencer le balayage</button>
@@ -23,7 +22,7 @@
         <input type="number" pattern="\d+" id="chunkSize" name="chunkSize" ngModel>
         <label for="pageSize">Taille des pages</label>
         <input type="number" pattern="\d+" id="pageSize" name="pageSize" ngModel>
-        <input  type="hidden" id="cron" rows="1" cols="80" name="cron" ngModel>
+        <input  type="text" rows="1" id="cron" name="cron" ngModel>
         <input type="submit" value="Valider">
       </form>
     </div>

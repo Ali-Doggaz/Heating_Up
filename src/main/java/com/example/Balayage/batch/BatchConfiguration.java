@@ -7,10 +7,7 @@ import com.example.Balayage.regles.StatsException;
 import com.example.Balayage.regles.StatsRegle;
 import com.example.Balayage.regles.TestRegles;
 import com.example.Balayage.report.ScanReportGenerator;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -29,6 +26,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
+
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.persistence.EntityManagerFactory;
@@ -81,6 +82,8 @@ public class BatchConfiguration {
 
     @Autowired
     private ItemProcessor<Client, ClientTestResult> clientProcessor;
+
+
 
     private final SimpMessagingTemplate template;
 
@@ -270,6 +273,14 @@ public class BatchConfiguration {
         return jobLauncher;
     }
 
+    @Bean
+    public ThreadPoolTaskScheduler threadPoolTaskScheduler(){
+        ThreadPoolTaskScheduler threadPoolTaskScheduler
+                = new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setThreadNamePrefix(
+                "ThreadPoolTaskScheduler");
+        return threadPoolTaskScheduler;
+    }
 
     public static int getChunkSize() {
         return chunkSize;

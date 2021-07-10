@@ -20,6 +20,7 @@ export class HomeComponent implements OnInit {
   }
 
   public changeConfig(changeConfForm: NgForm):void{
+    console.log(changeConfForm.value)
     this.batchService.changeConfig(changeConfForm.value).subscribe(
       (response: String) => {
         console.log(response);
