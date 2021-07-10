@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
-
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.persistence.EntityManagerFactory;
@@ -80,6 +80,13 @@ public class BatchConfiguration {
 
     @Autowired
     private ItemProcessor<Client, ClientTestResult> clientProcessor;
+
+    private final SimpMessagingTemplate template;
+
+    @Autowired
+    BatchConfiguration(SimpMessagingTemplate template){
+        this.template = template;
+    }
 
     @Bean
     public Job ScanJob() {
@@ -144,12 +151,15 @@ public class BatchConfiguration {
                 TestRegles.setStatsExceptions(new ArrayList<StatsException>());
 
                 batchNumber = 0;
+                //Envoyer une socket a l'UI pour l'informer que le job a demarré
+                template.convertAndSend("/JobStatus", "Balayage en cours");
             }
 
 
             @Override
             public void afterJob(JobExecution jobExecution) {
-
+                //Envoyer une socket a l'UI pour l'informer que le job est terminé
+                template.convertAndSend("/JobStatus", "Balayage terminé - Etat: " + jobExecution.getExitStatus().getExitCode());
             }
         };
 

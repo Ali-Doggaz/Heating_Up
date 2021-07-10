@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -50,12 +49,6 @@ public class ScanController {
         catch(Exception e1){
             return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
         }
-    }
-
-    @GetMapping("Scan/Status")
-    public boolean isJobRunning(){
-        if (jobExplorer.findRunningJobExecutions(scanJobName).size() >= 1) return true;
-        return false;
     }
 
     @GetMapping("Scan/Stop")
