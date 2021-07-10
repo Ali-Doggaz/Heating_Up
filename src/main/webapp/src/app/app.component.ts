@@ -5,6 +5,7 @@ import * as Stomp from 'stompjs';
 import * as SockJS from 'sockjs-client';
 // @ts-ignore
 import $ from 'jquery';
+import {environment} from "../environments/environment";
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,7 @@ export class AppComponent {
 
   public title = 'Balayage_UI';
   private stompClient: any;
-  private serverUrl = 'http://localhost:8080/socket'
+  private serverUrl = environment.apiBaseUrl+"/socket";
   constructor(){
     this.initializeWebSocketConnection();
   }
@@ -25,10 +26,10 @@ export class AppComponent {
     this.stompClient = Stomp.over(ws);
     let that = this;
     this.stompClient.connect({}, function(frame: any) {
+      //Modifier le status du job lorsqu'on le backend nous envoie son nouveau status
       that.stompClient.subscribe("/JobStatus", (message: any) => {
         if(message.body) {
-          //$(".chat").append("<div class='message'>"+message.body+"</div>")
-          console.log(message.body);
+          $("#scanStatus p").text(message.body)
         }
       });
     });

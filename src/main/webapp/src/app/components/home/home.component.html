@@ -1,7 +1,18 @@
 <div ng-controller="Ctrl">
-<div id="Fonctions">
-    <button class="--action" id="startScan" type="input" (click)="startScan()">Commencer le balayage</button>
-    <button class="--danger" id="stopScan" type="input" (click)="stopScan()">Arreter le balayage en cours</button>
+
+  <div id="Fonctions">
+    <div id="scanStatus">
+      <p>Status: Aucun balayage en cours</p>
+    </div>
+    <div id="FunctionsTriggerButtons">
+      <button class="--action" id="consultLogs" type="input" (click)="showLog()">Consulter les logs</button>
+      <button class="--action" id="startScan" type="input"
+              [disabled]="isScanEnCours()"
+              (click)="startScan()">Commencer le balayage</button>
+      <button class="--danger" id="stopScan" type="input"
+              [disabled]="!isScanEnCours()"
+              (click)="stopScan()">Arreter le balayage en cours</button>
+    </div>
   </div>
   <div id="config">
     <div id="parametres_generaux">

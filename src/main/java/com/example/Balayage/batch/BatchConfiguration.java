@@ -33,6 +33,7 @@ import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.persistence.EntityManagerFactory;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -152,14 +153,16 @@ public class BatchConfiguration {
 
                 batchNumber = 0;
                 //Envoyer une socket a l'UI pour l'informer que le job a demarré
-                template.convertAndSend("/JobStatus", "Balayage en cours");
+                String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+                template.convertAndSend("/JobStatus", "Status: Balayage en cours - Heure de démarrage du balayge: " + timeStamp);
             }
 
 
             @Override
             public void afterJob(JobExecution jobExecution) {
                 //Envoyer une socket a l'UI pour l'informer que le job est terminé
-                template.convertAndSend("/JobStatus", "Balayage terminé - Etat: " + jobExecution.getExitStatus().getExitCode());
+                String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+                template.convertAndSend("/JobStatus", "Status: Balayage terminé - Etat de sortie: " + jobExecution.getExitStatus().getExitCode() +" - Heure: " + timeStamp);
             }
         };
 
