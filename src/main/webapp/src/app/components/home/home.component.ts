@@ -13,6 +13,9 @@ import $ from "jquery";
 
 })
 export class HomeComponent implements OnInit {
+  minutesArray = new Array(60);
+  hoursArray = new Array(24);
+  daysArray = new Array(31);
 
   constructor(private batchService: BatchService) { }
 
@@ -75,3 +78,4 @@ export class HomeComponent implements OnInit {
     return false;
   }
 }
+
