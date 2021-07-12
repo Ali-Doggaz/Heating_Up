@@ -209,9 +209,8 @@ public class BatchConfiguration {
     }
 
     /**
-     * Tous les 1000(chunk_size) clients traités, ce writer va s'occuper de
-     * 1. Generer un rapport sommaire des tests efféctués
-     * 2. Ajouter les nouveaux clients identifiés comme "suspects" à la liste "clientSuspects"
+     * Tous les (int)chunk_size clients traités, ce writer va s'occuper de generer
+     * un rapport sommaire des tests efféctués
      */
     @Bean
     public ItemWriter<ClientTestResult> writer() {
