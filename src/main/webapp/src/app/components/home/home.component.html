@@ -1,0 +1,112 @@
+<div ng-controller="Ctrl">
+
+  <div id="Fonctions">
+    <div id="scanStatus">
+      <p>Status: Aucun balayage en cours</p>
+    </div>
+    <div id="FunctionsTriggerButtons">
+      <button class="--action" id="startScan" type="input"
+              [disabled]="isScanEnCours()"
+              (click)="startScan()">Commencer le balayage</button>
+      <button class="--danger" id="stopScan" type="input"
+              [disabled]="!isScanEnCours()"
+              (click)="stopScan()">Arreter le balayage en cours</button>
+    </div>
+  </div>
+  <div id="config">
+    <div id="parametres_generaux">
+      <p>Configuration du balayage </p>
+
+      <form id=changeConfForm #changeConfForm="ngForm" (ngSubmit)="changeConfig(changeConfForm)">
+        <label for="chunkSize">Taille des chunks</label>
+        <input type="number" pattern="\d+" id="chunkSize" ngModel name="chunkSize" [formControl] = "chunkSize">
+        <label for="pageSize">Taille des pages</label>
+        <input type="number" pattern="\d+" id="pageSize" ngModel name="pageSize" [formControl] = "pageSize">
+
+        <input type="submit" value="Valider">
+      </form>
+    </div>
+  <div id="plannificateur">
+    <br><br>
+    Plannifier les scans
+    <br>
+    *Selectionnez plusieurs champs en maintenant la touche CTRL appuyée
+    <form>
+    <table>
+    <tr>
+    <td>Minute</td>
+    <td>Heure</td>
+    <td>Jour</td>
+    <td>Mois</td>
+    <td>Jour de la semaine</td>
+    </tr>
+    <tr>
+    <td>
+
+    <select name="minute" id="minute" multiple="multiple" required (change)="show_value()" class="cronbox" >
+    <option value="*">Toutes</option>
+    <option  *ngFor="let a of minutesArray; let index = index"  value={{index}}>{{index}}</option>
+    </select>
+
+    </td>
+    <td>
+
+    <select name="hour" id="hour" multiple="multiple" required (change)="show_value()" class="cronbox">
+    <option value="*">Toutes</option>
+    <option  *ngFor="let a of hoursArray; let index = index"  value={{index}}>{{index}}</option>
+    </select>
+
+    </td>
+    <td>
+
+    <select name="day" id="day" multiple="multiple" required (change)="show_value()" class="cronbox">
+    <option value="*">Tous</option>
+    <option  *ngFor="let a of daysArray; let index = index"  value={{index+1}}>{{index+1}}</option>
+    </select>
+
+    </td>
+    <td>
+
+
+
+    <select name="month" id="month" multiple="multiple" required (change)="show_value()" class="cronbox">
+    <option value="*">Tous</option>
+    <option value="1">Janvier</option>
+    <option value="2">Février</option>
+    <option value="3">Mars</option>
+    <option value="4">Avril</option>
+    <option value="5">Mai</option>
+    <option value="6">Juin</option>
+    <option value="7">Juillet</option>
+    <option value="8">Août</option>
+    <option value="9">Septembre</option>
+    <option value="10">Octobre</option>
+    <option value="11">Novembre</option>
+    <option value="12">Décembre</option>
+    </select>
+
+
+    </td>
+    <td>
+
+    <select name="weekday" id="weekday" multiple="multiple" required (change)="show_value()" class="cronbox">
+    <option value="*">Tous</option>
+    <option value="1">Lundi</option>
+    <option value="2">Mardi</option>
+    <option value="3">Mercredi</option>
+    <option value="4">Jeudi</option>
+    <option value="5">Vendredi</option>
+    <option value="6">Samedi</option>
+    <option value="0">Dimanche</option>
+    </select>
+    </td>
+    </tr>
+    </table>
+
+    <br><br>
+
+
+  </form>
+  </div>
+  </div>
+</div>

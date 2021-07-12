@@ -7,13 +7,16 @@ import com.example.Balayage.regles.StatsException;
 import com.example.Balayage.regles.StatsRegle;
 import com.example.Balayage.regles.TestRegles;
 import com.example.Balayage.report.ScanReportGenerator;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -21,14 +24,18 @@ import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilde
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.Trigger;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Créer la configuration initiale de Spring Batch en créant le Job de scan
@@ -43,12 +50,20 @@ public class BatchConfiguration {
 
     private static ArrayList<ClientTestResult> clientSuspects;
     private static ArrayList<StatsRegle> statsRegles;
+    private static int chunkSize = 1000;
+    private static int pageSize = 1000;
+    private static String cronExpression = "* * 8 * * *";
     private int batchNumber;
-    private int chunkSize = 1000;
-    private int pageSize = 1000;
+
+    private static Trigger jobTrigger = new CronTrigger("*/5 * * * * *");
+    private static ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+
 
     @Autowired
-    private DataSource dataSource;
+    private JobExplorer jobExplorer;
+
+    @Autowired
+    JobLauncher jobLauncher;
 
     @Autowired
     private EntityManagerFactory entityManagerFactory;
@@ -63,10 +78,23 @@ public class BatchConfiguration {
     private ItemReader<Client> clientReader;
 
     @Autowired
+    JobRegistry jobRegistry;
+
+    @Autowired
     private ItemWriter<ClientTestResult> clientProcessingWriter;
 
     @Autowired
     private ItemProcessor<Client, ClientTestResult> clientProcessor;
+
+
+
+    private final SimpMessagingTemplate template;
+
+    @Autowired
+    BatchConfiguration(SimpMessagingTemplate template){
+        this.template = template;
+        BalayageTask.setBatchConfiguration(this);
+    }
 
     @Bean
     public Job ScanJob() {
@@ -77,12 +105,14 @@ public class BatchConfiguration {
                 .writer(clientProcessingWriter)
                 .processor(clientProcessor)
                 .allowStartIfComplete(true)
+                .throttleLimit(1)
                 .build();
         return jobBuilderFactory.get("Scan_Clients")
                 .start(step)
                 .listener(listener)
                 .build();
     }
+
 
     @Bean
     public JobExecutionListener myjoblistener() {
@@ -96,12 +126,20 @@ public class BatchConfiguration {
              */
             @Override
             public void beforeJob(JobExecution jobExecution) {
+                // Si un scan est deja en cours, annule le declenchement du nouveau Job en levant une exception
+                int runningJobsCount = jobExplorer.findRunningJobExecutions(jobExecution.getJobInstance().getJobName()).size();
+                if(runningJobsCount > 1){
+                    //TODO remove comment
+                    //throw new RuntimeException("Veuillez attendre la fin du balayage en cours");
+                }
+
+
                 System.out.println("Initialisation du scan...");
                 try {
                     testRegles.readRulesFromFile();
                 }
                 catch(IOException e){
-                    final JobOperator jobOperator = BatchRuntime.getJobOperator();
+                    JobOperator jobOperator = BatchRuntime.getJobOperator();
                     jobOperator.stop(jobExecution.getId());
                     System.out.println("Le fichier contenant les règles metiers est introuvable...");
                 }
@@ -122,12 +160,17 @@ public class BatchConfiguration {
                 TestRegles.setStatsExceptions(new ArrayList<StatsException>());
 
                 batchNumber = 0;
+                //Envoyer une socket a l'UI pour l'informer que le job a demarré
+                String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+                template.convertAndSend("/JobStatus", "Status: Balayage en cours - Heure de démarrage du balayge: " + timeStamp);
             }
 
 
             @Override
             public void afterJob(JobExecution jobExecution) {
-
+                //Envoyer une socket a l'UI pour l'informer que le job est terminé
+                String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+                template.convertAndSend("/JobStatus", "Status: Balayage terminé - Etat de sortie: " + jobExecution.getExitStatus().getExitCode() +" - Heure: " + timeStamp);
             }
         };
 
@@ -140,7 +183,6 @@ public class BatchConfiguration {
     @Bean
     public ItemReader<Client> reader() {
         String Query = "FROM client ORDER BY id";
-        //TODO maybe change page size dynamically
         return new JpaPagingItemReaderBuilder<Client>().name("scan-reader")
                 .queryString(Query)
                 .entityManagerFactory(entityManagerFactory)
@@ -218,7 +260,53 @@ public class BatchConfiguration {
                 TestRegles.setStatsExceptions(new ArrayList<StatsException>());
             }
         };
-    };
+    }
+
+    @Bean
+    public JobRegistryBeanPostProcessor jobRegistryBeanPostProcessor() {
+        JobRegistryBeanPostProcessor postProcessor = new JobRegistryBeanPostProcessor();
+        postProcessor.setJobRegistry(jobRegistry);
+        return postProcessor;
+    }
+
+    @Bean(name = "asyncJobLauncher")
+    public JobLauncher simpleJobLauncher(JobRepository jobRepository) throws Exception {
+        SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+        jobLauncher.setJobRepository(jobRepository);
+        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+        jobLauncher.afterPropertiesSet();
+        return jobLauncher;
+    }
+
+
+    public static int getChunkSize() {
+        return chunkSize;
+    }
+
+    public static void setChunkSize(int chunkSize) {
+        BatchConfiguration.chunkSize = chunkSize;
+    }
+
+    public static int getPageSize() {
+        return pageSize;
+    }
+
+    public static void setPageSize(int pageSize) {
+        BatchConfiguration.pageSize = pageSize;
+    }
+
+    public static String getCronExpression() {
+        return cronExpression;
+    }
+
+    public static void setCronExpression(String cronExpression) {
+        BatchConfiguration.cronExpression = cronExpression;
+    }
+
+    public JobLauncher getJobLauncher() {
+        return jobLauncher;
+    }
+
 }
 
 
