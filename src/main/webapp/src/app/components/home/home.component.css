@@ -121,3 +121,9 @@ select {
   opacity: .35;
   background-color: gray;
 }
+
+#parametres_generaux p{
+  font-size: 25px;
+  font-family: 'Open Sans', sans-serif;
+  color: #201E1F ;
+}
