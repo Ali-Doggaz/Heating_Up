@@ -1,23 +1,20 @@
 package com.example.Balayage.batch;
 
-import org.hibernate.engine.jdbc.batch.spi.Batch;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.Trigger;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
 import java.util.Set;
@@ -30,8 +27,11 @@ public class ScanController {
     private final String scanJobName = "Scan_Clients";
     private final ScheduledConfiguration scheduledConfiguration = new ScheduledConfiguration();
 
-    @Autowired
-    Job scanJob;
+    private static BatchConfiguration batchConfiguration;
+
+    public static void setBatchConfiguration(BatchConfiguration batchConfiguration) {
+        ScanController.batchConfiguration = batchConfiguration;
+    }
 
     @Autowired
     @Qualifier("asyncJobLauncher")
@@ -43,13 +43,17 @@ public class ScanController {
     @Autowired
     JobOperator jobOperator;
 
+    @Autowired
+    BatchConfigParamsService batchConfigParamsService;
+
     @GetMapping("Scan/Start")
     public ResponseEntity<String> launchJob(){
         try {
+            //TODO remove this
             if (jobExplorer.findRunningJobExecutions(scanJobName).size() >= 1){
                 return new ResponseEntity<>("Veuillez attendre la fin du balayage en cours...", HttpStatus.OK);
             }
-            jobLauncher.run(scanJob, new JobParametersBuilder()
+            jobLauncher.run(batchConfiguration.ScanJob(), new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters());
             return new ResponseEntity<>("Succès: Le scan a commencé", HttpStatus.OK);
@@ -88,6 +92,7 @@ public class ScanController {
             BatchConfiguration.setChunkSize(chunkSize);
             BatchConfiguration.setPageSize(pageSize);
             BatchConfiguration.setCronExpression(cronExpression);
+            batchConfigParamsService.updateConfig(batchConfigParams);
             scheduledConfiguration.refreshCronSchedule();
             return new ResponseEntity<>("Succès: La configuration a été modifiée avec succès", HttpStatus.OK);
         }

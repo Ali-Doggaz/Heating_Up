@@ -1,18 +1,27 @@
 /*package com.example.Balayage.client;
 
+import com.example.Balayage.batch.BatchConfigParams;
+import com.example.Balayage.batch.BatchConfigParamsService;
+import com.example.Balayage.batch.BatchConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Random;
 
 @Configuration
 public class ClientConfig {
+
+    @Autowired
+    BatchConfigParamsService batchConfigParamsService;
+
     @Bean
     CommandLineRunner commandLineRunner(ClientRepository clientRepository) {
         return args -> {
-            clientRepository.deleteAll();
+            *//*clientRepository.deleteAll();
             String[] pays = {"Tunisie","Allemagne","Algerie","USA","France","Maroc","Congo","Italie",
             "Espagne","Mexique","Canada","Australie","Norvege","Chine","Japon","Russie"};
 
@@ -30,8 +39,7 @@ public class ClientConfig {
                 clients.add(new Client(pays[rnd],age,revenus));
             }
 
-            clientRepository.saveAll(clients);
+            clientRepository.saveAll(clients);*//*
         };
     }
-}
-*/
+}*/
