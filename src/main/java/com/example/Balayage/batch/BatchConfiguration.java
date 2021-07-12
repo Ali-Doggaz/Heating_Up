@@ -27,7 +27,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 
 import javax.batch.operations.JobOperator;
@@ -54,6 +56,9 @@ public class BatchConfiguration {
     private static int pageSize = 1000;
     private static String cronExpression = "* * 8 * * *";
     private int batchNumber;
+
+    private static Trigger jobTrigger = new CronTrigger("*/5 * * * * *");
+    private static ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
 
 
     @Autowired
@@ -90,6 +95,7 @@ public class BatchConfiguration {
     @Autowired
     BatchConfiguration(SimpMessagingTemplate template){
         this.template = template;
+        BalayageTask.setBatchConfiguration(this);
     }
 
     @Bean
@@ -125,7 +131,8 @@ public class BatchConfiguration {
                 // Si un scan est deja en cours, annule le declenchement du nouveau Job en levant une exception
                 int runningJobsCount = jobExplorer.findRunningJobExecutions(jobExecution.getJobInstance().getJobName()).size();
                 if(runningJobsCount > 1){
-                    throw new RuntimeException("Veuillez attendre la fin du balayage en cours");
+                    //TODO remove comment
+                    //throw new RuntimeException("Veuillez attendre la fin du balayage en cours");
                 }
 
 
@@ -273,14 +280,6 @@ public class BatchConfiguration {
         return jobLauncher;
     }
 
-    @Bean
-    public ThreadPoolTaskScheduler threadPoolTaskScheduler(){
-        ThreadPoolTaskScheduler threadPoolTaskScheduler
-                = new ThreadPoolTaskScheduler();
-        threadPoolTaskScheduler.setThreadNamePrefix(
-                "ThreadPoolTaskScheduler");
-        return threadPoolTaskScheduler;
-    }
 
     public static int getChunkSize() {
         return chunkSize;
@@ -305,6 +304,11 @@ public class BatchConfiguration {
     public static void setCronExpression(String cronExpression) {
         BatchConfiguration.cronExpression = cronExpression;
     }
+
+    public JobLauncher getJobLauncher() {
+        return jobLauncher;
+    }
+
 }
 
 

@@ -1,10 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { NgForm } from '@angular/forms';
+import {FormControl, NgForm} from '@angular/forms';
 import { BatchService } from 'src/app/batch.service';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { batchConfig } from 'src/app/batchConfig';
+
 //@ts-ignore
 import $ from "jquery";
 
+interface Window {
+
+  getNewCronExpression() : string;
+
+}
 
 @Component({
   selector: 'app-home',
@@ -17,14 +25,18 @@ export class HomeComponent implements OnInit {
   hoursArray = new Array(24);
   daysArray = new Array(31);
 
+  cronExpression="";
+  chunkSize = new FormControl();
+  pageSize = new FormControl();
+
   constructor(private batchService: BatchService) { }
 
   ngOnInit(): void {
   }
 
   public changeConfig(changeConfForm: NgForm):void{
-    console.log(changeConfForm.value)
-    this.batchService.changeConfig(changeConfForm.value).subscribe(
+    let newConfig = new batchConfig(this.chunkSize.value, this.pageSize.value, this.cronExpression);
+    this.batchService.changeConfig(newConfig).subscribe(
       (response: String) => {
         console.log(response);
       },
@@ -66,10 +78,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  showLog(){
-    //TODO implement this
-  }
-
   isScanEnCours() {
     status = $("#scanStatus p").text()
     if (status.indexOf("Balayage terminé")===-1 && status.indexOf("Aucun balayage")==-1){
@@ -77,5 +85,49 @@ export class HomeComponent implements OnInit {
     }
     return false;
   }
+
+  getChoice(name: String) {
+    let chosen = '';
+    let all_selected = [];
+    let options = [];
+    options = $("#"+name + " option");
+
+
+    for ( var index=options.length-1 ; index >= 0; --index) {
+      //console.log(a.options.length);
+
+      if(options[index].selected) {
+        if( options[index].value == '*' ) {
+          chosen = '*';
+          return chosen;
+        }
+        all_selected.push(options[index].value);
+      }
+    }
+
+    if(all_selected.length)
+      chosen = all_selected.join(",");
+    else
+      chosen = '*';
+    return chosen;
+  }
+
+  show_value() {
+    var minute, hour, day, month, weekday, cmd;
+
+    minute	= this.getChoice('minute');
+    hour	= this.getChoice('hour');
+    day		= this.getChoice('day');
+    month	= this.getChoice('month');
+    weekday	= this.getChoice('weekday');
+    // @ts-ignore
+    this.cronExpression = "*"+ " " +minute + " " + hour + " " + day + " " + month + " " + weekday + " ";
+
+  }
+
+
+
+
+
 }
 

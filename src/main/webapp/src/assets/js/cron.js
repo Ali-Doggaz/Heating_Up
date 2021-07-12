@@ -1,13 +1,13 @@
 
-function show_value() {
-		var minute, hour, day, month, weekday, cmd;
+export function getNewCronExpression() {
+		var minute, hour, day, month, weekday;
 
 		minute	= getSelection('minute');
 		hour	= getSelection('hour');
 		day		= getSelection('day');
 		month	= getSelection('month');
 		weekday	= getSelection('weekday');
-    document.getElementById("cron").value = minute + "\t" + hour + "\t" + day + "\t" + month + "\t" + weekday + "\t" ;
+    return minute + "\t" + hour + "\t" + day + "\t" + month + "\t" + weekday + "\t" ;
 
 }
 
