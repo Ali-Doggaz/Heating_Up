@@ -15,7 +15,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import java.util.Date;
 
-
+//Task qui sera utilisée pour replannifier les date du balayager
 public class BalayageTask implements Runnable {
 
 

@@ -5,6 +5,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class ScanController {
             if (jobExecutions.size() == 0) return new ResponseEntity<>("Erreur: Aucun balayage n'est en cours",
                     HttpStatus.OK);
             for (JobExecution jobExecution : jobExecutions) {
-                jobOperator.stop(jobExecution.getId());
+                    jobOperator.stop(jobExecution.getId());
                }
             return new ResponseEntity<>("Succès: Balayage arrêté", HttpStatus.OK);
             }
