@@ -53,7 +53,12 @@ public class ClientReportInput {
         parameters.put("REPORT_TITLE", getReportTitle());
         parameters.put("STATS", getStats());
         parameters.put("clientDataSource", getClientDataSource());
+        //On aura besoin de 3 parametres contenants cette meme datasource
+        //pour generer les graphs
         parameters.put("statsReglesDataSource", getStatsReglesDataSource());
+        parameters.put("statsReglesDataSource1", getStatsReglesDataSource().cloneDataSource());
+        parameters.put("statsReglesDataSource2", getStatsReglesDataSource().cloneDataSource());
+
         parameters.put("exceptionDataSource", getExceptionDataSource());
         return parameters;
     }

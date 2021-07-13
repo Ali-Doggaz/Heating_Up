@@ -94,6 +94,7 @@ public class TestRegles {
                 ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(), i);
                 if(!client.isSuspect()) {
                     // Update le client dans la BD
+                    clientTestResult.setSuspect(true);
                     clientService.updateClientSuspicionStatus(client, true);
                 }
                 return clientTestResult;

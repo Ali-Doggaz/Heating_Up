@@ -39,6 +39,7 @@ import javax.persistence.EntityManagerFactory;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Créer la configuration initiale de Spring Batch en créant le Job de scan
@@ -249,6 +250,7 @@ public class BatchConfiguration {
             public void write(List<? extends ClientTestResult> testResults) throws Exception {
                 batchNumber++;
                 clientSuspects = new ArrayList<>();
+                testResults = testResults.stream().filter(client -> !client.isTestsReussis()).collect(Collectors.toList());
                 clientSuspects.addAll(testResults);
                 //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
                 //Et qui sera utilisée pour la generation du rapport (JasperReport)

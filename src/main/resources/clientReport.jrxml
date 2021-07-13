@@ -85,6 +85,22 @@
         <field name="reglesConcernees" class="java.lang.String"/>
         <field name="idsClientsConcernees" class="java.lang.String"/>
     </subDataset>
+    <subDataset name="statsReglesDataSet1" uuid="1f19f78f-8864-4b1e-8911-6e123bde090c">
+        <queryString>
+            <![CDATA[]]>
+        </queryString>
+        <field name="id" class="java.lang.Integer"/>
+        <field name="triggerNumber" class="java.lang.Integer"/>
+        <field name="exceptionsTriggeredNumber" class="java.lang.Integer"/>
+    </subDataset>
+    <subDataset name="statsReglesDataSet2" uuid="b94d5bff-ce99-44e6-9126-55865bb3808b">
+        <queryString>
+            <![CDATA[]]>
+        </queryString>
+        <field name="id" class="java.lang.Integer"/>
+        <field name="triggerNumber" class="java.lang.Integer"/>
+        <field name="exceptionsTriggeredNumber" class="java.lang.Integer"/>
+    </subDataset>
     <parameter name="REPORT_TITLE" class="java.lang.String"/>
     <parameter name="STATS" class="java.lang.String"/>
     <parameter name="clientDataSource" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
@@ -92,6 +108,12 @@
         <parameterDescription><![CDATA[statsRegleDatasource]]></parameterDescription>
     </parameter>
     <parameter name="exceptionDataSource" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+    <parameter name="statsReglesDataSource1" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource">
+        <parameterDescription><![CDATA[statsRegleDatasource]]></parameterDescription>
+    </parameter>
+    <parameter name="statsReglesDataSource2" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource">
+        <parameterDescription><![CDATA[statsRegleDatasource]]></parameterDescription>
+    </parameter>
     <background>
         <band splitType="Stretch"/>
     </background>
@@ -297,116 +319,53 @@
                 </jr:table>
             </componentElement>
         </band>
-        <band height="237" splitType="Stretch">
-            <componentElement>
-                <reportElement stretchType="ContainerHeight" x="-11" y="0" width="810" height="236" uuid="0c7d65ca-a7b7-4411-b480-7ecded7ec1f3">
-                    <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
-                    <property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
-                    <property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
-                    <property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
-                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
-                </reportElement>
-                <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-                    <datasetRun subDataset="ClientDataSet" uuid="92b4fa84-0ce0-4c8a-8b8e-aa47206113cf">
-                        <dataSourceExpression><![CDATA[$P{clientDataSource}]]></dataSourceExpression>
-                    </datasetRun>
-                    <jr:column width="80" uuid="9207f16a-6bfe-498e-ab06-8833ebf2abb0">
-                        <jr:tableHeader style="Table_TH" height="30"/>
-                        <jr:tableFooter style="Table_TH" height="30"/>
-                        <jr:columnHeader style="Table_CH" height="30">
-                            <staticText>
-                                <reportElement x="0" y="0" width="80" height="30" uuid="b7b45bbc-725b-4b69-b5e1-89279fbcd9c0"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <text><![CDATA[ID]]></text>
-                            </staticText>
-                        </jr:columnHeader>
-                        <jr:columnFooter style="Table_CH" height="30"/>
-                        <jr:detailCell style="Table_TD" height="30">
-                            <textField>
-                                <reportElement x="0" y="0" width="80" height="30" uuid="89678582-d494-4bbd-8f23-3ec74d96e5ea"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
-                            </textField>
-                        </jr:detailCell>
-                    </jr:column>
-                    <jr:column width="240" uuid="5e43315e-0532-4e6e-a8f1-3f5b725eac77">
-                        <jr:tableHeader style="Table_TH" height="30"/>
-                        <jr:tableFooter style="Table_TH" height="30"/>
-                        <jr:columnHeader style="Table_CH" height="30">
-                            <staticText>
-                                <reportElement x="0" y="0" width="240" height="30" uuid="09dc8551-2d1c-4864-a922-d27a56759776"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <text><![CDATA[Nationalité]]></text>
-                            </staticText>
-                        </jr:columnHeader>
-                        <jr:columnFooter style="Table_CH" height="30"/>
-                        <jr:detailCell style="Table_TD" height="30">
-                            <textField>
-                                <reportElement x="0" y="0" width="240" height="30" uuid="3a418d20-0c7c-4816-b0cb-1045f0f48e25"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <textFieldExpression><![CDATA[$F{nationalite}]]></textFieldExpression>
-                            </textField>
-                        </jr:detailCell>
-                    </jr:column>
-                    <jr:column width="160" uuid="ba46059c-1a32-49a3-9e39-459cb7334081">
-                        <jr:tableHeader style="Table_TH" height="30"/>
-                        <jr:tableFooter style="Table_TH" height="30"/>
-                        <jr:columnHeader style="Table_CH" height="30">
-                            <staticText>
-                                <reportElement x="0" y="0" width="160" height="30" uuid="fef99fa1-225f-4401-a499-4f0fba983cb3"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <text><![CDATA[Age]]></text>
-                            </staticText>
-                        </jr:columnHeader>
-                        <jr:columnFooter style="Table_CH" height="30"/>
-                        <jr:detailCell style="Table_TD" height="30">
-                            <textField>
-                                <reportElement x="0" y="0" width="160" height="30" uuid="efe51c14-05b8-4e8e-af40-83c2d66717cc"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <textFieldExpression><![CDATA[$F{age}]]></textFieldExpression>
-                            </textField>
-                        </jr:detailCell>
-                    </jr:column>
-                    <jr:column width="210" uuid="7ef524c9-e03c-42e2-a8bf-9d84d6c673e8">
-                        <jr:tableHeader style="Table_TH" height="30"/>
-                        <jr:tableFooter style="Table_TH" height="30"/>
-                        <jr:columnHeader style="Table_CH" height="30">
-                            <staticText>
-                                <reportElement x="0" y="0" width="210" height="30" uuid="b29c5162-6fb2-4926-acec-b2ece0771198"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <text><![CDATA[Revenus]]></text>
-                            </staticText>
-                        </jr:columnHeader>
-                        <jr:columnFooter style="Table_CH" height="30"/>
-                        <jr:detailCell style="Table_TD" height="30">
-                            <textField>
-                                <reportElement x="0" y="0" width="210" height="30" uuid="9cd1f107-56e8-4d90-a4df-f6de2077fe5d"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <textFieldExpression><![CDATA[$F{revenus}]]></textFieldExpression>
-                            </textField>
-                        </jr:detailCell>
-                    </jr:column>
-                    <jr:column width="120" uuid="adfd9590-944e-49fd-b2e5-57ae13ca73a0">
-                        <jr:tableHeader style="Table_TH" height="30"/>
-                        <jr:tableFooter style="Table_TH" height="30"/>
-                        <jr:columnHeader style="Table_CH" height="30">
-                            <staticText>
-                                <reportElement x="0" y="0" width="120" height="30" uuid="e9d130df-9d28-44a4-9665-f5039af1cfac"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <text><![CDATA[Numéro du Test Raté]]></text>
-                            </staticText>
-                        </jr:columnHeader>
-                        <jr:columnFooter style="Table_CH" height="30"/>
-                        <jr:detailCell style="Table_TD" height="30">
-                            <textField>
-                                <reportElement x="0" y="0" width="120" height="30" uuid="ac73fd8b-adcd-46ff-887c-803e07520567"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                                <textFieldExpression><![CDATA[$F{numTestRate}]]></textFieldExpression>
-                            </textField>
-                        </jr:detailCell>
-                    </jr:column>
-                </jr:table>
-            </componentElement>
+        <band height="271" splitType="Stretch">
+            <pieChart>
+                <chart evaluationTime="Report">
+                    <reportElement key="" x="30" y="1" width="330" height="265" uuid="3a1570a3-a59f-40e5-911e-ef32bad6152e"/>
+                    <chartTitle>
+                        <titleExpression><![CDATA["Nombre de suspect identifié par règle"]]></titleExpression>
+                    </chartTitle>
+                    <chartSubtitle/>
+                    <chartLegend/>
+                </chart>
+                <pieDataset minPercentage="5.0">
+                    <dataset resetType="Report">
+                        <datasetRun subDataset="statsReglesDataSet1" uuid="33850163-8680-4aac-83ab-f30dca181782">
+                            <dataSourceExpression><![CDATA[$P{statsReglesDataSource1}]]></dataSourceExpression>
+                        </datasetRun>
+                    </dataset>
+                    <keyExpression><![CDATA["Regle" + $F{id}]]></keyExpression>
+                    <valueExpression><![CDATA[$F{triggerNumber}]]></valueExpression>
+                </pieDataset>
+                <piePlot isShowLabels="true" isCircular="true" labelFormat="{1} ({2})" legendLabelFormat="{0}">
+                    <plot/>
+                    <itemLabel/>
+                </piePlot>
+            </pieChart>
+            <pieChart>
+                <chart evaluationTime="Report">
+                    <reportElement key="" x="360" y="0" width="330" height="265" uuid="6680a4ee-a04c-406a-ab7d-ebadac7edbb9"/>
+                    <chartTitle>
+                        <titleExpression><![CDATA["Nombre d'exceptions denclenchées par règle"]]></titleExpression>
+                    </chartTitle>
+                    <chartSubtitle/>
+                    <chartLegend/>
+                </chart>
+                <pieDataset minPercentage="5.0">
+                    <dataset resetType="Report">
+                        <datasetRun subDataset="statsReglesDataSet2" uuid="b261f175-4773-403f-b609-06dda4f4280c">
+                            <dataSourceExpression><![CDATA[$P{statsReglesDataSource2}]]></dataSourceExpression>
+                        </datasetRun>
+                    </dataset>
+                    <keyExpression><![CDATA["Règle " + $F{id}]]></keyExpression>
+                    <valueExpression><![CDATA[$F{exceptionsTriggeredNumber}]]></valueExpression>
+                </pieDataset>
+                <piePlot isShowLabels="true" isCircular="true" labelFormat="{1} ({2})" legendLabelFormat="{0}">
+                    <plot/>
+                    <itemLabel/>
+                </piePlot>
+            </pieChart>
         </band>
     </detail>
 </jasperReport>
