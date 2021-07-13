@@ -74,6 +74,8 @@ public class BatchConfiguration {
     //numéro du batch/chunk actuel
     private int batchNumber;
 
+    private static String  uniqueJobName;
+
     @Autowired
     private JobExplorer jobExplorer;
 
@@ -131,7 +133,8 @@ public class BatchConfiguration {
                 .throttleLimit(1)
                 .build();
         //Genere un Job avec un nom unique
-        return jobBuilderFactory.get("Scan_Clients"+UUID.randomUUID().toString())
+        uniqueJobName = "Scan_Clients"+UUID.randomUUID().toString();
+        return jobBuilderFactory.get(uniqueJobName)
                 .start(step)
                 .listener(listener)
                 .build();
@@ -354,6 +357,10 @@ public class BatchConfiguration {
 
     public void setClientProcessor(ItemProcessor<Client, ClientTestResult> clientProcessor) {
         this.clientProcessor = clientProcessor;
+    }
+
+    public static String getUniqueJobName() {
+        return uniqueJobName;
     }
 }
 

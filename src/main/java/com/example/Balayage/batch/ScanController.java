@@ -24,7 +24,6 @@ import java.util.Set;
 public class ScanController {
 
 
-    private final String scanJobName = "Scan_Clients";
     private final ScheduledConfiguration scheduledConfiguration = new ScheduledConfiguration();
 
     private static BatchConfiguration batchConfiguration;
@@ -50,7 +49,7 @@ public class ScanController {
     public ResponseEntity<String> launchJob(){
         try {
             //TODO remove this
-            if (jobExplorer.findRunningJobExecutions(scanJobName).size() >= 1){
+            if (jobExplorer.findRunningJobExecutions(BatchConfiguration.getUniqueJobName()).size() >= 1){
                 return new ResponseEntity<>("Veuillez attendre la fin du balayage en cours...", HttpStatus.OK);
             }
             jobLauncher.run(batchConfiguration.ScanJob(), new JobParametersBuilder()
@@ -66,7 +65,7 @@ public class ScanController {
     @GetMapping("Scan/Stop")
     public ResponseEntity<String> stopScanJob(){
         try {
-            Set<JobExecution> jobExecutions = jobExplorer.findRunningJobExecutions(scanJobName);
+            Set<JobExecution> jobExecutions = jobExplorer.findRunningJobExecutions(BatchConfiguration.getUniqueJobName());
             if (jobExecutions.size() == 0) return new ResponseEntity<>("Erreur: Aucun balayage n'est en cours",
                     HttpStatus.OK);
             for (JobExecution jobExecution : jobExecutions) {

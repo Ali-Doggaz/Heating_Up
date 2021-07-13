@@ -43,7 +43,7 @@
     <tr>
     <td>
 
-    <select name="minute" id="minute" multiple="multiple" required (change)="show_value()" class="cronbox" >
+    <select name="minute" id="minute" multiple="multiple" required (change)="get_new_cronExpression()" class="cronbox" >
     <option value="*">Toutes</option>
     <option  *ngFor="let a of minutesArray; let index = index"  value={{index}}>{{index}}</option>
     </select>
@@ -51,7 +51,7 @@
     </td>
     <td>
 
-    <select name="hour" id="hour" multiple="multiple" required (change)="show_value()" class="cronbox">
+    <select name="hour" id="hour" multiple="multiple" required (change)="get_new_cronExpression()" class="cronbox">
     <option value="*">Toutes</option>
     <option  *ngFor="let a of hoursArray; let index = index"  value={{index}}>{{index}}</option>
     </select>
@@ -59,7 +59,7 @@
     </td>
     <td>
 
-    <select name="day" id="day" multiple="multiple" required (change)="show_value()" class="cronbox">
+    <select name="day" id="day" multiple="multiple" required (change)="get_new_cronExpression()" class="cronbox">
     <option value="*">Tous</option>
     <option  *ngFor="let a of daysArray; let index = index"  value={{index+1}}>{{index+1}}</option>
     </select>
@@ -69,7 +69,7 @@
 
 
 
-    <select name="month" id="month" multiple="multiple" required (change)="show_value()" class="cronbox">
+    <select name="month" id="month" multiple="multiple" required (change)="get_new_cronExpression()" class="cronbox">
     <option value="*">Tous</option>
     <option value="1">Janvier</option>
     <option value="2">Février</option>
@@ -89,7 +89,7 @@
     </td>
     <td>
 
-    <select name="weekday" id="weekday" multiple="multiple" required (change)="show_value()" class="cronbox">
+    <select name="weekday" id="weekday" multiple="multiple" required (change)="get_new_cronExpression()" class="cronbox">
     <option value="*">Tous</option>
     <option value="1">Lundi</option>
     <option value="2">Mardi</option>
