@@ -41,18 +41,6 @@ public class BalayageApplication {
 		SpringApplication.run(BalayageApplication.class, args);
 	}
 
-	//TODO modifier ca (la ca s'active toutes les 1 minutes)
-	//Genere un rapport tous les jours, à 8heures
-
-	//@Scheduled(cron = "*/4 * * * * *")
-	public void schedule() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
-		{
-			jobLauncher.run(scanJob, new JobParametersBuilder()
-					.addDate("date", new Date())
-					.toJobParameters());
-		}
-	}
-
 
 	@Bean
 	public CorsFilter corsFilter() {

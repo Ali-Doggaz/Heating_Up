@@ -127,3 +127,10 @@ select {
   font-family: 'Open Sans', sans-serif;
   color: #201E1F ;
 }
+
+.success{
+  -webkit-transition: background-color 1000ms linear;
+  -ms-transition: background-color 1000ms linear;
+  transition: background-color 1000ms linear;
+  background-color: #45a049;
+}

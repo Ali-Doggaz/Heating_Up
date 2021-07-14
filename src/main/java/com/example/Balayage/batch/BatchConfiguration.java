@@ -7,7 +7,10 @@ import com.example.Balayage.regles.StatsException;
 import com.example.Balayage.regles.StatsRegle;
 import com.example.Balayage.regles.TestRegles;
 import com.example.Balayage.report.ScanReportGenerator;
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -22,13 +25,13 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.Trigger;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.support.CronTrigger;
 
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
@@ -36,6 +39,7 @@ import javax.persistence.EntityManagerFactory;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Créer la configuration initiale de Spring Batch en créant le Job de scan
@@ -50,14 +54,28 @@ public class BatchConfiguration {
 
     private static ArrayList<ClientTestResult> clientSuspects;
     private static ArrayList<StatsRegle> statsRegles;
-    private static int chunkSize = 1000;
-    private static int pageSize = 1000;
-    private static String cronExpression = "* * 8 * * *";
+    //Cette configuration sera modifiée quelques secondes après le lancement du programme
+    //grace au commandLineRunner (voir ci-dessous)
+    // La configuration stockée dans la table "batch_config_parameters" sera alors utilisée.
+    private static int chunkSize=1000;
+    private static int pageSize=1000;
+    private static String cronExpression="* 10 2 2 2 2 ";
+    //initialisation de la configuration des balayages depuis la BD
+    @Bean
+    CommandLineRunner commandLineRunner() {
+        return args -> {
+            BatchConfigParams batchConfigParams = batchConfigParamsService.getConfig();
+            chunkSize = batchConfigParams.getChunkSize();
+            pageSize = batchConfigParams.getPageSize();
+            cronExpression = batchConfigParams.getCronExpression();
+            System.out.println("Configuration initialisee...");
+            System.out.println("Chunksize: " + chunkSize+" , Pagesize= "+pageSize+" , cronExpression= "+cronExpression);
+        };
+    }
+    //numéro du batch/chunk actuel
     private int batchNumber;
 
-    private static Trigger jobTrigger = new CronTrigger("*/5 * * * * *");
-    private static ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-
+    private static String  uniqueJobName;
 
     @Autowired
     private JobExplorer jobExplorer;
@@ -86,17 +104,25 @@ public class BatchConfiguration {
     @Autowired
     private ItemProcessor<Client, ClientTestResult> clientProcessor;
 
+    @Autowired
+    BatchConfigParamsService batchConfigParamsService;
 
+    @Autowired
+    Job scanJob;
 
+    //utilisé pour les websockets
     private final SimpMessagingTemplate template;
 
     @Autowired
     BatchConfiguration(SimpMessagingTemplate template){
         this.template = template;
         BalayageTask.setBatchConfiguration(this);
+        ScanController.setBatchConfiguration(this);
     }
 
+
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public Job ScanJob() {
         JobExecutionListener listener = myjoblistener();
         Step step = stepBuilderFactory.get("Traitement-donnees-client")
@@ -107,7 +133,9 @@ public class BatchConfiguration {
                 .allowStartIfComplete(true)
                 .throttleLimit(1)
                 .build();
-        return jobBuilderFactory.get("Scan_Clients")
+        //Genere un Job avec un nom unique
+        uniqueJobName = "Scan_Clients"+UUID.randomUUID().toString();
+        return jobBuilderFactory.get(uniqueJobName)
                 .start(step)
                 .listener(listener)
                 .build();
@@ -181,6 +209,7 @@ public class BatchConfiguration {
      * Récupére les clients un par un depuis la base de données
      */
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ItemReader<Client> reader() {
         String Query = "FROM client ORDER BY id";
         return new JpaPagingItemReaderBuilder<Client>().name("scan-reader")
@@ -197,6 +226,7 @@ public class BatchConfiguration {
      * qui contient les résultat de ces tests
      */
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ItemProcessor<Client, ClientTestResult> processor() {
         return new ItemProcessor<Client, ClientTestResult>() {
             @Override
@@ -209,17 +239,18 @@ public class BatchConfiguration {
     }
 
     /**
-     * Tous les 1000(chunk_size) clients traités, ce writer va s'occuper de
-     * 1. Generer un rapport sommaire des tests efféctués
-     * 2. Ajouter les nouveaux clients identifiés comme "suspects" à la liste "clientSuspects"
+     * Tous les (int)chunk_size clients traités, ce writer va s'occuper de generer
+     * un rapport sommaire des tests efféctués
      */
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ItemWriter<ClientTestResult> writer() {
         return new ItemWriter<ClientTestResult>() {
             @Override
             public void write(List<? extends ClientTestResult> testResults) throws Exception {
                 batchNumber++;
                 clientSuspects = new ArrayList<>();
+                testResults = testResults.stream().filter(client -> !client.isTestsReussis()).collect(Collectors.toList());
                 clientSuspects.addAll(testResults);
                 //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
                 //Et qui sera utilisée pour la generation du rapport (JasperReport)
@@ -278,7 +309,6 @@ public class BatchConfiguration {
         return jobLauncher;
     }
 
-
     public static int getChunkSize() {
         return chunkSize;
     }
@@ -307,6 +337,33 @@ public class BatchConfiguration {
         return jobLauncher;
     }
 
+    public ItemReader<Client> getClientReader() {
+        return clientReader;
+    }
+
+    public void setClientReader(ItemReader<Client> clientReader) {
+        this.clientReader = clientReader;
+    }
+
+    public ItemWriter<ClientTestResult> getClientProcessingWriter() {
+        return clientProcessingWriter;
+    }
+
+    public void setClientProcessingWriter(ItemWriter<ClientTestResult> clientProcessingWriter) {
+        this.clientProcessingWriter = clientProcessingWriter;
+    }
+
+    public ItemProcessor<Client, ClientTestResult> getClientProcessor() {
+        return clientProcessor;
+    }
+
+    public void setClientProcessor(ItemProcessor<Client, ClientTestResult> clientProcessor) {
+        this.clientProcessor = clientProcessor;
+    }
+
+    public static String getUniqueJobName() {
+        return uniqueJobName;
+    }
 }
 
 

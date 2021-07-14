@@ -21,11 +21,13 @@ public class BalayageTask implements Runnable {
 
     public static BatchConfiguration batchConfiguration;
 
-    @Autowired
-    Job scanJob;
-
     public void run() {
         try {
+            //Update les readers/writers/processors suivant la nouvelle configuration
+            batchConfiguration.setClientReader(batchConfiguration.reader());
+            batchConfiguration.setClientProcessingWriter(batchConfiguration.writer());
+            batchConfiguration.setClientProcessor(batchConfiguration.processor());
+            //Programme le nouveau Job
             batchConfiguration.getJobLauncher().run(batchConfiguration.ScanJob(), new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters());

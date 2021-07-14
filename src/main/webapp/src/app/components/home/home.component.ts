@@ -39,6 +39,30 @@ export class HomeComponent implements OnInit {
     this.batchService.changeConfig(newConfig).subscribe(
       (response: String) => {
         console.log(response);
+        //Colorier les input fields et le form de selection de la cronExpression
+        //en vert, pour indiquer le succes de modification de la configuration
+        if (response.indexOf("SUCCES")) {
+          let inputFields = $('input')
+          let cronBoxes = ($('.cronbox'))
+          for (let element of cronBoxes) {
+            console.log("je suis un element")
+            element.classList.add('success')
+            setInterval(
+              function () {
+                element.classList.remove('success')
+              }, 3000
+            )
+          }
+          for (let element of inputFields) {
+            console.log("je suis un element")
+            element.classList.add('success')
+            setInterval(
+              function () {
+                element.classList.remove('success')
+              }, 3000
+            )
+          }
+        }
       },
       (error: HttpErrorResponse) => {
         alert(error.message);
@@ -112,7 +136,7 @@ export class HomeComponent implements OnInit {
     return chosen;
   }
 
-  show_value() {
+  get_new_cronExpression() {
     var minute, hour, day, month, weekday, cmd;
 
     minute	= this.getChoice('minute');

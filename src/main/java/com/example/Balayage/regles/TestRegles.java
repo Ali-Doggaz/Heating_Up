@@ -75,6 +75,8 @@ public class TestRegles {
                     if (statsException.equals(e)) {
                         //On incremente le nbr de declenchement de cette exception
                         statsException.setNombreOccurences(statsException.getNombreOccurences()+1);
+                        //Ajoute le client qui a declenché l'exception a la liste
+                        statsException.setIdsClientsConcernees(statsException.getIdsClientsConcernees() + ", "+client.getId());
                         //Si la règle declenche cette exception pour la premiere fois, le signal a l'instance statsException
                         if (!statsException.getReglesConcernees().contains(" "+i +" ")) {
                             statsException.setReglesConcernees(statsException.getReglesConcernees()+", "+i +" ");
@@ -83,7 +85,7 @@ public class TestRegles {
                     }
                 }
                 //Si l'exception est provoquée pour la première fois, on l'ajoute a notre liste
-                statsExceptions.add(new StatsException(e.getClass().getCanonicalName(), e.getMessage(), 1, " "+i+" "));
+                statsExceptions.add(new StatsException(e.getClass().getCanonicalName(), e.getMessage(), 1, " "+i+" ", " "+client.getId()));
                 continue;
             }
             // On est dans le cas ou le test a eu lieu sans exceptions/imprévus
@@ -92,6 +94,7 @@ public class TestRegles {
                 ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(), i);
                 if(!client.isSuspect()) {
                     // Update le client dans la BD
+                    clientTestResult.setSuspect(true);
                     clientService.updateClientSuspicionStatus(client, true);
                 }
                 return clientTestResult;
