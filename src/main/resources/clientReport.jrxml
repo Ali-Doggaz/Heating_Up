@@ -406,8 +406,11 @@
                         <valueExpression><![CDATA[$P{nbrCustomersAnalyzed}-$F{triggerNumber}]]></valueExpression>
                     </categorySeries>
                 </categoryDataset>
-                <barPlot>
-                    <plot orientation="Horizontal"/>
+                <barPlot isShowTickLabels="true" isShowTickMarks="true">
+                    <plot orientation="Horizontal">
+                        <seriesColor seriesOrder="0" color="#FF050D"/>
+                        <seriesColor seriesOrder="1" color="#0DFF29"/>
+                    </plot>
                     <itemLabel/>
                     <categoryAxisFormat>
                         <axisFormat labelColor="#000000" tickLabelColor="#000000" axisLineColor="#000000"/>
