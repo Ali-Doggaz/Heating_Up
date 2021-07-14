@@ -1,6 +1,7 @@
 package com.example.Balayage.report;
 
 
+import com.example.Balayage.batch.BatchConfiguration;
 import com.example.Balayage.regles.ClientTestResult;
 import com.example.Balayage.regles.StatsException;
 import com.example.Balayage.regles.StatsRegle;
@@ -29,6 +30,8 @@ public class ClientReportDataAssembler {
 
         JRBeanCollectionDataSource exceptionDataSource = new JRBeanCollectionDataSource(statsExceptions);
         ClientReportInput.setExceptionDataSource(exceptionDataSource);
+
+        ClientReportInput.setNbr_customers_analyzed(BatchConfiguration.getChunkSize());
 
         return ClientReportInput;
     }

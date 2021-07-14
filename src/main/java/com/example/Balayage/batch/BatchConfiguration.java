@@ -59,7 +59,7 @@ public class BatchConfiguration {
     // La configuration stockée dans la table "batch_config_parameters" sera alors utilisée.
     private static int chunkSize=1000;
     private static int pageSize=1000;
-    private static String cronExpression="* * 10 * * *";
+    private static String cronExpression="* 10 2 2 2 2 ";
     //initialisation de la configuration des balayages depuis la BD
     @Bean
     CommandLineRunner commandLineRunner() {
