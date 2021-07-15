@@ -226,7 +226,6 @@ public class BatchConfiguration {
      * qui contient les résultat de ces tests
      */
     @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ItemProcessor<Client, ClientTestResult> processor() {
         return new ItemProcessor<Client, ClientTestResult>() {
             @Override
@@ -243,7 +242,6 @@ public class BatchConfiguration {
      * un rapport sommaire des tests efféctués
      */
     @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ItemWriter<ClientTestResult> writer() {
         return new ItemWriter<ClientTestResult>() {
             @Override
