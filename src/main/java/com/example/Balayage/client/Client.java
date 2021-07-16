@@ -1,11 +1,11 @@
 package com.example.Balayage.client;
 import static javax.persistence.GenerationType.SEQUENCE;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 
 @Entity(name="client")
 @Table(name="client")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Client {
     @Id
     @SequenceGenerator(

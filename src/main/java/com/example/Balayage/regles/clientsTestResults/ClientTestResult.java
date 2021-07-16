@@ -1,22 +1,32 @@
-package com.example.Balayage.regles;
+package com.example.Balayage.regles.clientsTestResults;
 
 import com.example.Balayage.client.Client;
 
-import java.util.ArrayList;
+import javax.persistence.Entity;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Transient;
 import java.util.Map;
 
+@Entity
+@PrimaryKeyJoinColumn(name = "ClientTestResultId")
 public class ClientTestResult extends Client{
-
-    // Contient le nombre de declenchement totale de chaque regle durant le balayage
-    private static Map<Integer, Integer> nbrDeclenchementRegles;
-    // Contient le nombre d'exception declenchées par chaque règle
-    private static Map<Integer, Integer> nbrExceptionsRegles;
-
-    private static Integer nbrSuspectsDetectes;
-    private static Integer nbrClientsTestes;
 
     private boolean testsReussis;   // true si tous les tests ont été réussis, false sinon
     private int numTestRate;        // Si un test n'a pas été réussi, le numéro de ce test sera stocké ici
+
+    //TODO remove these 2 static variables - replace with table
+
+    // Contient le nombre de declenchement totale de chaque regle durant le balayage
+    @Transient
+    private static Map<Integer, Integer> nbrDeclenchementRegles;
+    // Contient le nombre d'exception declenchées par chaque règle
+    @Transient
+    private static Map<Integer, Integer> nbrExceptionsRegles;
+    @Transient
+    private static Integer nbrSuspectsDetectes;
+    @Transient
+    private static Integer nbrClientsTestes;
+
 
     //constructeur à appeler en cas de succes des tests
     public ClientTestResult(Long id, String nationalite, int age, double revenus) {
@@ -35,6 +45,10 @@ public class ClientTestResult extends Client{
         nbrDeclenchementRegles.put(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
         nbrClientsTestes++;
         nbrSuspectsDetectes++;
+    }
+
+    //No-args constructor, needed for @Entity annotation
+    public ClientTestResult() {
     }
 
     public static Map<Integer, Integer> getNbrDeclenchementRegles() {

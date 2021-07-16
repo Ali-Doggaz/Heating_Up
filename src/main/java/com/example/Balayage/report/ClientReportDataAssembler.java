@@ -2,9 +2,9 @@ package com.example.Balayage.report;
 
 
 import com.example.Balayage.batch.BatchConfiguration;
-import com.example.Balayage.regles.ClientTestResult;
-import com.example.Balayage.regles.StatsException;
-import com.example.Balayage.regles.StatsRegle;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
+import com.example.Balayage.regles.statsExceptions.StatsException;
+import com.example.Balayage.regles.statsRegles.StatsRegle;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 import java.time.format.DateTimeFormatter;

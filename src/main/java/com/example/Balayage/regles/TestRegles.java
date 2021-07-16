@@ -2,6 +2,8 @@ package com.example.Balayage.regles;
 
 import com.example.Balayage.client.Client;
 import com.example.Balayage.client.ClientService;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
+import com.example.Balayage.regles.statsExceptions.StatsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -12,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 
 @Component
 public class TestRegles {

@@ -1,4 +1,4 @@
-package com.example.Balayage.regles;
+package com.example.Balayage.regles.statsExceptions;
 
 public class StatsException {
     private String type;

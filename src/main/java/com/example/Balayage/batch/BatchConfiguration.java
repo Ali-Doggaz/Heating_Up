@@ -2,9 +2,9 @@
 package com.example.Balayage.batch;
 
 import com.example.Balayage.client.Client;
-import com.example.Balayage.regles.ClientTestResult;
-import com.example.Balayage.regles.StatsException;
-import com.example.Balayage.regles.StatsRegle;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
+import com.example.Balayage.regles.statsExceptions.StatsException;
+import com.example.Balayage.regles.statsRegles.StatsRegle;
 import com.example.Balayage.regles.TestRegles;
 import com.example.Balayage.report.ScanReportGenerator;
 import org.springframework.batch.core.*;

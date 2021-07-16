@@ -71,9 +71,10 @@
         <queryString>
             <![CDATA[]]>
         </queryString>
-        <field name="id" class="java.lang.Integer"/>
+        <field name="id" class="java.lang.Long"/>
         <field name="triggerNumber" class="java.lang.Integer"/>
         <field name="exceptionsTriggeredNumber" class="java.lang.Integer"/>
+        <field name="ruleNumber" class="java.lang.Integer"/>
     </subDataset>
     <subDataset name="ExceptionDataSet" uuid="e99d937d-5311-4003-8ec3-eeed766d440b">
         <queryString>
@@ -89,26 +90,29 @@
         <queryString>
             <![CDATA[]]>
         </queryString>
-        <field name="id" class="java.lang.Integer"/>
+        <field name="id" class="java.lang.Long"/>
         <field name="triggerNumber" class="java.lang.Integer"/>
         <field name="exceptionsTriggeredNumber" class="java.lang.Integer"/>
+        <field name="ruleNumber" class="java.lang.Integer"/>
     </subDataset>
     <subDataset name="statsReglesDataSet2" uuid="b94d5bff-ce99-44e6-9126-55865bb3808b">
         <queryString>
             <![CDATA[]]>
         </queryString>
-        <field name="id" class="java.lang.Integer"/>
+        <field name="id" class="java.lang.Long"/>
         <field name="triggerNumber" class="java.lang.Integer"/>
         <field name="exceptionsTriggeredNumber" class="java.lang.Integer"/>
+        <field name="ruleNumber" class="java.lang.Integer"/>
     </subDataset>
     <subDataset name="statsReglesDataSet3" uuid="bff5330f-d08d-48bf-8a16-552161108685">
         <parameter name="nbrCustomersAnalyzed" class="java.lang.Integer"/>
         <queryString>
             <![CDATA[]]>
         </queryString>
-        <field name="id" class="java.lang.Integer"/>
+        <field name="id" class="java.lang.Long"/>
         <field name="triggerNumber" class="java.lang.Integer"/>
         <field name="exceptionsTriggeredNumber" class="java.lang.Integer"/>
+        <field name="ruleNumber" class="java.lang.Integer"/>
     </subDataset>
     <parameter name="REPORT_TITLE" class="java.lang.String"/>
     <parameter name="STATS" class="java.lang.String"/>
@@ -192,7 +196,7 @@
                             <textField>
                                 <reportElement x="0" y="0" width="50" height="20" uuid="84c278a0-d786-4b9c-aed6-3085cd074180"/>
                                 <textElement textAlignment="Center"/>
-                                <textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+                                <textFieldExpression><![CDATA[$F{ruleNumber}]]></textFieldExpression>
                             </textField>
                         </jr:detailCell>
                     </jr:column>
@@ -335,7 +339,7 @@
         <band height="439" splitType="Stretch">
             <pieChart>
                 <chart evaluationTime="Report">
-                    <reportElement key="" x="30" y="1" width="320" height="229" uuid="3a1570a3-a59f-40e5-911e-ef32bad6152e"/>
+                    <reportElement key="" x="30" y="1" width="320" height="229" uuid="c5421beb-6846-4154-8485-0138735201e0"/>
                     <chartTitle>
                         <titleExpression><![CDATA["Nombre de suspect identifié par règle"]]></titleExpression>
                     </chartTitle>
@@ -344,11 +348,11 @@
                 </chart>
                 <pieDataset minPercentage="5.0">
                     <dataset resetType="Report">
-                        <datasetRun subDataset="statsReglesDataSet1" uuid="33850163-8680-4aac-83ab-f30dca181782">
+                        <datasetRun subDataset="statsReglesDataSet1" uuid="e9f7b528-7bb4-4efa-bd5a-81bd5e643175">
                             <dataSourceExpression><![CDATA[$P{statsReglesDataSource1}]]></dataSourceExpression>
                         </datasetRun>
                     </dataset>
-                    <keyExpression><![CDATA["Regle" + $F{id}]]></keyExpression>
+                    <keyExpression><![CDATA["Regle" + $F{ruleNumber}]]></keyExpression>
                     <valueExpression><![CDATA[$F{triggerNumber}]]></valueExpression>
                 </pieDataset>
                 <piePlot isShowLabels="true" isCircular="true" labelFormat="{1} ({2})" legendLabelFormat="{0}">
@@ -358,7 +362,7 @@
             </pieChart>
             <pieChart>
                 <chart evaluationTime="Report">
-                    <reportElement key="" x="460" y="0" width="310" height="230" uuid="6680a4ee-a04c-406a-ab7d-ebadac7edbb9"/>
+                    <reportElement key="" x="460" y="0" width="310" height="230" uuid="725f25fd-864d-4559-95dd-75e09bde3b56"/>
                     <chartTitle>
                         <titleExpression><![CDATA["Nombre d'exceptions denclenchées par règle"]]></titleExpression>
                     </chartTitle>
@@ -367,11 +371,11 @@
                 </chart>
                 <pieDataset minPercentage="5.0">
                     <dataset resetType="Report">
-                        <datasetRun subDataset="statsReglesDataSet2" uuid="b261f175-4773-403f-b609-06dda4f4280c">
+                        <datasetRun subDataset="statsReglesDataSet2" uuid="731438ad-810f-41e6-aeb7-66daa790d180">
                             <dataSourceExpression><![CDATA[$P{statsReglesDataSource2}]]></dataSourceExpression>
                         </datasetRun>
                     </dataset>
-                    <keyExpression><![CDATA["Règle " + $F{id}]]></keyExpression>
+                    <keyExpression><![CDATA["Règle " + $F{ruleNumber}]]></keyExpression>
                     <valueExpression><![CDATA[$F{exceptionsTriggeredNumber}]]></valueExpression>
                 </pieDataset>
                 <piePlot isShowLabels="true" isCircular="true" labelFormat="{1} ({2})" legendLabelFormat="{0}">
@@ -381,14 +385,14 @@
             </pieChart>
             <stackedBarChart>
                 <chart>
-                    <reportElement x="60" y="240" width="670" height="190" uuid="2ed5becd-88f2-4f0b-83b6-be5cf4e8f875"/>
+                    <reportElement x="60" y="240" width="670" height="190" uuid="e57a96dd-8f4a-414e-b841-8e5c11b5b781"/>
                     <chartTitle/>
                     <chartSubtitle/>
                     <chartLegend/>
                 </chart>
                 <categoryDataset>
                     <dataset resetType="Report">
-                        <datasetRun subDataset="statsReglesDataSet3" uuid="760363c4-6706-4ba1-9e05-506f90bc3d4e">
+                        <datasetRun subDataset="statsReglesDataSet3" uuid="cb7aa49f-5cd0-46ab-9aba-b42a780a2e66">
                             <datasetParameter name="nbrCustomersAnalyzed">
                                 <datasetParameterExpression><![CDATA[$P{nbr_customers_analyzed}]]></datasetParameterExpression>
                             </datasetParameter>
@@ -397,12 +401,12 @@
                     </dataset>
                     <categorySeries>
                         <seriesExpression><![CDATA["Suspectés"]]></seriesExpression>
-                        <categoryExpression><![CDATA["Règle " + $F{id}]]></categoryExpression>
+                        <categoryExpression><![CDATA["Règle " + $F{ruleNumber}]]></categoryExpression>
                         <valueExpression><![CDATA[$F{triggerNumber}]]></valueExpression>
                     </categorySeries>
                     <categorySeries>
                         <seriesExpression><![CDATA["Non Suspectés"]]></seriesExpression>
-                        <categoryExpression><![CDATA["Règle " + $F{id}]]></categoryExpression>
+                        <categoryExpression><![CDATA["Règle " + $F{ruleNumber}]]></categoryExpression>
                         <valueExpression><![CDATA[$P{nbrCustomersAnalyzed}-$F{triggerNumber}]]></valueExpression>
                     </categorySeries>
                 </categoryDataset>
