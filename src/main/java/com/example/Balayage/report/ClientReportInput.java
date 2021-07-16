@@ -10,7 +10,6 @@ public class ClientReportInput {
     private String stats;
     private Integer nbr_customers_analyzed;
 
-    private JRBeanCollectionDataSource clientDataSource;
     private JRBeanCollectionDataSource statsReglesDataSource;
     private JRBeanCollectionDataSource exceptionDataSource;
 
@@ -34,12 +33,6 @@ public class ClientReportInput {
         this.nbr_customers_analyzed = nbr_customers_analyzed;
     }
 
-    public JRBeanCollectionDataSource getClientDataSource() {
-        return clientDataSource;
-    }
-    public void setClientDataSource(JRBeanCollectionDataSource clientDataSource) {
-        this.clientDataSource = clientDataSource;
-    }
 
     public JRBeanCollectionDataSource getStatsReglesDataSource() {
         return statsReglesDataSource;
@@ -62,7 +55,6 @@ public class ClientReportInput {
         parameters.put("REPORT_TITLE", getReportTitle());
         parameters.put("nbr_customers_analyzed", getNbr_customers_analyzed());
         parameters.put("STATS", getStats());
-        parameters.put("clientDataSource", getClientDataSource());
         parameters.put("exceptionDataSource", getExceptionDataSource());
         //On aura besoin de 4 parametres contenants cette meme datasource (statsRegles)
         //pour generer les graphs

@@ -57,16 +57,6 @@
             <rightPen lineWidth="0.5" lineColor="#000000"/>
         </box>
     </style>
-    <subDataset name="ClientDataSet" uuid="8851d34a-4370-4ed5-8a70-0e1fae9318cd">
-        <queryString>
-            <![CDATA[]]>
-        </queryString>
-        <field name="id" class="java.lang.Long"/>
-        <field name="nationalite" class="java.lang.String"/>
-        <field name="age" class="java.lang.Integer"/>
-        <field name="revenus" class="java.lang.Double"/>
-        <field name="numTestRate" class="java.lang.Integer"/>
-    </subDataset>
     <subDataset name="StatsRegleDataSet" uuid="ac90ea90-c198-4832-984f-e11509730f69">
         <queryString>
             <![CDATA[]]>
@@ -116,7 +106,6 @@
     </subDataset>
     <parameter name="REPORT_TITLE" class="java.lang.String"/>
     <parameter name="STATS" class="java.lang.String"/>
-    <parameter name="clientDataSource" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
     <parameter name="statsReglesDataSource" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource">
         <parameterDescription><![CDATA[statsRegleDatasource]]></parameterDescription>
     </parameter>

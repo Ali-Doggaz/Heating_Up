@@ -96,14 +96,11 @@ public class TestRegles {
             // On est dans le cas ou le test a eu lieu sans exceptions/imprévus
             //Si un test a echoué, on créer le clientTestResult et on arrete le traitement
             if (!boolTestResult) {
-                ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(),
-                        client.getRevenus(), i, jobExecutionID, batchNumber);
+                ClientTestResult clientTestResult = new ClientTestResult(client, i, jobExecutionID, batchNumber);
 
-                clientTestResultService.add(clientTestResult);
 
                 if(!client.isSuspect()) {
                     // Update le client dans la BD
-                    clientTestResult.setSuspect(true);
                     clientService.updateClientSuspicionStatus(client, true);
                 }
                 return clientTestResult;
@@ -115,10 +112,7 @@ public class TestRegles {
             clientService.updateClientSuspicionStatus(client, false);
         }
 
-        ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(),
-                jobExecutionID, batchNumber);
-
-        clientTestResultService.add(clientTestResult);
+        ClientTestResult clientTestResult = new ClientTestResult(client, jobExecutionID, batchNumber);
 
         return clientTestResult;
 

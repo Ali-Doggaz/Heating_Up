@@ -2,14 +2,32 @@ package com.example.Balayage.regles.clientsTestResults;
 
 import com.example.Balayage.client.Client;
 
-import javax.persistence.Entity;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.Map;
 
+import static javax.persistence.GenerationType.SEQUENCE;
+
 @Entity
-@PrimaryKeyJoinColumn(name = "id")
-public class ClientTestResult extends Client{
+public class ClientTestResult{
+    @Id
+    @SequenceGenerator(
+            name="client_sequence",
+            sequenceName = "client_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = SEQUENCE,
+            generator = "client_sequence"
+    )
+    @Column(name="clientTestResultId",
+            updatable = false,
+            nullable = false
+    )
+    protected Long clientTestResultId;
+
+    @ManyToOne
+    @JoinColumn(name="id")
+    private Client client;
 
     private boolean testsReussis;   // true si tous les tests ont été réussis, false sinon
     private int numTestRate;        // Si un test n'a pas été réussi, le numéro de ce test sera stocké ici
@@ -32,8 +50,8 @@ public class ClientTestResult extends Client{
 
 
     //constructeur à appeler en cas de succes des tests
-    public ClientTestResult(Long id, String nationalite, int age, double revenus, Long jobExecutionID, int batchNumber) {
-        super(id, nationalite, age, revenus);
+    public ClientTestResult(Client client, Long jobExecutionID, int batchNumber) {
+        this.client = client;
         this.testsReussis = true;
         numTestRate = -1;
         nbrClientsTestes++;
@@ -43,8 +61,8 @@ public class ClientTestResult extends Client{
 
 
     // Constructeur à appeler en cas d'echec d'un test
-    public ClientTestResult(Long id, String nationalite, int age, double revenus, int numTestRate, Long jobExecutionID, int batchNumber){
-        super(id, nationalite, age, revenus);
+    public ClientTestResult(Client client, int numTestRate, Long jobExecutionID, int batchNumber){
+        this.client = client;
         this.testsReussis = false;
         this.numTestRate = numTestRate;
         nbrDeclenchementRegles.put(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
@@ -88,12 +106,12 @@ public class ClientTestResult extends Client{
         ClientTestResult.nbrClientsTestes = nbrClientsTestes;
     }
 
-    public Long getId() {
-        return id;
+    public Client getClient() {
+        return client;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setId(Client client) {
+        this.client = client;
     }
 
     public boolean isTestsReussis() {
@@ -127,7 +145,7 @@ public class ClientTestResult extends Client{
     @Override
     public String toString() {
         return "ClientTestResult{" +
-                "id=" + id +
+                "id=" + client +
                 ", testsReussis=" + testsReussis +
                 ", numTestRate=" + numTestRate +
                 '}';

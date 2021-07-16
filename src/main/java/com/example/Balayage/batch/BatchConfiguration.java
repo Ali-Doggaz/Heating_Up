@@ -3,6 +3,7 @@ package com.example.Balayage.batch;
 
 import com.example.Balayage.client.Client;
 import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResultService;
 import com.example.Balayage.regles.statsExceptions.StatsException;
 import com.example.Balayage.regles.statsRegles.StatsRegle;
 import com.example.Balayage.regles.TestRegles;
@@ -48,6 +49,9 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableBatchProcessing
 public class BatchConfiguration {
+
+    @Autowired
+    private ClientTestResultService clientTestResultService;
 
     @Autowired
     private TestRegles testRegles;
@@ -274,6 +278,7 @@ public class BatchConfiguration {
 
             @Override
             public void write(List<? extends ClientTestResult> testResults) throws Exception {
+                clientTestResultService.addAll(testResults);
                 //Ajouter les nouveaux clients suspects detectés
                 testResults = testResults.stream().filter(client -> !client.isTestsReussis()).collect(Collectors.toList());
                 clientSuspects.addAll(testResults);

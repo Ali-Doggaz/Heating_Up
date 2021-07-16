@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class ScanReportGenerator {
     public void generateReport(ArrayList<ClientTestResult> clientsSuspects, ArrayList<StatsRegle> statsRegles, ArrayList<StatsException> statsExceptions,
                                int batchNumber) throws IOException {
-        ClientReportInput clientReportInput = ClientReportDataAssembler.assemble(clientsSuspects, statsRegles, statsExceptions);
+        ClientReportInput clientReportInput = ClientReportDataAssembler.assemble( statsRegles, statsExceptions);
 
         try {
             //TODO remove

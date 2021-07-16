@@ -1,7 +1,10 @@
 package com.example.Balayage.client;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
+
 import static javax.persistence.GenerationType.SEQUENCE;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity(name="client")
 @Table(name="client")
@@ -27,6 +30,9 @@ public class Client {
     protected int age;
     protected double revenus;
     protected boolean suspect;
+
+    @OneToMany(mappedBy = "client")
+    private List<ClientTestResult> clientTestResults;
 
     public Client() {
     }
