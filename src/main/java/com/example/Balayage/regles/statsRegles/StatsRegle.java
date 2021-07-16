@@ -26,6 +26,7 @@ public class StatsRegle implements Comparable<StatsRegle>{
     private int triggerNumber;
     private int exceptionsTriggeredNumber;
     private Long jobExecutionID;
+    private int batchNumber;
 
     public StatsRegle() {
     }

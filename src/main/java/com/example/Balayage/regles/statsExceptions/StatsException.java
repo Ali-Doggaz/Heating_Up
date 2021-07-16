@@ -28,6 +28,7 @@ public class StatsException {
     private String reglesConcernees;
     private String idsClientsConcernees;
     private Long jobExecutionID;
+    private int batchNumber;
 
     public StatsException() {
     }
