@@ -7,10 +7,9 @@ import com.example.Balayage.regles.StatsException;
 import com.example.Balayage.regles.StatsRegle;
 import com.example.Balayage.regles.TestRegles;
 import com.example.Balayage.report.ScanReportGenerator;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.annotation.AfterStep;
+import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -59,6 +58,7 @@ public class BatchConfiguration {
     // La configuration stockée dans la table "batch_config_parameters" sera alors utilisée.
     private static int chunkSize=1000;
     private static int pageSize=1000;
+    private static int nbrClientsParRapport=2000;
     private static String cronExpression="* 10 2 2 2 2 ";
     //initialisation de la configuration des balayages depuis la BD
     @Bean
@@ -72,8 +72,6 @@ public class BatchConfiguration {
             System.out.println("Chunksize: " + chunkSize+" , Pagesize= "+pageSize+" , cronExpression= "+cronExpression);
         };
     }
-    //numéro du batch/chunk actuel
-    private int batchNumber;
 
     private static String  uniqueJobName;
 
@@ -187,7 +185,6 @@ public class BatchConfiguration {
                 //Initialise le nombre de suspects detectés a 0
                 TestRegles.setStatsExceptions(new ArrayList<StatsException>());
 
-                batchNumber = 0;
                 //Envoyer une socket a l'UI pour l'informer que le job a demarré
                 String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
                 template.convertAndSend("/JobStatus", "Status: Balayage en cours - Heure de démarrage du balayge: " + timeStamp);
@@ -244,31 +241,54 @@ public class BatchConfiguration {
     @Bean
     public ItemWriter<ClientTestResult> writer() {
         return new ItemWriter<ClientTestResult>() {
+
+            private StepExecution stepExecution;
+
+            @BeforeStep
+            public void saveStepExecution(StepExecution stepExecution) {
+                this.stepExecution = stepExecution;
+                //initaliser les collections
+                clientSuspects = new ArrayList<>();
+                statsRegles = new ArrayList<StatsRegle>();
+            }
+
+            @AfterStep
+            public void writeLastClients() {
+                //Si certains clients n'ont pas encore été écrit dans un rapport
+                if (stepExecution.getWriteCount() % nbrClientsParRapport != 0) {
+                    generateReport();
+                }
+            }
+
             @Override
             public void write(List<? extends ClientTestResult> testResults) throws Exception {
-                batchNumber++;
-                clientSuspects = new ArrayList<>();
+                //Ajouter les nouveaux clients suspects detectés
                 testResults = testResults.stream().filter(client -> !client.isTestsReussis()).collect(Collectors.toList());
                 clientSuspects.addAll(testResults);
+                //Si on a traité "nbrClientsParRapport"(int) nouveaux clients, on genere un rapport
+                if ((stepExecution.getWriteCount() + chunkSize) % nbrClientsParRapport < chunkSize) {
+                    generateReport();
+                }
+            }
+
+            public void generateReport(){
                 //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
                 //Et qui sera utilisée pour la generation du rapport (JasperReport)
-                statsRegles = new ArrayList<StatsRegle>();
                 for (Map.Entry<Integer, Integer> statRegle : ClientTestResult.getNbrDeclenchementRegles().entrySet()) {
-                    //TODO modify constructor to take number of exceptions triggered
                     int numRegle = statRegle.getKey();
                     statsRegles.add(new StatsRegle(
-                            numRegle,
-                            statRegle.getValue(),
-                            ClientTestResult.getNbrExceptionsRegles().get(numRegle)
+                                    numRegle,
+                                    statRegle.getValue(),
+                                    ClientTestResult.getNbrExceptionsRegles().get(numRegle)
                             )
                     );
                 }
                 Collections.sort(statsRegles);
                 try {
                     ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
+                    int batchNumber = stepExecution.getWriteCount() / nbrClientsParRapport;
                     scanReportGenerator.generateReport(clientSuspects, statsRegles, TestRegles.getStatsExceptions(), batchNumber);
-                }
-                catch(IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 //Reinitialise tous les parametres pour generer le rapport du prochain batch
@@ -287,6 +307,8 @@ public class BatchConfiguration {
                 ClientTestResult.setNbrSuspectsDetectes(0);
                 ClientTestResult.setNbrClientsTestes(0);
                 TestRegles.setStatsExceptions(new ArrayList<StatsException>());
+                clientSuspects = new ArrayList<>();
+                statsRegles = new ArrayList<StatsRegle>();
             }
         };
     }
