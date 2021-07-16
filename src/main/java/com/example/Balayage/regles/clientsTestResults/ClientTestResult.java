@@ -37,7 +37,7 @@ public class ClientTestResult extends Client{
         this.testsReussis = true;
         numTestRate = -1;
         nbrClientsTestes++;
-        this.jobID = jobID
+        this.jobID = jobID;
     }
 
 
