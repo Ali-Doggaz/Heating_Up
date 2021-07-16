@@ -8,11 +8,14 @@ import javax.persistence.Transient;
 import java.util.Map;
 
 @Entity
-@PrimaryKeyJoinColumn(name = "ClientTestResultId")
+@PrimaryKeyJoinColumn(name = "id")
 public class ClientTestResult extends Client{
 
     private boolean testsReussis;   // true si tous les tests ont été réussis, false sinon
     private int numTestRate;        // Si un test n'a pas été réussi, le numéro de ce test sera stocké ici
+
+    //TODO check if possible to add one-to-many relationship
+    private Long jobID;
 
     //TODO remove these 2 static variables - replace with table
 
@@ -29,11 +32,12 @@ public class ClientTestResult extends Client{
 
 
     //constructeur à appeler en cas de succes des tests
-    public ClientTestResult(Long id, String nationalite, int age, double revenus) {
+    public ClientTestResult(Long id, String nationalite, int age, double revenus, Long jobID) {
         super(id, nationalite, age, revenus);
         this.testsReussis = true;
         numTestRate = -1;
         nbrClientsTestes++;
+        this.jobID = jobID
     }
 
 
