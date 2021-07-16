@@ -15,4 +15,7 @@ public class ClientTestResultService {
         this.clientTestResultRepository = clientTestResultRepository;
     }
 
+    public void add(ClientTestResult clientTestResult){
+        clientTestResultRepository.save(clientTestResult);
+    }
 }

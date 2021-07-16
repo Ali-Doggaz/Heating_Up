@@ -27,7 +27,7 @@ public class StatsException {
     private Integer nombreOccurences;
     private String reglesConcernees;
     private String idsClientsConcernees;
-    private Long jobID;
+    private Long jobExecutionID;
 
     public StatsException() {
     }

@@ -24,6 +24,7 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -224,12 +225,22 @@ public class BatchConfiguration {
      */
     @Bean
     public ItemProcessor<Client, ClientTestResult> processor() {
+
         return new ItemProcessor<Client, ClientTestResult>() {
+            private Long jobExecutionID;
+            private StepExecution stepExecution;
+
+            @BeforeStep
+            public void saveStepExecution(StepExecution stepExecution) {
+                jobExecutionID = stepExecution.getJobExecutionId();
+                this.stepExecution = stepExecution;
+            }
             @Override
             public ClientTestResult process(Client client) throws Exception {
                 //on effectue les tests et on retourne le resultat sous forme d'instance de
                 //la classe ClientTestResult
-                return(testRegles.fireAll(client));
+                int batchNumber = stepExecution.getWriteCount() / nbrClientsParRapport;
+                return(testRegles.fireAll(client, jobExecutionID, batchNumber));
             }
         };
     }

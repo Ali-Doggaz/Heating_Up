@@ -13,9 +13,9 @@ public class ClientTestResult extends Client{
 
     private boolean testsReussis;   // true si tous les tests ont été réussis, false sinon
     private int numTestRate;        // Si un test n'a pas été réussi, le numéro de ce test sera stocké ici
-
+    private int batchNumber;
     //TODO check if possible to add one-to-many relationship
-    private Long jobID;
+    private Long jobExecutionID;
 
     //TODO remove these 2 static variables - replace with table
 
@@ -32,23 +32,26 @@ public class ClientTestResult extends Client{
 
 
     //constructeur à appeler en cas de succes des tests
-    public ClientTestResult(Long id, String nationalite, int age, double revenus, Long jobID) {
+    public ClientTestResult(Long id, String nationalite, int age, double revenus, Long jobExecutionID, int batchNumber) {
         super(id, nationalite, age, revenus);
         this.testsReussis = true;
         numTestRate = -1;
         nbrClientsTestes++;
-        this.jobID = jobID;
+        this.jobExecutionID = jobExecutionID;
+        this.batchNumber = batchNumber;
     }
 
 
     // Constructeur à appeler en cas d'echec d'un test
-    public ClientTestResult(Long id, String nationalite, int age, double revenus, int numTestRate){
+    public ClientTestResult(Long id, String nationalite, int age, double revenus, int numTestRate, Long jobExecutionID, int batchNumber){
         super(id, nationalite, age, revenus);
         this.testsReussis = false;
         this.numTestRate = numTestRate;
         nbrDeclenchementRegles.put(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
         nbrClientsTestes++;
         nbrSuspectsDetectes++;
+        this.jobExecutionID = jobExecutionID;
+        this.batchNumber = batchNumber;
     }
 
     //No-args constructor, needed for @Entity annotation

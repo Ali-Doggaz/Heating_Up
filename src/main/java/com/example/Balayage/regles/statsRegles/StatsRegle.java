@@ -25,7 +25,7 @@ public class StatsRegle implements Comparable<StatsRegle>{
     private int ruleNumber;
     private int triggerNumber;
     private int exceptionsTriggeredNumber;
-    private Long jobID;
+    private Long jobExecutionID;
 
     public StatsRegle() {
     }

@@ -3,6 +3,7 @@ package com.example.Balayage.regles;
 import com.example.Balayage.client.Client;
 import com.example.Balayage.client.ClientService;
 import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResultService;
 import com.example.Balayage.regles.statsExceptions.StatsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionParser;
@@ -17,6 +18,9 @@ import java.util.ArrayList;
 
 @Component
 public class TestRegles {
+
+    @Autowired
+    private ClientTestResultService clientTestResultService;
 
     @Autowired
     private ClientService clientService;
@@ -51,7 +55,7 @@ public class TestRegles {
      * @param client -- client à tester
      * @return ClientTestResult -- Instance contenant les stats du balayage/Scan
      */
-    public ClientTestResult fireAll(Client client) {
+    public ClientTestResult fireAll(Client client, Long jobExecutionID, int batchNumber) {
 
         ExpressionParser parser = new SpelExpressionParser();
         //create EvaluationContext
@@ -92,7 +96,11 @@ public class TestRegles {
             // On est dans le cas ou le test a eu lieu sans exceptions/imprévus
             //Si un test a echoué, on créer le clientTestResult et on arrete le traitement
             if (!boolTestResult) {
-                ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(), i);
+                ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(),
+                        client.getRevenus(), i, jobExecutionID, batchNumber);
+
+                clientTestResultService.add(clientTestResult);
+
                 if(!client.isSuspect()) {
                     // Update le client dans la BD
                     clientTestResult.setSuspect(true);
@@ -107,7 +115,13 @@ public class TestRegles {
             clientService.updateClientSuspicionStatus(client, false);
         }
 
-        return(new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus()));
+        ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(),
+                jobExecutionID, batchNumber);
+
+        clientTestResultService.add(clientTestResult);
+
+        return clientTestResult;
+
     }
 
 
