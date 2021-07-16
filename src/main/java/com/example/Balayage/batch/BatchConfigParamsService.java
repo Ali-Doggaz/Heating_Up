@@ -18,7 +18,8 @@ public class BatchConfigParamsService {
         List<BatchConfigParams> configs =  batchConfigParamsRepository.findAll();
         //Si aucune config n'est trouvée, on ajoute la config par default ci-dessous
         if (configs.size()==0){
-            BatchConfigParams batchConfigParams = new BatchConfigParams(1000, 1000, "* * 8 * * *");
+            BatchConfigParams batchConfigParams = new BatchConfigParams(1000, 1000,
+                    2000,"* * 8 * * *");
             batchConfigParamsRepository.save(batchConfigParams);
             return batchConfigParams;
         }

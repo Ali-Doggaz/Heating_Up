@@ -239,6 +239,7 @@ public class BatchConfiguration {
      * un rapport sommaire des tests efféctués
      */
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ItemWriter<ClientTestResult> writer() {
         return new ItemWriter<ClientTestResult>() {
 
@@ -343,6 +344,14 @@ public class BatchConfiguration {
 
     public static void setPageSize(int pageSize) {
         BatchConfiguration.pageSize = pageSize;
+    }
+
+    public static int getNbrClientsParRapport() {
+        return nbrClientsParRapport;
+    }
+
+    public static void setNbrClientsParRapport(int nbrClientsParRapport) {
+        BatchConfiguration.nbrClientsParRapport = nbrClientsParRapport;
     }
 
     public static String getCronExpression() {

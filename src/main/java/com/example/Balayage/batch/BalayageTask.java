@@ -14,7 +14,7 @@ public class BalayageTask implements Runnable {
         try {
             //Crée un nouveau reader avec la nouvelle configuration
             batchConfiguration.setClientReader(batchConfiguration.reader());
-
+            batchConfiguration.setClientProcessingWriter(batchConfiguration.writer());
             //Programme le nouveau Job
             batchConfiguration.getJobLauncher().run(batchConfiguration.ScanJob(), new JobParametersBuilder()
                     .addDate("date", new Date())

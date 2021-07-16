@@ -84,6 +84,7 @@ public class ScanController {
     public ResponseEntity<String> setConfig(@RequestBody BatchConfigParams batchConfigParams){
         int chunkSize = batchConfigParams.getChunkSize();
         int pageSize = batchConfigParams.getPageSize();
+        int nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
         String cronExpression = batchConfigParams.getCronExpression();
         //TODO add this check in the form
         //if(chunkSize<1 || pageSize<1) return "";
@@ -91,6 +92,7 @@ public class ScanController {
             BatchConfiguration.setChunkSize(chunkSize);
             BatchConfiguration.setPageSize(pageSize);
             BatchConfiguration.setCronExpression(cronExpression);
+            BatchConfiguration.setNbrClientsParRapport(nbrClientsParRapport);
             batchConfigParamsService.updateConfig(batchConfigParams);
             scheduledConfiguration.refreshCronSchedule();
             return new ResponseEntity<>("Succès: La configuration a été modifiée avec succès", HttpStatus.OK);

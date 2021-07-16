@@ -28,6 +28,7 @@ export class HomeComponent implements OnInit {
   cronExpression="";
   chunkSize = new FormControl();
   pageSize = new FormControl();
+  nbrClientsParRapport = new FormControl();
 
   constructor(private batchService: BatchService) { }
 
@@ -35,7 +36,7 @@ export class HomeComponent implements OnInit {
   }
 
   public changeConfig(changeConfForm: NgForm):void{
-    let newConfig = new batchConfig(this.chunkSize.value, this.pageSize.value, this.cronExpression);
+    let newConfig = new batchConfig(this.chunkSize.value, this.pageSize.value, this.nbrClientsParRapport.value, this.cronExpression);
     this.batchService.changeConfig(newConfig).subscribe(
       (response: String) => {
         console.log(response);
@@ -45,7 +46,6 @@ export class HomeComponent implements OnInit {
           let inputFields = $('input')
           let cronBoxes = ($('.cronbox'))
           for (let element of cronBoxes) {
-            console.log("je suis un element")
             element.classList.add('success')
             setInterval(
               function () {
@@ -54,7 +54,6 @@ export class HomeComponent implements OnInit {
             )
           }
           for (let element of inputFields) {
-            console.log("je suis un element")
             element.classList.add('success')
             setInterval(
               function () {
@@ -109,6 +108,8 @@ export class HomeComponent implements OnInit {
     }
     return false;
   }
+
+  //Plannificateur
 
   getChoice(name: String) {
     let chosen = '';

@@ -18,6 +18,8 @@
       <p>Configuration du balayage </p>
 
       <form id=changeConfForm #changeConfForm="ngForm" (ngSubmit)="changeConfig(changeConfForm)">
+        <label for="pageSize">Nombre de clients par rapport</label>
+        <input type="number" pattern="\d+" id="nbrClientsParRapport" ngModel name="nbrClientsParRapport" [formControl] = "nbrClientsParRapport">
         <label for="chunkSize">Taille des chunks</label>
         <input type="number" pattern="\d+" id="chunkSize" ngModel name="chunkSize" [formControl] = "chunkSize">
         <label for="pageSize">Taille des pages</label>
