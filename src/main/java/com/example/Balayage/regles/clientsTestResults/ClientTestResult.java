@@ -32,17 +32,9 @@ public class ClientTestResult{
     private boolean testsReussis;   // true si tous les tests ont été réussis, false sinon
     private int numTestRate;        // Si un test n'a pas été réussi, le numéro de ce test sera stocké ici
     private int batchNumber;
-    //TODO check if possible to add one-to-many relationship
     private Long jobExecutionID;
 
-    //TODO remove these 2 static variables - replace with table
 
-    // Contient le nombre de declenchement totale de chaque regle durant le balayage
-    @Transient
-    private static Map<Integer, Integer> nbrDeclenchementRegles;
-    // Contient le nombre d'exception declenchées par chaque règle
-    @Transient
-    private static Map<Integer, Integer> nbrExceptionsRegles;
     @Transient
     private static Integer nbrSuspectsDetectes;
     @Transient
@@ -65,7 +57,6 @@ public class ClientTestResult{
         this.client = client;
         this.testsReussis = false;
         this.numTestRate = numTestRate;
-        nbrDeclenchementRegles.put(numTestRate, nbrDeclenchementRegles.get(numTestRate)+1);
         nbrClientsTestes++;
         nbrSuspectsDetectes++;
         this.jobExecutionID = jobExecutionID;
@@ -76,18 +67,11 @@ public class ClientTestResult{
     public ClientTestResult() {
     }
 
-    public static Map<Integer, Integer> getNbrDeclenchementRegles() {
-        return nbrDeclenchementRegles;
-    }
 
     public static String getStatsReport() {
         String str = "Nombre de clients testes: " + nbrClientsTestes;
         str+="\nNombre de suspects detectes: " + nbrSuspectsDetectes + " (" + ((float)nbrSuspectsDetectes/nbrClientsTestes *100) + "%)";
         return str;
-    }
-
-    public static void setNbrDeclenchementRegles(Map<Integer, Integer> nbrDeclenchementRegles) {
-        ClientTestResult.nbrDeclenchementRegles = nbrDeclenchementRegles;
     }
 
     public static Integer getNbrSuspectsDetectes() {
@@ -128,18 +112,6 @@ public class ClientTestResult{
 
     public void setNumTestRate(int numTestRate) {
         this.numTestRate = numTestRate;
-    }
-
-    public static Map<Integer, Integer> getNbrExceptionsRegles() {
-        return nbrExceptionsRegles;
-    }
-
-    public static void setNbrExceptionsRegles(Map<Integer, Integer> nbrExceptionsRegles) {
-        ClientTestResult.nbrExceptionsRegles = nbrExceptionsRegles;
-    }
-
-    public static void incrementNbrExceptionsRegle(int numRegle){
-        nbrExceptionsRegles.put(numRegle, nbrExceptionsRegles.get(numRegle)+1);
     }
 
     @Override

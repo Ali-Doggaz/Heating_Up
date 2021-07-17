@@ -3,12 +3,12 @@ package com.example.Balayage.batch;
 
 import com.example.Balayage.client.Client;
 import com.example.Balayage.client.ClientService;
+import com.example.Balayage.regles.TestRegles;
 import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
 import com.example.Balayage.regles.clientsTestResults.ClientTestResultService;
 import com.example.Balayage.regles.statsExceptions.StatsException;
 import com.example.Balayage.regles.statsExceptions.StatsExceptionService;
 import com.example.Balayage.regles.statsRegles.StatsRegle;
-import com.example.Balayage.regles.TestRegles;
 import com.example.Balayage.regles.statsRegles.StatsRegleService;
 import com.example.Balayage.report.ScanReportGenerator;
 import org.springframework.batch.core.*;
@@ -28,7 +28,6 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -40,12 +39,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.persistence.EntityManagerFactory;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Créer la configuration initiale de Spring Batch en créant le Job de scan
@@ -61,8 +57,6 @@ public class BatchConfiguration {
     @Autowired
     private TestRegles testRegles;
 
-    private static ArrayList<ClientTestResult> clientSuspects;
-    private static ArrayList<StatsRegle> statsRegles;
     //Cette configuration sera modifiée quelques secondes après le lancement du programme
     //grace au commandLineRunner (voir ci-dessous)
     // La configuration stockée dans la table "batch_config_parameters" sera alors utilisée.
@@ -167,7 +161,7 @@ public class BatchConfiguration {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public JobExecutionListener myjoblistener() {
 
-        JobExecutionListener listener = new JobExecutionListener() {
+        return new JobExecutionListener() {
             /**
              * S'occupe de l'initialisation du job de scan
              * 1. Lecture des règles metiers depuis le fichier texte specifié (voir classe TestRegles)
@@ -195,21 +189,10 @@ public class BatchConfiguration {
                     jobOperator.stop(jobExecution.getId());
                     System.out.println("Le fichier contenant les règles metiers est introuvable...");
                 }
-
-                //Initialise le nombre de declenchement de chaque regle à 0
-                Map<Integer, Integer> nbrDeclenchementRegles = new HashMap<>();
-                Map<Integer, Integer> nbrDeclenchementExceptionsRegle = new HashMap<>();
-                for (int i = 1; i <= testRegles.getRegles().length; i++) {
-                    nbrDeclenchementRegles.put(i, 0);
-                    nbrDeclenchementExceptionsRegle.put(i, 0);
-                }
-                ClientTestResult.setNbrDeclenchementRegles(nbrDeclenchementRegles);
-                ClientTestResult.setNbrExceptionsRegles(nbrDeclenchementExceptionsRegle);
+                //TODO change this
                 //Initialise le reste des variables statiques à 0
                 ClientTestResult.setNbrSuspectsDetectes(0);
                 ClientTestResult.setNbrClientsTestes(0);
-                //Initialise le nombre de suspects detectés a 0
-                TestRegles.setStatsExceptions(new ArrayList<StatsException>());
 
 
                 //TODO check if this works - initialize stats_regle table
@@ -234,8 +217,6 @@ public class BatchConfiguration {
                 template.convertAndSend("/JobStatus", "Status: Balayage terminé - Etat de sortie: " + jobExecution.getExitStatus().getExitCode() +" - Heure: " + timeStamp);
             }
         };
-
-        return listener ;
     }
 
     /**
@@ -294,9 +275,6 @@ public class BatchConfiguration {
             @BeforeStep
             public void saveStepExecution(StepExecution stepExecution) {
                 this.stepExecution = stepExecution;
-                //initaliser les collections
-                clientSuspects = new ArrayList<>();
-                statsRegles = new ArrayList<StatsRegle>();
             }
 
             @AfterStep

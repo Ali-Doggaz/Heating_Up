@@ -25,14 +25,10 @@ public class TestRegles {
     @Autowired
     private ClientService clientService;
     @Autowired
-    private ClientTestResultService clientTestResultService;
-    @Autowired
     private StatsRegleService statsRegleService;
     @Autowired
     private StatsExceptionService statsExceptionService;
 
-    // Contient la liste de toutes les exceptions declenchées
-    private static ArrayList<StatsException> statsExceptions;
 
     private String[] regles;
     private final String RULES_FOLDER = "src/main/resources/rules.txt";
@@ -69,7 +65,6 @@ public class TestRegles {
         StandardEvaluationContext clientContext = new StandardEvaluationContext(client);
         Boolean boolTestResult;
         //Boucle sur toutes les règles
-        outLoop:
         for (int i=1; i<=regles.length; i++) {
             String regle = regles[i-1];
             try {
@@ -80,7 +75,6 @@ public class TestRegles {
                 // On est dans le cas ou la règle testée a provoqué une erreur imprévue
 
                 //Incrementer le nombre d'exceptions provoquée par la régle actuelle (numéro i)
-                ClientTestResult.incrementNbrExceptionsRegle(i);
                 statsRegleService.incrementNbrExceptionsRegle(jobExecutionID, batchNumber, i);
 
 
@@ -126,9 +120,7 @@ public class TestRegles {
             clientService.updateClientSuspicionStatus(client, false);
         }
 
-        ClientTestResult clientTestResult = new ClientTestResult(client, jobExecutionID, batchNumber);
-
-        return clientTestResult;
+        return new ClientTestResult(client, jobExecutionID, batchNumber);
 
     }
 
@@ -137,11 +129,4 @@ public class TestRegles {
         return regles;
     }
 
-    public static ArrayList<StatsException> getStatsExceptions() {
-        return statsExceptions;
-    }
-
-    public static void setStatsExceptions(ArrayList<StatsException> statsExceptions) {
-        TestRegles.statsExceptions = statsExceptions;
-    }
 }
