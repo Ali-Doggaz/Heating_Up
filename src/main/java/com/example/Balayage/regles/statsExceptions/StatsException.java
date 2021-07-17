@@ -1,5 +1,7 @@
 package com.example.Balayage.regles.statsExceptions;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 
 import static javax.persistence.GenerationType.SEQUENCE;
@@ -22,10 +24,18 @@ public class StatsException {
     )
     private Long id;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String type;
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String message;
     private Integer nombreOccurences;
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String reglesConcernees;
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String idsClientsConcernees;
 
     private Long jobExecutionID;
@@ -34,7 +44,8 @@ public class StatsException {
     public StatsException() {
     }
 
-    public StatsException(String type, String message, Integer nombreOccurences, String reglesConcernees, String idsClientsConcernees, Long jobExecutionID, int batchNumber) {
+    public StatsException( Long jobExecutionID, int batchNumber, String type, String message, Integer nombreOccurences, String reglesConcernees,
+                          String idsClientsConcernees) {
         this.type = type;
         this.message = message;
         this.nombreOccurences = nombreOccurences;
