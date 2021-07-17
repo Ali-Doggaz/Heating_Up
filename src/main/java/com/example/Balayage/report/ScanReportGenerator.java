@@ -1,6 +1,5 @@
 package com.example.Balayage.report;
 
-import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
 import com.example.Balayage.regles.statsExceptions.StatsException;
 import com.example.Balayage.regles.statsRegles.StatsRegle;
 import net.sf.jasperreports.engine.*;
@@ -11,7 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class ScanReportGenerator {
-    public void generateReport(ArrayList<ClientTestResult> clientsSuspects, ArrayList<StatsRegle> statsRegles, ArrayList<StatsException> statsExceptions,
+    public void generateReport( ArrayList<StatsRegle> statsRegles, ArrayList<StatsException> statsExceptions,
                                int batchNumber) throws IOException {
         ClientReportInput clientReportInput = ClientReportDataAssembler.assemble( statsRegles, statsExceptions);
 

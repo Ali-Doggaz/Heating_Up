@@ -1,8 +1,9 @@
 package com.example.Balayage.regles.statsRegles;
 
-import com.example.Balayage.regles.clientsTestResults.ClientTestResultRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 public class StatsRegleService {
@@ -13,6 +14,10 @@ public class StatsRegleService {
     @Autowired
     public StatsRegleService(StatsRegleRepository statsRegleRepository) {
         this.statsRegleRepository = statsRegleRepository;
+    }
+
+    public ArrayList<StatsRegle> getBatchStats(Long jobExecutionID, int batchNumber){
+        return statsRegleRepository.getBatchStats(jobExecutionID, batchNumber);
     }
 
     public void incrementNbrExceptionsRegle(Long jobExecutionID, int batchNumber, int numRegle){

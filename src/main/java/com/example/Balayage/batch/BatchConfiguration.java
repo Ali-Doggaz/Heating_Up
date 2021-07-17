@@ -335,7 +335,10 @@ public class BatchConfiguration {
                 try {
                     ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
                     int batchNumber = stepExecution.getWriteCount() / nbrClientsParRapport;
-                    scanReportGenerator.generateReport(clientSuspects, statsRegles, TestRegles.getStatsExceptions(), batchNumber);
+                    //TODO check if this works - get statsRegles and statsExceptions from DB
+                    ArrayList<StatsRegle> statsRegles = statsRegleService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
+                    ArrayList<StatsException> statsExceptions = statsExceptionService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
+                    scanReportGenerator.generateReport(statsRegles, statsExceptions, batchNumber);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

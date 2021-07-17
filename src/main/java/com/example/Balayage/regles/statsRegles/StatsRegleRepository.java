@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.ArrayList;
+
 public interface StatsRegleRepository extends JpaRepository<StatsRegle, Long> {
 
     @Modifying
@@ -19,4 +21,10 @@ public interface StatsRegleRepository extends JpaRepository<StatsRegle, Long> {
             "AND s.batchNumber = :batchNumber " +
             "AND s.ruleNumber = :ruleNumber")
     int incrementNbrExceptionsRegle(Long jobExecutionID, int batchNumber, int ruleNumber);
+
+    @Query("SELECT SR FROM StatsRegle SR " +
+            "WHERE SR.jobExecutionID = :jobExecutionID " +
+            "AND SR.batchNumber = :batchNumber "
+    )
+    ArrayList<StatsRegle> getBatchStats(Long jobExecutionID, int batchNumber);
 }
