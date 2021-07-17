@@ -5,6 +5,8 @@ import com.example.Balayage.client.ClientService;
 import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
 import com.example.Balayage.regles.clientsTestResults.ClientTestResultService;
 import com.example.Balayage.regles.statsExceptions.StatsException;
+import com.example.Balayage.regles.statsExceptions.StatsExceptionService;
+import com.example.Balayage.regles.statsRegles.StatsRegleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -20,10 +22,13 @@ import java.util.ArrayList;
 public class TestRegles {
 
     @Autowired
-    private ClientTestResultService clientTestResultService;
-
-    @Autowired
     private ClientService clientService;
+    @Autowired
+    private ClientTestResultService clientTestResultService;
+    @Autowired
+    private StatsRegleService statsRegleService;
+    @Autowired
+    private StatsExceptionService statsExceptionService;
 
     // Contient la liste de toutes les exceptions declenchées
     private static ArrayList<StatsException> statsExceptions;
@@ -35,7 +40,7 @@ public class TestRegles {
      * Lis toutes les règles métiers à partir du fichier
      * "RULES_FOLDER" (attribut statique)
      */
-    public void readRulesFromFile() throws IOException {
+    public int readRulesFromFile() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(RULES_FOLDER));
         String line;
         StringBuilder sb = new StringBuilder();
@@ -44,6 +49,7 @@ public class TestRegles {
         }
         br.close();
         regles = sb.toString().split("---------------------RULE---------------------");
+        return regles.length;
     }
 
 
@@ -74,6 +80,8 @@ public class TestRegles {
 
                 //Incrementer le nombre d'exceptions provoquée par la régle actuelle (numéro i)
                 ClientTestResult.incrementNbrExceptionsRegle(i);
+                statsRegleService.incrementNbrExceptionsRegle(jobExecutionID, batchNumber, i);
+
                 for(StatsException statsException: statsExceptions) {
                     // Si la meme exception (meme type et meme message) existe deja dans notre tableau de StatsException,
                     // on incremente son nombre d'occurences
@@ -97,7 +105,7 @@ public class TestRegles {
             //Si un test a echoué, on créer le clientTestResult et on arrete le traitement
             if (!boolTestResult) {
                 ClientTestResult clientTestResult = new ClientTestResult(client, i, jobExecutionID, batchNumber);
-
+                statsRegleService.incrementNbrDeclenchementRegle(jobExecutionID, batchNumber, i);
 
                 if(!client.isSuspect()) {
                     // Update le client dans la BD

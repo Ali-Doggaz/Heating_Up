@@ -27,10 +27,21 @@ public class StatsException {
     private Integer nombreOccurences;
     private String reglesConcernees;
     private String idsClientsConcernees;
+
     private Long jobExecutionID;
     private int batchNumber;
 
     public StatsException() {
+    }
+
+    public StatsException(String type, String message, Integer nombreOccurences, String reglesConcernees, String idsClientsConcernees, Long jobExecutionID, int batchNumber) {
+        this.type = type;
+        this.message = message;
+        this.nombreOccurences = nombreOccurences;
+        this.reglesConcernees = reglesConcernees;
+        this.idsClientsConcernees = idsClientsConcernees;
+        this.jobExecutionID = jobExecutionID;
+        this.batchNumber = batchNumber;
     }
 
     public StatsException(String type, String message, Integer nombreOccurences, String reglesConcernees, String idsClientsConcernees) {

@@ -15,4 +15,15 @@ public class StatsRegleService {
         this.statsRegleRepository = statsRegleRepository;
     }
 
+    public void incrementNbrExceptionsRegle(Long jobExecutionID, int batchNumber, int numRegle){
+        statsRegleRepository.incrementNbrExceptionsRegle(jobExecutionID, batchNumber, numRegle);
+    }
+
+    public void incrementNbrDeclenchementRegle(Long jobExecutionID, int batchNumber, int numRegle){
+        statsRegleRepository.incrementNbrDeclenchementRegle(jobExecutionID, batchNumber, numRegle);
+    }
+
+    public void initRow(Long jobExecutionId, int batch, int ruleNumber){
+        statsRegleRepository.save(new StatsRegle(jobExecutionId, batch, ruleNumber, 0, 0));
+    }
 }

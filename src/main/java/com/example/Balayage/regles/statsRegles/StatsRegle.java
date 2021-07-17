@@ -22,13 +22,21 @@ public class StatsRegle implements Comparable<StatsRegle>{
     )
     private Long id;
 
-    private int ruleNumber;
-    private int triggerNumber;
-    private int exceptionsTriggeredNumber;
+    private int ruleNumber;                 //Numéro de la règle
+    private int triggerNumber;              //Nombre de clients suspects identifiés par cette regle
+    private int exceptionsTriggeredNumber; // Nombre d'execptions delenchées par cette regle
     private Long jobExecutionID;
     private int batchNumber;
 
     public StatsRegle() {
+    }
+
+    public StatsRegle( Long jobExecutionID, int batchNumber, int ruleNumber, int triggerNumber, int exceptionsTriggeredNumber) {
+        this.ruleNumber = ruleNumber;
+        this.triggerNumber = triggerNumber;
+        this.exceptionsTriggeredNumber = exceptionsTriggeredNumber;
+        this.jobExecutionID = jobExecutionID;
+        this.batchNumber = batchNumber;
     }
 
     public StatsRegle(int ruleNumber, int triggerNumber, int exceptionsTriggeredNumber) {

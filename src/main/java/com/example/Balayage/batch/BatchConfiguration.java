@@ -2,11 +2,14 @@
 package com.example.Balayage.batch;
 
 import com.example.Balayage.client.Client;
+import com.example.Balayage.client.ClientService;
 import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
 import com.example.Balayage.regles.clientsTestResults.ClientTestResultService;
 import com.example.Balayage.regles.statsExceptions.StatsException;
+import com.example.Balayage.regles.statsExceptions.StatsExceptionService;
 import com.example.Balayage.regles.statsRegles.StatsRegle;
 import com.example.Balayage.regles.TestRegles;
+import com.example.Balayage.regles.statsRegles.StatsRegleService;
 import com.example.Balayage.report.ScanReportGenerator;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.annotation.AfterStep;
@@ -37,6 +40,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.persistence.EntityManagerFactory;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -65,6 +70,8 @@ public class BatchConfiguration {
     private static int pageSize=1000;
     private static int nbrClientsParRapport=2000;
     private static String cronExpression="* 10 2 2 2 2 ";
+    //Nombre de règle à tester:
+    int rulesNumber;
     //initialisation de la configuration des balayages depuis la BD
     @Bean
     CommandLineRunner commandLineRunner() {
@@ -73,12 +80,23 @@ public class BatchConfiguration {
             chunkSize = batchConfigParams.getChunkSize();
             pageSize = batchConfigParams.getPageSize();
             cronExpression = batchConfigParams.getCronExpression();
+            nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
             System.out.println("Configuration initialisee...");
-            System.out.println("Chunksize: " + chunkSize+" , Pagesize= "+pageSize+" , cronExpression= "+cronExpression);
+            System.out.println("Chunksize: " + chunkSize+" , Pagesize= "+pageSize+" , nbr_clients_par_rapport= " +
+                    nbrClientsParRapport + ", cronExpression= " + cronExpression  + "cronExpression");
         };
     }
 
     private static String  uniqueJobName;
+
+    @Autowired
+    private ClientService clientService;
+
+    @Autowired
+    private StatsRegleService statsRegleService;
+
+    @Autowired
+    private StatsExceptionService statsExceptionService;
 
     @Autowired
     private JobExplorer jobExplorer;
@@ -146,6 +164,7 @@ public class BatchConfiguration {
 
 
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public JobExecutionListener myjoblistener() {
 
         JobExecutionListener listener = new JobExecutionListener() {
@@ -157,6 +176,8 @@ public class BatchConfiguration {
              */
             @Override
             public void beforeJob(JobExecution jobExecution) {
+
+
                 // Si un scan est deja en cours, annule le declenchement du nouveau Job en levant une exception
                 int runningJobsCount = jobExplorer.findRunningJobExecutions(jobExecution.getJobInstance().getJobName()).size();
                 if(runningJobsCount > 1){
@@ -167,7 +188,7 @@ public class BatchConfiguration {
 
                 System.out.println("Initialisation du scan...");
                 try {
-                    testRegles.readRulesFromFile();
+                    rulesNumber = testRegles.readRulesFromFile();
                 }
                 catch(IOException e){
                     JobOperator jobOperator = BatchRuntime.getJobOperator();
@@ -189,6 +210,16 @@ public class BatchConfiguration {
                 ClientTestResult.setNbrClientsTestes(0);
                 //Initialise le nombre de suspects detectés a 0
                 TestRegles.setStatsExceptions(new ArrayList<StatsException>());
+
+
+                //TODO check if this works - initialize stats_regle table
+                int nbrOfBatches = (int) Math.ceil(clientService.getNumberOfClients()/(float) nbrClientsParRapport);
+                Long jobExecutionId = jobExecution.getId();
+                for(int batch=0;batch<nbrOfBatches;batch++){
+                    for(int ruleNumber=1; ruleNumber<=rulesNumber;ruleNumber++)
+                    statsRegleService.initRow(jobExecutionId, batch, ruleNumber);
+                }
+
 
                 //Envoyer une socket a l'UI pour l'informer que le job a demarré
                 String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
