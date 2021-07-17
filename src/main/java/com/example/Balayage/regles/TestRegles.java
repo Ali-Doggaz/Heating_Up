@@ -83,10 +83,9 @@ public class TestRegles {
                 ClientTestResult.incrementNbrExceptionsRegle(i);
                 statsRegleService.incrementNbrExceptionsRegle(jobExecutionID, batchNumber, i);
 
-                //TODO check if this works - check if Exception exists in db + traitement
 
-                //if exception already exists
                 List<StatsException> statsExceptionList = statsExceptionService.getStatsException(jobExecutionID, batchNumber, e.getMessage(), e.getClass().getCanonicalName());
+                //if exception already exists
                 if (statsExceptionList.size()>0) {
                     StatsException statsException = statsExceptionService.getStatsException(jobExecutionID, batchNumber, e.getMessage(), e.getClass().getCanonicalName()).get(0);
                     //On incremente le nbr de declenchement de cette exception
@@ -106,24 +105,6 @@ public class TestRegles {
                     continue;
                 }
 
-/*                for(StatsException statsException: statsExceptions) {
-                    // Si la meme exception (meme type et meme message) existe deja dans notre tableau de StatsException,
-                    // on incremente son nombre d'occurences
-                    if (statsException.equals(e)) {
-                        //On incremente le nbr de declenchement de cette exception
-                        statsException.setNombreOccurences(statsException.getNombreOccurences()+1);
-                        //Ajoute le client qui a declenché l'exception a la liste
-                        statsException.setIdsClientsConcernees(statsException.getIdsClientsConcernees() + ", "+client.getId());
-                        //Si la règle declenche cette exception pour la premiere fois, le signal a l'instance statsException
-                        if (!statsException.getReglesConcernees().contains(" "+i +" ")) {
-                            statsException.setReglesConcernees(statsException.getReglesConcernees()+", "+i +" ");
-                        }
-                        continue outLoop;
-                    }
-                }
-                //Si l'exception est provoquée pour la première fois, on l'ajoute a notre liste
-                statsExceptions.add(new StatsException(e.getClass().getCanonicalName(), e.getMessage(), 1, " "+i+" ", " "+client.getId()));
-                continue;*/
             }
 
             // On est dans le cas ou le test a eu lieu sans exceptions/imprévus

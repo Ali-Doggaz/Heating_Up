@@ -309,10 +309,9 @@ public class BatchConfiguration {
 
             @Override
             public void write(List<? extends ClientTestResult> testResults) throws Exception {
+                //Update la DB avec les nouveaux clientTestResults
                 clientTestResultService.addAll(testResults);
-                //Ajouter les nouveaux clients suspects detectés
-                testResults = testResults.stream().filter(client -> !client.isTestsReussis()).collect(Collectors.toList());
-                clientSuspects.addAll(testResults);
+
                 //Si on a traité "nbrClientsParRapport"(int) nouveaux clients, on genere un rapport
                 if ((stepExecution.getWriteCount() + chunkSize) % nbrClientsParRapport < chunkSize) {
                     generateReport();
@@ -320,46 +319,22 @@ public class BatchConfiguration {
             }
 
             public void generateReport(){
-                //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
-                //Et qui sera utilisée pour la generation du rapport (JasperReport)
-                for (Map.Entry<Integer, Integer> statRegle : ClientTestResult.getNbrDeclenchementRegles().entrySet()) {
-                    int numRegle = statRegle.getKey();
-                    statsRegles.add(new StatsRegle(
-                                    numRegle,
-                                    statRegle.getValue(),
-                                    ClientTestResult.getNbrExceptionsRegles().get(numRegle)
-                            )
-                    );
-                }
-                Collections.sort(statsRegles);
                 try {
                     ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
                     int batchNumber = stepExecution.getWriteCount() / nbrClientsParRapport;
-                    //TODO check if this works - get statsRegles and statsExceptions from DB
                     ArrayList<StatsRegle> statsRegles = statsRegleService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
+                    Collections.sort(statsRegles);
                     ArrayList<StatsException> statsExceptions = statsExceptionService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
                     scanReportGenerator.generateReport(statsRegles, statsExceptions, batchNumber);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                //Reinitialise tous les parametres pour generer le rapport du prochain batch
-                //Reinitialise le nombre de declenchement de chaque regle à 0, ainsi que le
-                //nombre d'exception generé par chaque règle à 0
-                Map<Integer, Integer> nbrDeclenchementRegles = new HashMap<>();
-                Map<Integer, Integer> nbrDeclenchementExceptionsRegle = new HashMap<>();
-                for (int i = 1; i <= testRegles.getRegles().length; i++) {
-                    nbrDeclenchementRegles.put(i, 0);
-                    nbrDeclenchementExceptionsRegle.put(i, 0);
-                }
-                ClientTestResult.setNbrDeclenchementRegles(nbrDeclenchementRegles);
-                ClientTestResult.setNbrExceptionsRegles(nbrDeclenchementExceptionsRegle);
 
-                //Initialise le reste des variables statiques à 0
+                //Reinitialise tous les parametres pour generer le rapport du prochain batch
+                //Initialise les variables statiques à 0
                 ClientTestResult.setNbrSuspectsDetectes(0);
                 ClientTestResult.setNbrClientsTestes(0);
-                TestRegles.setStatsExceptions(new ArrayList<StatsException>());
-                clientSuspects = new ArrayList<>();
-                statsRegles = new ArrayList<StatsRegle>();
+
             }
         };
     }
