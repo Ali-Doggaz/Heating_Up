@@ -59,13 +59,15 @@ public class BatchConfiguration {
 
     //Cette configuration sera modifiée quelques secondes après le lancement du programme
     //grace au commandLineRunner (voir ci-dessous)
-    // La configuration stockée dans la table "batch_config_parameters" sera alors utilisée.
+    //La configuration stockée dans la table "batch_config_parameters" sera alors utilisée.
     private static int chunkSize=1000;
     private static int pageSize=1000;
     private static int nbrClientsParRapport=2000;
     private static String cronExpression="* 10 2 2 2 2 ";
+
     //Nombre de règle à tester:
     int rulesNumber;
+
     //initialisation de la configuration des balayages depuis la BD
     @Bean
     CommandLineRunner commandLineRunner() {
@@ -77,7 +79,7 @@ public class BatchConfiguration {
             nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
             System.out.println("Configuration initialisee...");
             System.out.println("Chunksize: " + chunkSize+" , Pagesize= "+pageSize+" , nbr_clients_par_rapport= " +
-                    nbrClientsParRapport + ", cronExpression= " + cronExpression  + "cronExpression");
+                    nbrClientsParRapport + ", cronExpression= " + cronExpression);
         };
     }
 
@@ -189,13 +191,7 @@ public class BatchConfiguration {
                     jobOperator.stop(jobExecution.getId());
                     System.out.println("Le fichier contenant les règles metiers est introuvable...");
                 }
-                //TODO change this
-                //Initialise le reste des variables statiques à 0
-                ClientTestResult.setNbrSuspectsDetectes(0);
-                ClientTestResult.setNbrClientsTestes(0);
 
-
-                //TODO check if this works - initialize stats_regle table
                 int nbrOfBatches = (int) Math.ceil(clientService.getNumberOfClients()/(float) nbrClientsParRapport);
                 Long jobExecutionId = jobExecution.getId();
                 for(int batch=0;batch<nbrOfBatches;batch++){
@@ -271,10 +267,13 @@ public class BatchConfiguration {
         return new ItemWriter<ClientTestResult>() {
 
             private StepExecution stepExecution;
+            private Long totalNbrClientsAnalyzed = Long.valueOf(0);
 
             @BeforeStep
             public void saveStepExecution(StepExecution stepExecution) {
                 this.stepExecution = stepExecution;
+                //reinitalize number of analyzed customers
+                totalNbrClientsAnalyzed = Long.valueOf(0);
             }
 
             @AfterStep
@@ -283,6 +282,7 @@ public class BatchConfiguration {
                 if (stepExecution.getWriteCount() % nbrClientsParRapport != 0) {
                     generateReport();
                 }
+
             }
 
             @Override
@@ -303,15 +303,12 @@ public class BatchConfiguration {
                     ArrayList<StatsRegle> statsRegles = statsRegleService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
                     Collections.sort(statsRegles);
                     ArrayList<StatsException> statsExceptions = statsExceptionService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
-                    scanReportGenerator.generateReport(statsRegles, statsExceptions, batchNumber);
+                    Long nbrClientsAnalysed = (stepExecution.getWriteCount()+chunkSize) - totalNbrClientsAnalyzed;
+                    totalNbrClientsAnalyzed = Long.valueOf(stepExecution.getWriteCount()+chunkSize);
+                    scanReportGenerator.generateReport(statsRegles, statsExceptions, batchNumber, nbrClientsAnalysed);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                //Reinitialise tous les parametres pour generer le rapport du prochain batch
-                //Initialise les variables statiques à 0
-                ClientTestResult.setNbrSuspectsDetectes(0);
-                ClientTestResult.setNbrClientsTestes(0);
 
             }
         };

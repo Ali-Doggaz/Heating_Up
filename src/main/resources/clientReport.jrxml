@@ -95,7 +95,7 @@
         <field name="ruleNumber" class="java.lang.Integer"/>
     </subDataset>
     <subDataset name="statsReglesDataSet3" uuid="bff5330f-d08d-48bf-8a16-552161108685">
-        <parameter name="nbrCustomersAnalyzed" class="java.lang.Integer"/>
+        <parameter name="nbrCustomersAnalyzed" class="java.lang.Long"/>
         <queryString>
             <![CDATA[]]>
         </queryString>
@@ -105,7 +105,6 @@
         <field name="ruleNumber" class="java.lang.Integer"/>
     </subDataset>
     <parameter name="REPORT_TITLE" class="java.lang.String"/>
-    <parameter name="STATS" class="java.lang.String"/>
     <parameter name="statsReglesDataSource" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource">
         <parameterDescription><![CDATA[statsRegleDatasource]]></parameterDescription>
     </parameter>
@@ -119,7 +118,7 @@
     <parameter name="statsReglesDataSource3" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource">
         <parameterDescription><![CDATA[statsRegleDatasource]]></parameterDescription>
     </parameter>
-    <parameter name="nbr_customers_analyzed" class="java.lang.Integer"/>
+    <parameter name="nbr_customers_analyzed" class="java.lang.Long"/>
     <background>
         <band splitType="Stretch"/>
     </background>
@@ -149,9 +148,9 @@
         <band height="116" splitType="Stretch">
             <printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
             <textField>
-                <reportElement x="140" y="20" width="310" height="90" uuid="cd2c0718-e5b8-467e-b764-4f9427cbe812"/>
+                <reportElement x="290" y="20" width="160" height="40" uuid="cd2c0718-e5b8-467e-b764-4f9427cbe812"/>
                 <textElement textAlignment="Center" verticalAlignment="Top"/>
-                <textFieldExpression><![CDATA[$P{STATS}]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$P{nbr_customers_analyzed}]]></textFieldExpression>
             </textField>
             <staticText>
                 <reportElement x="0" y="20" width="130" height="90" forecolor="#2EAAC9" uuid="c4379148-4ef1-42ff-b80d-b24dc90474b1"/>
@@ -225,6 +224,10 @@
                     </jr:column>
                 </jr:table>
             </componentElement>
+            <staticText>
+                <reportElement x="160" y="20" width="110" height="40" uuid="e94403fa-d4b1-449b-903b-6e422aa3b0c3"/>
+                <text><![CDATA[Nombre clients analysés:]]></text>
+            </staticText>
         </band>
     </pageHeader>
     <detail>

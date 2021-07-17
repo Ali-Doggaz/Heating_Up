@@ -11,8 +11,8 @@ import java.util.ArrayList;
 
 public class ScanReportGenerator {
     public void generateReport( ArrayList<StatsRegle> statsRegles, ArrayList<StatsException> statsExceptions,
-                               int batchNumber) throws IOException {
-        ClientReportInput clientReportInput = ClientReportDataAssembler.assemble( statsRegles, statsExceptions);
+                               int batchNumber, Long nbrClientsAnalysed) throws IOException {
+        ClientReportInput clientReportInput = ClientReportDataAssembler.assemble( statsRegles, statsExceptions, nbrClientsAnalysed);
 
         try {
             //TODO remove

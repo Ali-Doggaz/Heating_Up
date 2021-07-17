@@ -15,13 +15,11 @@ public class ClientReportDataAssembler {
 
     // Remplir les informations necessaires pour la generation du rapport
     //(titre, Nom de la banque, stats des clients testés, liste des suspects)
-    public static ClientReportInput assemble( ArrayList<StatsRegle> statsRegles, ArrayList<StatsException> statsExceptions) {
+    public static ClientReportInput assemble( ArrayList<StatsRegle> statsRegles, ArrayList<StatsException> statsExceptions, Long nbrClientsAnalysed) {
         ClientReportInput ClientReportInput = new ClientReportInput();
         ClientReportInput.setReportTitle("Rapport De Balayage Du " +
                 (java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yy")))
         );
-        ClientReportInput.setStats(ClientTestResult.getStatsReport());
-
 
         JRBeanCollectionDataSource statsReglesDataSource = new JRBeanCollectionDataSource(statsRegles);
         ClientReportInput.setStatsReglesDataSource(statsReglesDataSource);
@@ -29,7 +27,7 @@ public class ClientReportDataAssembler {
         JRBeanCollectionDataSource exceptionDataSource = new JRBeanCollectionDataSource(statsExceptions);
         ClientReportInput.setExceptionDataSource(exceptionDataSource);
 
-        ClientReportInput.setNbr_customers_analyzed(BatchConfiguration.getChunkSize());
+        ClientReportInput.setNbr_customers_analyzed(nbrClientsAnalysed);
 
         return ClientReportInput;
     }

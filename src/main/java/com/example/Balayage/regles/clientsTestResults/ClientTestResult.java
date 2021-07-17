@@ -35,18 +35,11 @@ public class ClientTestResult{
     private Long jobExecutionID;
 
 
-    @Transient
-    private static Integer nbrSuspectsDetectes;
-    @Transient
-    private static Integer nbrClientsTestes;
-
-
     //constructeur à appeler en cas de succes des tests
     public ClientTestResult(Client client, Long jobExecutionID, int batchNumber) {
         this.client = client;
         this.testsReussis = true;
         numTestRate = -1;
-        nbrClientsTestes++;
         this.jobExecutionID = jobExecutionID;
         this.batchNumber = batchNumber;
     }
@@ -57,37 +50,12 @@ public class ClientTestResult{
         this.client = client;
         this.testsReussis = false;
         this.numTestRate = numTestRate;
-        nbrClientsTestes++;
-        nbrSuspectsDetectes++;
         this.jobExecutionID = jobExecutionID;
         this.batchNumber = batchNumber;
     }
 
     //No-args constructor, needed for @Entity annotation
     public ClientTestResult() {
-    }
-
-
-    public static String getStatsReport() {
-        String str = "Nombre de clients testes: " + nbrClientsTestes;
-        str+="\nNombre de suspects detectes: " + nbrSuspectsDetectes + " (" + ((float)nbrSuspectsDetectes/nbrClientsTestes *100) + "%)";
-        return str;
-    }
-
-    public static Integer getNbrSuspectsDetectes() {
-        return nbrSuspectsDetectes;
-    }
-
-    public static void setNbrSuspectsDetectes(Integer nbrSuspectsDetectes) {
-        ClientTestResult.nbrSuspectsDetectes = nbrSuspectsDetectes;
-    }
-
-    public static Integer getNbrClientsTestes() {
-        return nbrClientsTestes;
-    }
-
-    public static void setNbrClientsTestes(Integer nbrClientsTestes) {
-        ClientTestResult.nbrClientsTestes = nbrClientsTestes;
     }
 
     public Client getClient() {
