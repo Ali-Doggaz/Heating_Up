@@ -8,7 +8,6 @@ import java.util.List;
 
 @Entity(name="client")
 @Table(name="client")
-@Inheritance(strategy = InheritanceType.JOINED)
 public class Client {
     @Id
     @SequenceGenerator(
