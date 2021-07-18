@@ -272,17 +272,16 @@ public class BatchConfiguration {
             @BeforeStep
             public void saveStepExecution(StepExecution stepExecution) {
                 this.stepExecution = stepExecution;
-                //reinitalize number of analyzed customers
-                totalNbrClientsAnalyzed = Long.valueOf(0);
             }
 
             @AfterStep
             public void writeLastClients() {
                 //Si certains clients n'ont pas encore été écrit dans un rapport
                 if (stepExecution.getWriteCount() % nbrClientsParRapport != 0) {
-                    generateReport();
+                    generateReport(0);
                 }
-
+                //reinitalize number of analyzed customers
+                totalNbrClientsAnalyzed = Long.valueOf(0);
             }
 
             @Override
@@ -292,18 +291,18 @@ public class BatchConfiguration {
 
                 //Si on a traité "nbrClientsParRapport"(int) nouveaux clients, on genere un rapport
                 if ((stepExecution.getWriteCount() + chunkSize) % nbrClientsParRapport < chunkSize) {
-                    generateReport();
+                    generateReport(chunkSize);
                 }
             }
 
-            public void generateReport(){
+            public void generateReport(int numberNewProcessedClient){
                 try {
                     ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
                     int batchNumber = stepExecution.getWriteCount() / nbrClientsParRapport;
                     ArrayList<StatsRegle> statsRegles = statsRegleService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
                     Collections.sort(statsRegles);
                     ArrayList<StatsException> statsExceptions = statsExceptionService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
-                    Long nbrClientsAnalysed = (stepExecution.getWriteCount()+chunkSize) - totalNbrClientsAnalyzed;
+                    Long nbrClientsAnalysed = (stepExecution.getWriteCount()+numberNewProcessedClient) - totalNbrClientsAnalyzed;
                     totalNbrClientsAnalyzed = Long.valueOf(stepExecution.getWriteCount()+chunkSize);
                     scanReportGenerator.generateReport(statsRegles, statsExceptions, batchNumber, nbrClientsAnalysed);
                 } catch (IOException e) {
