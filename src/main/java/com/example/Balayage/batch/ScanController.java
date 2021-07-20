@@ -1,5 +1,6 @@
 package com.example.Balayage.batch;
 
+import com.example.Balayage.BalayageApplication;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -8,6 +9,8 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -45,6 +48,9 @@ public class ScanController {
     @Autowired
     BatchConfigParamsService batchConfigParamsService;
 
+    @Autowired
+    private ApplicationContext context;
+
     @GetMapping("Scan/Start")
     public ResponseEntity<String> launchJob(){
         try {
@@ -52,7 +58,10 @@ public class ScanController {
             if (jobExplorer.findRunningJobExecutions(BatchConfiguration.getUniqueJobName()).size() >= 1){
                 return new ResponseEntity<>("Veuillez attendre la fin du balayage en cours...", HttpStatus.OK);
             }
-            jobLauncher.run(batchConfiguration.ScanJob(), new JobParametersBuilder()
+            //TODO get new scan's params and inject them to the new job
+            Job scanJob = (Job) context.getBean("ScanJob", 2);
+
+            jobLauncher.run(scanJob, new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters());
             return new ResponseEntity<>("Succès: Le scan a commencé", HttpStatus.OK);

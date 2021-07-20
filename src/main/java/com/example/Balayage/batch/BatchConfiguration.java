@@ -128,7 +128,7 @@ public class BatchConfiguration {
     Job scanJob;
 
     //utilisé pour les websockets
-    private final SimpMessagingTemplate template;
+    private final SimpMessagingTemplate template ;
 
     @Autowired
     BatchConfiguration(SimpMessagingTemplate template){
@@ -137,10 +137,15 @@ public class BatchConfiguration {
         ScanController.setBatchConfiguration(this);
     }
 
+    @Bean
+    Integer initInt(){
+        return 1;
+    }
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public Job ScanJob() {
+    public Job ScanJob(Integer test) {
+        System.out.println("test = " + test);
         JobExecutionListener listener = myjoblistener();
         Step step = stepBuilderFactory.get("Traitement-donnees-client")
                 .<Client, ClientTestResult>chunk(chunkSize)
@@ -228,7 +233,6 @@ public class BatchConfiguration {
                 .pageSize(pageSize)
                 .build();
     }
-
 
     /**
      * Declenche la méthode "fireAll(Client c)" qui va tester toutes les

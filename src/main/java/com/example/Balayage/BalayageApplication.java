@@ -18,11 +18,6 @@ import java.util.Collections;
 @SpringBootApplication
 @EnableScheduling
 public class BalayageApplication {
-	@Autowired
-	JobLauncher jobLauncher;
-
-	@Autowired
-	Job scanJob;
 
 	public static void main(String[] args) {
 		SpringApplication.run(BalayageApplication.class, args);
