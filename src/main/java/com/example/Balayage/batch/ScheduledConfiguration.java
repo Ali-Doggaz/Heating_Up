@@ -35,7 +35,10 @@ public class ScheduledConfiguration implements SchedulingConfigurer {
         ThreadPoolTaskScheduler threadPoolTaskScheduler =new ThreadPoolTaskScheduler();
         threadPoolTaskScheduler.setThreadNamePrefix("scheduler-thread");
         threadPoolTaskScheduler.initialize();
-        scheduleScanJob(threadPoolTaskScheduler, BatchConfiguration.getCronExpression());
+
+        //TODO change this - schedule all jobs in DB
+        //scheduleScanJob(threadPoolTaskScheduler, BatchConfiguration.getCronExpression());
+
         this.taskScheduler=threadPoolTaskScheduler;
         taskRegistrar.setTaskScheduler(threadPoolTaskScheduler);
 
@@ -47,20 +50,21 @@ public class ScheduledConfiguration implements SchedulingConfigurer {
     /*Lorsqu'on modifie la cronExpression de la classe BatchConfiguration, on
     appele cette méthode pour replanifier l'execution des balayages suivants
     la nouvelle expression cron*/
-    public void refreshCronSchedule(){
+    public void refreshCronSchedule(String cronExpression){
 
         if(job!=null){
             job.cancel(true);
         }
-        scheduleScanJob(taskScheduler, BatchConfiguration.getCronExpression());
+        scheduleScanJob(taskScheduler, cronExpression);
     }
 
     /*Demande au scheduler de reprogrammer les balayages suivant
     * la cronExpression passée en parametre.*/
     private void scheduleScanJob(ThreadPoolTaskScheduler scheduler, String cronExpression) {
-        job = scheduler.schedule(new BalayageTask(),
-                new CronTrigger(cronExpression)
-        );
+        //TODO change this, use method in BatchConfiguration to create new scanJob (see ScanController (/start) )
+        //job = scheduler.schedule(new BalayageTask(),
+               // new CronTrigger(cronExpression)
+        //);
     }
 
 }

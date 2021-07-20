@@ -1,6 +1,5 @@
 package com.example.Balayage.batch;
 
-import com.example.Balayage.BalayageApplication;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -10,7 +9,6 @@ import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -59,7 +57,7 @@ public class ScanController {
                 return new ResponseEntity<>("Veuillez attendre la fin du balayage en cours...", HttpStatus.OK);
             }
             //TODO get new scan's params and inject them to the new job
-            Job scanJob = (Job) context.getBean("ScanJob", 2);
+            Job scanJob = (Job) context.getBean("ScanJob", 1000, 1000, 3000);
 
             jobLauncher.run(scanJob, new JobParametersBuilder()
                     .addDate("date", new Date())
@@ -97,7 +95,8 @@ public class ScanController {
         String cronExpression = batchConfigParams.getCronExpression();
         //TODO add this check in the form
         //if(chunkSize<1 || pageSize<1) return "";
-        try {
+        //TODO change this
+/*        try {
             BatchConfiguration.setChunkSize(chunkSize);
             BatchConfiguration.setPageSize(pageSize);
             BatchConfiguration.setCronExpression(cronExpression);
@@ -109,7 +108,9 @@ public class ScanController {
         catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
-        }
+        }*/
+        //TODO DELETE THIS, this is just for testing purposes
+        return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
     }
 
 

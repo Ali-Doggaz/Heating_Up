@@ -57,13 +57,14 @@ public class BatchConfiguration {
     @Autowired
     private TestRegles testRegles;
 
+    //TODO delete this
     //Cette configuration sera modifiée quelques secondes après le lancement du programme
     //grace au commandLineRunner (voir ci-dessous)
     //La configuration stockée dans la table "batch_config_parameters" sera alors utilisée.
-    private static int chunkSize=1000;
-    private static int pageSize=1000;
-    private static int nbrClientsParRapport=2000;
-    private static String cronExpression="* 10 2 2 2 2 ";
+    //private static int chunkSize=1000;
+    //private static int pageSize=1000;
+    //private static int nbrClientsParRapport=2000;
+    //private static String cronExpression="* 10 2 2 2 2 ";
 
     //Nombre de règle à tester:
     int rulesNumber;
@@ -72,14 +73,15 @@ public class BatchConfiguration {
     @Bean
     CommandLineRunner commandLineRunner() {
         return args -> {
-            BatchConfigParams batchConfigParams = batchConfigParamsService.getConfig();
+            //TODO change entire config
+/*            BatchConfigParams batchConfigParams = batchConfigParamsService.getConfig();
             chunkSize = batchConfigParams.getChunkSize();
             pageSize = batchConfigParams.getPageSize();
             cronExpression = batchConfigParams.getCronExpression();
             nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
             System.out.println("Configuration initialisee...");
             System.out.println("Chunksize: " + chunkSize+" , Pagesize= "+pageSize+" , nbr_clients_par_rapport= " +
-                    nbrClientsParRapport + ", cronExpression= " + cronExpression);
+                    nbrClientsParRapport + ", cronExpression= " + cronExpression);*/
         };
     }
 
@@ -122,6 +124,9 @@ public class BatchConfiguration {
     private ItemProcessor<Client, ClientTestResult> clientProcessor;
 
     @Autowired
+    private JobExecutionListener listener;
+
+    @Autowired
     BatchConfigParamsService batchConfigParamsService;
 
     @Autowired
@@ -144,9 +149,13 @@ public class BatchConfiguration {
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public Job ScanJob(Integer test) {
-        System.out.println("test = " + test);
-        JobExecutionListener listener = myjoblistener();
+    public Job ScanJob(Integer chunkSize, Integer pageSize, Integer nbrClientsParRapport) {
+        System.out.println("chunkSize = " + chunkSize);
+        JobExecutionListener listener = myjoblistener(nbrClientsParRapport);
+        ItemProcessor<Client, ClientTestResult> clientProcessor = processor(nbrClientsParRapport);
+        ItemWriter<ClientTestResult> clientProcessingWriter = writer(chunkSize, nbrClientsParRapport);
+        ItemReader<Client> clientReader = reader(pageSize);
+
         Step step = stepBuilderFactory.get("Traitement-donnees-client")
                 .<Client, ClientTestResult>chunk(chunkSize)
                 .reader(clientReader)
@@ -166,7 +175,9 @@ public class BatchConfiguration {
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public JobExecutionListener myjoblistener() {
+    public JobExecutionListener myjoblistener(Integer nbrClientsParRapport) {
+        //TODO delete this
+        System.out.println("Listener - nbrClientParRapport = " + nbrClientsParRapport);
 
         return new JobExecutionListener() {
             /**
@@ -225,7 +236,10 @@ public class BatchConfiguration {
      */
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ItemReader<Client> reader() {
+    public ItemReader<Client> reader(Integer pageSize) {
+        //TODO delete this
+        System.out.println("Reader - pagesize = " + pageSize);
+
         String Query = "FROM client ORDER BY id";
         return new JpaPagingItemReaderBuilder<Client>().name("scan-reader")
                 .queryString(Query)
@@ -240,7 +254,10 @@ public class BatchConfiguration {
      * qui contient les résultat de ces tests
      */
     @Bean
-    public ItemProcessor<Client, ClientTestResult> processor() {
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public ItemProcessor<Client, ClientTestResult> processor(Integer nbrClientsParRapport) {
+        //TODO delete this
+        System.out.println("Processor - nbrClientsParRapport = " + nbrClientsParRapport);
 
         return new ItemProcessor<Client, ClientTestResult>() {
             private Long jobExecutionID;
@@ -267,7 +284,7 @@ public class BatchConfiguration {
      */
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ItemWriter<ClientTestResult> writer() {
+    public ItemWriter<ClientTestResult> writer(int chunkSize, int nbrClientsParRapport) {
         return new ItemWriter<ClientTestResult>() {
 
             private StepExecution stepExecution;
@@ -331,38 +348,6 @@ public class BatchConfiguration {
         jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
         jobLauncher.afterPropertiesSet();
         return jobLauncher;
-    }
-
-    public static int getChunkSize() {
-        return chunkSize;
-    }
-
-    public static void setChunkSize(int chunkSize) {
-        BatchConfiguration.chunkSize = chunkSize;
-    }
-
-    public static int getPageSize() {
-        return pageSize;
-    }
-
-    public static void setPageSize(int pageSize) {
-        BatchConfiguration.pageSize = pageSize;
-    }
-
-    public static int getNbrClientsParRapport() {
-        return nbrClientsParRapport;
-    }
-
-    public static void setNbrClientsParRapport(int nbrClientsParRapport) {
-        BatchConfiguration.nbrClientsParRapport = nbrClientsParRapport;
-    }
-
-    public static String getCronExpression() {
-        return cronExpression;
-    }
-
-    public static void setCronExpression(String cronExpression) {
-        BatchConfiguration.cronExpression = cronExpression;
     }
 
     public JobLauncher getJobLauncher() {

@@ -15,11 +15,8 @@ public class ScanReportGenerator {
         ClientReportInput clientReportInput = ClientReportDataAssembler.assemble( statsRegles, statsExceptions, nbrClientsAnalysed);
 
         try {
-            //TODO remove
-            //JRMapArrayDataSource dataSource = new JRMapArrayDataSource(new Object[]{clientReportInput.getDataSource()});
 
             //load file and compile it
-            //TODO update path
             File file = ResourceUtils.getFile("src\\main\\resources\\clientReport.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,
