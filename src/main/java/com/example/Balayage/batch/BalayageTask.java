@@ -14,8 +14,8 @@ public class BalayageTask implements Runnable {
         try {
             //TODO delete random values (1000 and * * 8 * *) added
             //Crée un nouveau reader avec la nouvelle configuration
-            batchConfiguration.setClientReader(batchConfiguration.reader(1000));
-            batchConfiguration.setClientProcessingWriter(batchConfiguration.writer(1000, 1000));
+            //batchConfiguration.setClientReader(batchConfiguration.reader(1000));
+            //batchConfiguration.setClientProcessingWriter(batchConfiguration.writer(1000, 1000));
             //Programme le nouveau Job
             batchConfiguration.getJobLauncher().run(batchConfiguration.ScanJob(1000, 1000, 1000), new JobParametersBuilder()
                     .addDate("date", new Date())

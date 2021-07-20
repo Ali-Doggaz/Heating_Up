@@ -24,14 +24,8 @@ import java.util.Set;
 @Controller
 public class ScanController {
 
-
-    private final ScheduledConfiguration scheduledConfiguration = new ScheduledConfiguration();
-
-    private static BatchConfiguration batchConfiguration;
-
-    public static void setBatchConfiguration(BatchConfiguration batchConfiguration) {
-        ScanController.batchConfiguration = batchConfiguration;
-    }
+    @Autowired
+    private ScheduledConfiguration scheduledConfiguration;
 
     @Autowired
     @Qualifier("asyncJobLauncher")
@@ -62,6 +56,7 @@ public class ScanController {
             jobLauncher.run(scanJob, new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters());
+
             return new ResponseEntity<>("Succès: Le scan a commencé", HttpStatus.OK);
         }
         catch(Exception e1){
@@ -93,24 +88,21 @@ public class ScanController {
         int pageSize = batchConfigParams.getPageSize();
         int nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
         String cronExpression = batchConfigParams.getCronExpression();
+
         //TODO add this check in the form
         //if(chunkSize<1 || pageSize<1) return "";
-        //TODO change this
-/*        try {
-            BatchConfiguration.setChunkSize(chunkSize);
-            BatchConfiguration.setPageSize(pageSize);
-            BatchConfiguration.setCronExpression(cronExpression);
-            BatchConfiguration.setNbrClientsParRapport(nbrClientsParRapport);
-            batchConfigParamsService.updateConfig(batchConfigParams);
-            scheduledConfiguration.refreshCronSchedule();
+        try {
+            //add config to db
+            batchConfigParamsService.addConfig(batchConfigParams);
+            //schedule the new scanJob
+            Job scanJob = (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport);
+            scheduledConfiguration.scheduleScanJob(scanJob, cronExpression);
             return new ResponseEntity<>("Succès: La configuration a été modifiée avec succès", HttpStatus.OK);
         }
         catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
-        }*/
-        //TODO DELETE THIS, this is just for testing purposes
-        return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
+        }
     }
 
 

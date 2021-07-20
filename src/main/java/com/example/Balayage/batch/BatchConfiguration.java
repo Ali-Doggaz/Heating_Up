@@ -56,16 +56,6 @@ public class BatchConfiguration {
 
     @Autowired
     private TestRegles testRegles;
-
-    //TODO delete this
-    //Cette configuration sera modifiée quelques secondes après le lancement du programme
-    //grace au commandLineRunner (voir ci-dessous)
-    //La configuration stockée dans la table "batch_config_parameters" sera alors utilisée.
-    //private static int chunkSize=1000;
-    //private static int pageSize=1000;
-    //private static int nbrClientsParRapport=2000;
-    //private static String cronExpression="* 10 2 2 2 2 ";
-
     //Nombre de règle à tester:
     int rulesNumber;
 
@@ -73,15 +63,18 @@ public class BatchConfiguration {
     @Bean
     CommandLineRunner commandLineRunner() {
         return args -> {
-            //TODO change entire config
-/*            BatchConfigParams batchConfigParams = batchConfigParamsService.getConfig();
-            chunkSize = batchConfigParams.getChunkSize();
-            pageSize = batchConfigParams.getPageSize();
-            cronExpression = batchConfigParams.getCronExpression();
-            nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
-            System.out.println("Configuration initialisee...");
-            System.out.println("Chunksize: " + chunkSize+" , Pagesize= "+pageSize+" , nbr_clients_par_rapport= " +
-                    nbrClientsParRapport + ", cronExpression= " + cronExpression);*/
+            List<BatchConfigParams> batchConfigsParams = batchConfigParamsService.getConfig();
+            int chunkSize = 0; int pageSize = 0; String cronExpression = ""; int nbrClientsParRapport = 0;
+            for(BatchConfigParams batchConfigParams : batchConfigsParams) {
+                chunkSize = batchConfigParams.getChunkSize();
+                pageSize = batchConfigParams.getPageSize();
+                cronExpression = batchConfigParams.getCronExpression();
+                nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
+                //TODO add scheduling
+                System.out.println("Configuration initialisee...");
+                System.out.println("Chunksize: " + chunkSize + " , Pagesize= " + pageSize + " , nbr_clients_par_rapport= " +
+                        nbrClientsParRapport + ", cronExpression= " + cronExpression);
+            }
         };
     }
 
@@ -112,19 +105,8 @@ public class BatchConfiguration {
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    private ItemReader<Client> clientReader;
-
-    @Autowired
     JobRegistry jobRegistry;
 
-    @Autowired
-    private ItemWriter<ClientTestResult> clientProcessingWriter;
-
-    @Autowired
-    private ItemProcessor<Client, ClientTestResult> clientProcessor;
-
-    @Autowired
-    private JobExecutionListener listener;
 
     @Autowired
     BatchConfigParamsService batchConfigParamsService;
@@ -139,9 +121,11 @@ public class BatchConfiguration {
     BatchConfiguration(SimpMessagingTemplate template){
         this.template = template;
         BalayageTask.setBatchConfiguration(this);
-        ScanController.setBatchConfiguration(this);
     }
 
+    //on a besoin d'une bean de type integer pour initialiser la bean "ScanJob" lors de l'initialisation de l'application.
+    //lors de la création des scanJob (scope.Prototype), on créera de nouvelle bean "Job" avec
+    //de vrais parametres au lieu de cette bean int.
     @Bean
     Integer initInt(){
         return 1;
@@ -193,8 +177,7 @@ public class BatchConfiguration {
                 // Si un scan est deja en cours, annule le declenchement du nouveau Job en levant une exception
                 int runningJobsCount = jobExplorer.findRunningJobExecutions(jobExecution.getJobInstance().getJobName()).size();
                 if(runningJobsCount > 1){
-                    //TODO remove comment
-                    //throw new RuntimeException("Veuillez attendre la fin du balayage en cours");
+                    throw new RuntimeException("Veuillez attendre la fin du balayage en cours");
                 }
 
 
@@ -354,29 +337,6 @@ public class BatchConfiguration {
         return jobLauncher;
     }
 
-    public ItemReader<Client> getClientReader() {
-        return clientReader;
-    }
-
-    public void setClientReader(ItemReader<Client> clientReader) {
-        this.clientReader = clientReader;
-    }
-
-    public ItemWriter<ClientTestResult> getClientProcessingWriter() {
-        return clientProcessingWriter;
-    }
-
-    public void setClientProcessingWriter(ItemWriter<ClientTestResult> clientProcessingWriter) {
-        this.clientProcessingWriter = clientProcessingWriter;
-    }
-
-    public ItemProcessor<Client, ClientTestResult> getClientProcessor() {
-        return clientProcessor;
-    }
-
-    public void setClientProcessor(ItemProcessor<Client, ClientTestResult> clientProcessor) {
-        this.clientProcessor = clientProcessor;
-    }
 
     public static String getUniqueJobName() {
         return uniqueJobName;
