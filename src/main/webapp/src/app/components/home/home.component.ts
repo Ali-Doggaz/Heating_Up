@@ -146,7 +146,7 @@ export class HomeComponent implements OnInit {
     month	= this.getChoice('month');
     weekday	= this.getChoice('weekday');
     // @ts-ignore
-    this.cronExpression = "*"+ " " +minute + " " + hour + " " + day + " " + month + " " + weekday + " ";
+    this.cronExpression = "0"+ " " +minute + " " + hour + " " + day + " " + month + " " + weekday + " ";
 
   }
 

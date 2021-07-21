@@ -96,7 +96,7 @@ public class ScanController {
             batchConfigParamsService.addConfig(batchConfigParams);
             //schedule the new scanJob
             Job scanJob = (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport);
-            scheduledConfiguration.scheduleScanJob(scanJob, cronExpression);
+            scheduledConfiguration.scheduleScanJob(scanJob, batchConfigParams);
             return new ResponseEntity<>("Succès: La configuration a été modifiée avec succès", HttpStatus.OK);
         }
         catch(Exception e){

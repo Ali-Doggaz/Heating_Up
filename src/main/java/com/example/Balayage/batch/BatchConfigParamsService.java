@@ -12,7 +12,7 @@ public class BatchConfigParamsService {
     BatchConfigParamsRepository batchConfigParamsRepository;
 
     @Transactional
-    public List<BatchConfigParams> getConfig(){
+    public List<BatchConfigParams> getConfigs(){
         return  batchConfigParamsRepository.findAll();
     }
 

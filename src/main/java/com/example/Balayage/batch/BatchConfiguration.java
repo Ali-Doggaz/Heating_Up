@@ -71,7 +71,7 @@ public class BatchConfiguration {
     @Bean
     CommandLineRunner commandLineRunner() {
         return args -> {
-            List<BatchConfigParams> batchConfigsParams = batchConfigParamsService.getConfig();
+            List<BatchConfigParams> batchConfigsParams = batchConfigParamsService.getConfigs();
             int chunkSize = 0; int pageSize = 0; String cronExpression = ""; int nbrClientsParRapport = 0;
             for(BatchConfigParams batchConfigParams : batchConfigsParams) {
                 chunkSize = batchConfigParams.getChunkSize();
@@ -81,7 +81,8 @@ public class BatchConfiguration {
                 //TODO check if scheduling works
                 scheduledConfiguration.scheduleScanJob(
                         (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport),
-                        cronExpression);
+                        new BatchConfigParams(chunkSize, pageSize, nbrClientsParRapport, cronExpression)
+                );
                 System.out.println("Configuration initialisee...");
                 System.out.println("Chunksize: " + chunkSize + " , Pagesize= " + pageSize + " , nbr_clients_par_rapport= " +
                         nbrClientsParRapport + ", cronExpression= " + cronExpression);
