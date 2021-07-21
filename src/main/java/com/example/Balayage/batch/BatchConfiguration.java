@@ -30,6 +30,7 @@ import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilde
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -59,6 +60,13 @@ public class BatchConfiguration {
     //Nombre de règle à tester:
     int rulesNumber;
 
+
+    @Autowired
+    private ApplicationContext context;
+
+    @Autowired
+    ScheduledConfiguration scheduledConfiguration;
+
     //initialisation de la configuration des balayages depuis la BD
     @Bean
     CommandLineRunner commandLineRunner() {
@@ -70,7 +78,10 @@ public class BatchConfiguration {
                 pageSize = batchConfigParams.getPageSize();
                 cronExpression = batchConfigParams.getCronExpression();
                 nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
-                //TODO add scheduling
+                //TODO check if scheduling works
+                scheduledConfiguration.scheduleScanJob(
+                        (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport),
+                        cronExpression);
                 System.out.println("Configuration initialisee...");
                 System.out.println("Chunksize: " + chunkSize + " , Pagesize= " + pageSize + " , nbr_clients_par_rapport= " +
                         nbrClientsParRapport + ", cronExpression= " + cronExpression);
@@ -121,6 +132,7 @@ public class BatchConfiguration {
     BatchConfiguration(SimpMessagingTemplate template){
         this.template = template;
         BalayageTask.setBatchConfiguration(this);
+
     }
 
     //on a besoin d'une bean de type integer pour initialiser la bean "ScanJob" lors de l'initialisation de l'application.

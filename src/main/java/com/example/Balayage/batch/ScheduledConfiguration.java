@@ -12,7 +12,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 
 /* Cette classe s'occupe de configurer la plannification des balayages.
@@ -25,54 +27,69 @@ public class ScheduledConfiguration implements SchedulingConfigurer {
     @Qualifier("asyncJobLauncher")
     JobLauncher jobLauncher;
 
+    @Autowired
     ThreadPoolTaskScheduler taskScheduler;
-    private ScheduledFuture<?> job;  //Pointeur sur le job de balayage actuellement programmé. A chaque fois que la plannification
-                                    // des jobs est modifiée (nouvelle cronExpression), on reprogramme les jobs et on actualise
-                                    //ce pointeur
 
-    private ScheduledTaskRegistrar scheduledTaskRegistrar = new ScheduledTaskRegistrar();
+    //@Autowired
+    //private ScheduledTaskRegistrar scheduledTaskRegistrar;
 
-    @Bean
+    private List<ScheduledFuture<?>> scheduledJobs = new ArrayList<>();
+    private List<String> scheduledJobsNames = new ArrayList<>();
+
+
+    /*@Bean
     public ScheduledTaskRegistrar ScheduledTaskRegistrar() {
         ScheduledTaskRegistrar scheduledTaskRegistrar = new ScheduledTaskRegistrar();
         return scheduledTaskRegistrar;
+    }*/
+
+    @Bean
+    public ThreadPoolTaskScheduler taskScheduler(){
+        ThreadPoolTaskScheduler threadPoolTaskScheduler =new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setThreadNamePrefix("scheduler-thread");
+        threadPoolTaskScheduler.initialize();
+        return threadPoolTaskScheduler;
     }
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-
-        ThreadPoolTaskScheduler threadPoolTaskScheduler =new ThreadPoolTaskScheduler();
+        //TODO check that autowired works and delete this
+/*        ThreadPoolTaskScheduler threadPoolTaskScheduler =new ThreadPoolTaskScheduler();
         threadPoolTaskScheduler.setThreadNamePrefix("scheduler-thread");
         threadPoolTaskScheduler.initialize();
-        this.taskScheduler=threadPoolTaskScheduler;
-        taskRegistrar.setTaskScheduler(threadPoolTaskScheduler);
+        this.taskScheduler=threadPoolTaskScheduler;*/
+
+        //taskRegistrar.setTaskScheduler(taskScheduler);
 
         //TODO change this - schedule all jobs in DB
         //scheduleScanJob(threadPoolTaskScheduler, BatchConfiguration.getCronExpression());
 
     }
 
-    {configureTasks(scheduledTaskRegistrar);} //configure le taskScheduler lors de l'initialisation du serveur
+    //{configureTasks(scheduledTaskRegistrar);} //configure le taskScheduler lors de l'initialisation du serveur
 
 
     /*Demande au scheduler de reprogrammer les balayages suivant
     * la cronExpression passée en parametre.*/
     public void scheduleScanJob(Job scanJob, String cronExpression) {
-        job = taskScheduler.schedule(new Runnable(){
+        scheduledJobs.add(taskScheduler.schedule(
+                new Runnable(){
 
-            public void run(){
-                try {
-                    jobLauncher.run(scanJob, new JobParametersBuilder()
-                            .addDate("date", new Date())
-                            .toJobParameters());
-                }
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-        },
+                    public void run(){
+                        try {
+                            jobLauncher.run(scanJob, new JobParametersBuilder()
+                                    .addDate("date", new Date())
+                                    .toJobParameters());
+                        }
+                        catch(Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                },
                new CronTrigger(cronExpression)
+            )
         );
+        scheduledJobsNames.add(scanJob.getName());
     }
 
     //TODO delete this
@@ -81,9 +98,9 @@ public class ScheduledConfiguration implements SchedulingConfigurer {
     la nouvelle expression cron*/
     public void refreshCronSchedule(String cronExpression){
 
-        if(job!=null){
+        /*if(job!=null){
             job.cancel(true);
-        }
+        }*/
     }
 
 }
