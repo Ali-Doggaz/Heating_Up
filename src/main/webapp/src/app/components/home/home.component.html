@@ -32,7 +32,7 @@
             <li class="list-group-item"><i class="fa float-right"></i>Taille des Chunks: {{batchConfig?.chunkSize}}</li>
             <li class="list-group-item"><i class="fa float-right"></i>Taille des pages : {{batchConfig?.pageSize}}</li>
             <li class="list-group-item"><i class="fa float-right"></i>Nbr de clients par rapport : {{batchConfig?.nbrClientsParRapport}}</li>
-            <li class="list-group-item"><i class="fa float-right"></i>Plannification : <br> Minute{{batchConfig?.cronExpression.split(" ")}}</li>
+            <li style="white-space: pre-line" class="list-group-item"><i class="fa float-right"></i> <b> Plannification :</b> <br> {{batchConfig?.humanReadableCronExpression}}</li>
           </ul>
           <div class="card-body">
             <div class="float-right btn-group btn-group-sm">

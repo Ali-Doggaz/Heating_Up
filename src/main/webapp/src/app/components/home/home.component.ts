@@ -45,8 +45,14 @@ export class HomeComponent implements OnInit {
   public getConfigs(){
     this.batchService.getConfigs().subscribe(
       (response: batchConfig[]) => {
-        this.batchConfigs = response;
-        console.log(this.batchConfigs);
+
+        this.batchConfigs = [];
+        response.forEach( jsonConfig => {
+            this.batchConfigs.push( new batchConfig(jsonConfig.chunkSize,
+              jsonConfig.pageSize,jsonConfig.nbrClientsParRapport, jsonConfig.cronExpression,
+              jsonConfig.id));
+          }
+        );
       },
       (error: HttpErrorResponse) => {
         alert(error.message);
