@@ -20,4 +20,8 @@ public class BatchConfigParamsService {
     public void addConfig(BatchConfigParams newbatchConfigParams){
         batchConfigParamsRepository.save(newbatchConfigParams);
     }
+
+    public void deleteConfigById(Long id){
+        batchConfigParamsRepository.deleteById(id);
+    }
 }

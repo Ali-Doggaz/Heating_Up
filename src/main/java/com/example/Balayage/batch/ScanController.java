@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -46,9 +47,11 @@ public class ScanController {
     @GetMapping("Scan/Start")
     public ResponseEntity<String> launchJob(){
         try {
-            //TODO remove this
-            if (jobExplorer.findRunningJobExecutions(BatchConfiguration.getUniqueJobName()).size() >= 1){
-                return new ResponseEntity<>("Veuillez attendre la fin du balayage en cours...", HttpStatus.OK);
+            //TODO check if this works
+            for(String jobName: scheduledConfiguration.getScheduledJobsNames()) {
+                if (jobExplorer.findRunningJobExecutions(jobName).size() >= 1) {
+                    return new ResponseEntity<>("Veuillez attendre la fin du balayage en cours...", HttpStatus.OK);
+                }
             }
             //TODO get new scan's params and inject them to the new job
             Job scanJob = (Job) context.getBean("ScanJob", 1000, 1000, 3000);
@@ -56,6 +59,9 @@ public class ScanController {
             jobLauncher.run(scanJob, new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters());
+
+            //Enregistrer le nom du nouveau job pour pouvoir l'arreter si besoin (via la route "Scan/Stop")
+            scheduledConfiguration.addJobName(scanJob.getName());
 
             return new ResponseEntity<>("Succès: Le scan a commencé", HttpStatus.OK);
         }
@@ -66,19 +72,28 @@ public class ScanController {
 
     @GetMapping("Scan/Stop")
     public ResponseEntity<String> stopScanJob(){
-        try {
-            Set<JobExecution> jobExecutions = jobExplorer.findRunningJobExecutions(BatchConfiguration.getUniqueJobName());
-            if (jobExecutions.size() == 0) return new ResponseEntity<>("Erreur: Aucun balayage n'est en cours",
-                    HttpStatus.OK);
-            for (JobExecution jobExecution : jobExecutions) {
-                    jobOperator.stop(jobExecution.getId());
-               }
-            return new ResponseEntity<>("Succès: Balayage arrêté", HttpStatus.OK);
+            //TODO check if this works
+            Boolean boolScanTrouves = false;
+
+            Set<JobExecution> newJobExecutions = new HashSet<>();
+            //Parcourir tous les jobs programmés et verifier si ils sont en cours d'execution
+            for(String jobName: scheduledConfiguration.getScheduledJobsNames()) {
+                newJobExecutions = jobExplorer.findRunningJobExecutions(jobName);
+
+                //Si on trouve des balayages en cours d'execution, on update la variable booléene
+                //et on arrete tous les jobs trouvés
+                if (newJobExecutions.size()>0) {
+                    boolScanTrouves = true;
+                    for (JobExecution jobExecution : newJobExecutions) {
+                        jobOperator.stop(jobExecution.getId());
+                    }
+                }
             }
-        catch(Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
-        }
+
+            if (!boolScanTrouves) return new ResponseEntity<>("Erreur: Aucun balayage n'est en cours",
+                    HttpStatus.OK);
+
+            return new ResponseEntity<>("Succès: Balayage en cours d'arret", HttpStatus.OK);
     }
 
     @PostMapping("/Scan/SetConfig")
@@ -96,6 +111,7 @@ public class ScanController {
             batchConfigParamsService.addConfig(batchConfigParams);
             //schedule the new scanJob
             Job scanJob = (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport);
+            //TODO check if the same batchConfig gets stored in db and in scheduledJobs map
             scheduledConfiguration.scheduleScanJob(scanJob, batchConfigParams);
             return new ResponseEntity<>("Succès: La configuration a été modifiée avec succès", HttpStatus.OK);
         }
@@ -105,6 +121,13 @@ public class ScanController {
         }
     }
 
+    @GetMapping("Scan/Stop")
+    @ResponseBody
+    public ResponseEntity<String> deleteScanConfig(Long id){
+            scheduledConfiguration.deleteScheduledJob(id);
+            batchConfigParamsService.deleteConfigById(id);
+            return new ResponseEntity<>("Configuration supprimee avec succes", HttpStatus.OK);
 
+    }
 
 }

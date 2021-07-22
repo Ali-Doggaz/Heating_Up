@@ -22,6 +22,9 @@ import java.util.concurrent.ScheduledFuture;
 public class ScheduledConfiguration implements SchedulingConfigurer {
 
     @Autowired
+    BatchConfigParamsService batchConfigParamsService;
+
+    @Autowired
     @Qualifier("asyncJobLauncher")
     JobLauncher jobLauncher;
 
@@ -95,14 +98,23 @@ public class ScheduledConfiguration implements SchedulingConfigurer {
     /*Lorsqu'on modifie la cronExpression de la classe BatchConfiguration, on
     appele cette méthode pour replanifier l'execution des balayages suivants
     la nouvelle expression cron*/
-    public void deleteScheduledJob(BatchConfigParams batchConfigParams){
+    public void deleteScheduledJob(Long id){
         schedulesJobs.forEach((params, job) -> {
-            if (params.equals(batchConfigParams)){
+            if (params.getId() == id){
                 if(job!=null){
                     job.cancel(true);
                 }
+                batchConfigParamsService.deleteConfig(id);
                 return;
             }
         });
+    }
+
+    public List<String> getScheduledJobsNames() {
+        return scheduledJobsNames;
+    }
+
+    public void addJobName(String jobName){
+        scheduledJobsNames.add(jobName);
     }
 }
