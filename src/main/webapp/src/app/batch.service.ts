@@ -26,7 +26,7 @@ export class BatchService {
     return this.http.get(`${this.apiServerUrl}/Scan/Stop`, {responseType: 'text'});
   }
 
-  public changeConfig(newConfig: batchConfig): Observable<String> {
+  public addConfig(newConfig: batchConfig): Observable<String> {
     return this.http.post(`${this.apiServerUrl}/Scan/SetConfig`, newConfig, {responseType: 'text'});
   }
 

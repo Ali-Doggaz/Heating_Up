@@ -137,7 +137,7 @@ public class ScanController {
 
     @PostMapping("Scan/deleteConfig")
     @ResponseBody
-    public ResponseEntity<String> deleteConfig(Long id) {
+    public ResponseEntity<String> deleteConfig(@RequestBody Long id) {
         try{
             batchConfigParamsService.deleteConfigById(id);
             return new ResponseEntity<>("Succès: Configuration supprimée avec succès", HttpStatus.OK);

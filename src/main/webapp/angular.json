@@ -95,10 +95,12 @@
             ],
             "styles": [
               "src/styles.css",
-              "src/assets/Style/main.css"
+              "src/assets/Style/main.css",
+              "../node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
             "scripts": [
-              "src/assets/JS/cron.js"
+              "../node_modules/jquery/dist/jquery.min.js",
+              "../node_modules/bootstrap/dist/js/bootstrap.min.js"
             ]
           }
         }

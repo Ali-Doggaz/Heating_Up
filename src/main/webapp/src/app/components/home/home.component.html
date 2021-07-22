@@ -43,11 +43,11 @@
       </div>
     </div>
     <!-- Delete Modal -->
-    <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteConfigModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="deleteModelLabel">Delete Employee</h5>
+            <h5 class="modal-title" id="deleteModelLabel">Supprimer la configuration</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -55,28 +55,28 @@
           <div class="modal-body">
             <p>Êtes-vous sûr de vouloir supprimer cette configuration?</p>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-              <button (click)="onDeleteConfig(deleteConfig?.id)" class="btn btn-danger" data-dismiss="modal">Yes</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Non</button>
+              <button (click)="onDeleteConfig(deleteConfig?.id)" class="btn btn-danger" data-dismiss="modal">Oui</button>
             </div>
           </div>
         </div>
       </div>
     </div>
     </div>
-    <!-- Notification for no employees -->
+    <!-- Notification for no configs -->
     <div *ngIf="batchConfigs?.length == 0" class="col-lg-12 col-md-12 col-xl-12">
       <div class="alert alert-info" role="alert">
-        <h4 class="alert-heading">NO EMPLOYEES!</h4>
-        <p>No Employees were found.</p>
+        <h4 class="alert-heading">Aucune Configuration</h4>
+        <p>Aucune configuration trouvée!</p>
       </div>
     </div>
 
     <!-- Ajout de plannification/configuration -->
   <div id="config">
     <div id="parametres_generaux">
-      <p>Ajout d'une plannification </p>
+      <p>Ajouter une plannification </p>
 
-      <form id=changeConfForm #changeConfForm="ngForm" (ngSubmit)="changeConfig(changeConfForm)">
+      <form id=changeConfForm #changeConfForm="ngForm" (ngSubmit)="addConfig(changeConfForm)">
         <label for="pageSize">Nombre de clients par rapport</label>
         <input type="number" pattern="\d+" id="nbrClientsParRapport" ngModel name="nbrClientsParRapport" [formControl] = "nbrClientsParRapport">
         <label for="chunkSize">Taille des chunks</label>

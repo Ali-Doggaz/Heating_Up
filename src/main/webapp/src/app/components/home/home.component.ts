@@ -54,9 +54,9 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  public changeConfig(changeConfForm: NgForm):void{
+  public addConfig(changeConfForm: NgForm):void{
     let newConfig = new batchConfig(this.chunkSize.value, this.pageSize.value, this.nbrClientsParRapport.value, this.cronExpression);
-    this.batchService.changeConfig(newConfig).subscribe(
+    this.batchService.addConfig(newConfig).subscribe(
       (response: String) => {
         console.log(response);
         //Colorier les input fields et le form de selection de la cronExpression
@@ -81,6 +81,7 @@ export class HomeComponent implements OnInit {
             )
           }
         }
+        this.getConfigs()
       },
       (error: HttpErrorResponse) => {
         alert(error.message);
@@ -187,10 +188,10 @@ export class HomeComponent implements OnInit {
     button.type = 'button';
     button.style.display = 'none';
     button.setAttribute('data-toggle', 'modal');
-    this.deleteConfig = config;
     button.setAttribute('data-target', '#deleteConfigModal');
+    //Enregistrer la configuration a supprimer
+    this.deleteConfig = config;
 
-    // @ts-ignore
     container.appendChild(button);
     button.click();
   }
