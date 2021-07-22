@@ -30,4 +30,11 @@ export class BatchService {
     return this.http.post(`${this.apiServerUrl}/Scan/SetConfig`, newConfig, {responseType: 'text'});
   }
 
+  public getConfigs(): Observable<batchConfig[]>{
+    return this.http.get<batchConfig[]>(`${this.apiServerUrl}/Scan/getConfigs`);
+  }
+
+  public deleteConfig(id: number): Observable<String>{
+    return this.http.post(`${this.apiServerUrl}/Scan/deleteConfig`, id, {responseType: 'text'});
+  }
 }

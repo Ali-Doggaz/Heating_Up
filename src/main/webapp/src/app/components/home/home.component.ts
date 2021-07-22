@@ -30,9 +30,28 @@ export class HomeComponent implements OnInit {
   pageSize = new FormControl();
   nbrClientsParRapport = new FormControl();
 
+  //Liste des configuration/plannifications
+  public batchConfigs : batchConfig[] | undefined;
+  // @ts-ignore
+  public deleteConfig: batchConfig;
+
   constructor(private batchService: BatchService) { }
 
   ngOnInit(): void {
+    this.getConfigs()
+  }
+
+  //recupere toutes les configurations/plannifications depuis la backend
+  public getConfigs(){
+    this.batchService.getConfigs().subscribe(
+      (response: batchConfig[]) => {
+        this.batchConfigs = response;
+        console.log(this.batchConfigs);
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+      }
+    );
   }
 
   public changeConfig(changeConfForm: NgForm):void{
@@ -150,9 +169,31 @@ export class HomeComponent implements OnInit {
 
   }
 
+  public onDeleteConfig(employeeId: number): void {
+    this.batchService.deleteConfig(employeeId).subscribe(
+      (response: String) => {
+        console.log(response);
+        this.getConfigs();
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+      }
+    );
+  }
 
+  public onOpenModal(config: batchConfig): void {
+    const container = document.getElementById('main-container');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.style.display = 'none';
+    button.setAttribute('data-toggle', 'modal');
+    this.deleteConfig = config;
+    button.setAttribute('data-target', '#deleteConfigModal');
 
-
+    // @ts-ignore
+    container.appendChild(button);
+    button.click();
+  }
 
 }
 

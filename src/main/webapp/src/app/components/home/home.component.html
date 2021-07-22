@@ -13,9 +13,68 @@
               (click)="stopScan()">Arreter le balayage en cours</button>
     </div>
   </div>
+  <!-- Liste des configurations presentes-->
+  <div class="container" id="main-container">
+    <p>Plannifications: </p>
+    <div class="row">
+      <div *ngFor="let batchConfig of batchConfigs" class="col-md-6 col-xl-3">
+        <div class="card m-b-30">
+          <div class="card-body row">
+            <div class="col-6">
+              <a href=""><img src="https://img.icons8.com/color/48/000000/apple-settings.png" alt="" class="img-fluid rounded-circle w-60"></a>
+            </div>
+            <div class="col-6 card-title align-self-center mb-0">
+              <h5>ID</h5>
+              <p class="m-0">{{batchConfig?.id}}</p>
+            </div>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><i class="fa float-right"></i>Taille des Chunks: {{batchConfig?.chunkSize}}</li>
+            <li class="list-group-item"><i class="fa float-right"></i>Taille des pages : {{batchConfig?.pageSize}}</li>
+            <li class="list-group-item"><i class="fa float-right"></i>Nbr de clients par rapport : {{batchConfig?.nbrClientsParRapport}}</li>
+            <li class="list-group-item"><i class="fa float-right"></i>Plannification : <br> Minute{{batchConfig?.cronExpression.split(" ")}}</li>
+          </ul>
+          <div class="card-body">
+            <div class="float-right btn-group btn-group-sm">
+              <a (click)="onOpenModal(batchConfig)" class="btn btn-secondary tooltips" data-placement="top" data-original-title="Delete"><i class="fa fa-times"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModelLabel">Delete Employee</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Êtes-vous sûr de vouloir supprimer cette configuration?</p>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+              <button (click)="onDeleteConfig(deleteConfig?.id)" class="btn btn-danger" data-dismiss="modal">Yes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <!-- Notification for no employees -->
+    <div *ngIf="batchConfigs?.length == 0" class="col-lg-12 col-md-12 col-xl-12">
+      <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">NO EMPLOYEES!</h4>
+        <p>No Employees were found.</p>
+      </div>
+    </div>
+
+    <!-- Ajout de plannification/configuration -->
   <div id="config">
     <div id="parametres_generaux">
-      <p>Configuration du balayage </p>
+      <p>Ajout d'une plannification </p>
 
       <form id=changeConfForm #changeConfForm="ngForm" (ngSubmit)="changeConfig(changeConfForm)">
         <label for="pageSize">Nombre de clients par rapport</label>
@@ -107,8 +166,8 @@
 
     <br><br>
 
+    </form>
+  </div>
+  </div>
 
-  </form>
   </div>
-  </div>
-</div>

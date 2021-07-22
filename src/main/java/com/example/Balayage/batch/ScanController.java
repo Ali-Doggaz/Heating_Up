@@ -13,10 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -134,8 +131,21 @@ public class ScanController {
 
     @GetMapping("Scan/getConfigs")
     @ResponseBody
-    public List<BatchConfigParams> deleteScanConfig(){
+    public List<BatchConfigParams> getConfigs(){
             return batchConfigParamsService.getConfigs();
+    }
+
+    @PostMapping("Scan/deleteConfig")
+    @ResponseBody
+    public ResponseEntity<String> deleteConfig(Long id) {
+        try{
+            batchConfigParamsService.deleteConfigById(id);
+            return new ResponseEntity<>("Succès: Configuration supprimée avec succès", HttpStatus.OK);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>("Erreur: une erreur inattendue a eu lieu...", HttpStatus.OK);
+        }
     }
 
 }
