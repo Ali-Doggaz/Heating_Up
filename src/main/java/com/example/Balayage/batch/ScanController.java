@@ -4,6 +4,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -85,7 +87,17 @@ public class ScanController {
                 if (newJobExecutions.size()>0) {
                     boolScanTrouves = true;
                     for (JobExecution jobExecution : newJobExecutions) {
-                        jobOperator.stop(jobExecution.getId());
+                        try {
+                            jobOperator.stop(jobExecution.getId());
+                        }
+                        catch (JobExecutionNotRunningException e1){
+                            e1.printStackTrace();
+                            return new ResponseEntity<>("Erreur: Le balayage a deja ete complete",
+                                    HttpStatus.OK);
+                        }
+                        catch (Exception e2){
+                            e2.printStackTrace();
+                        }
                     }
                 }
             }
@@ -111,7 +123,6 @@ public class ScanController {
             batchConfigParamsService.addConfig(batchConfigParams);
             //schedule the new scanJob
             Job scanJob = (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport);
-            //TODO check if the same batchConfig gets stored in db and in scheduledJobs map
             scheduledConfiguration.scheduleScanJob(scanJob, batchConfigParams);
             return new ResponseEntity<>("Succès: La configuration a été modifiée avec succès", HttpStatus.OK);
         }
@@ -121,13 +132,10 @@ public class ScanController {
         }
     }
 
-    @GetMapping("Scan/Stop")
+    @GetMapping("Scan/getConfigs")
     @ResponseBody
-    public ResponseEntity<String> deleteScanConfig(Long id){
-            scheduledConfiguration.deleteScheduledJob(id);
-            batchConfigParamsService.deleteConfigById(id);
-            return new ResponseEntity<>("Configuration supprimee avec succes", HttpStatus.OK);
-
+    public List<BatchConfigParams> deleteScanConfig(){
+            return batchConfigParamsService.getConfigs();
     }
 
 }

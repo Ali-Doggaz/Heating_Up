@@ -19,7 +19,7 @@ import java.util.concurrent.ScheduledFuture;
 *
 * */
 @Configuration
-public class ScheduledConfiguration implements SchedulingConfigurer {
+public class ScheduledConfiguration{
 
     @Autowired
     BatchConfigParamsService batchConfigParamsService;
@@ -52,24 +52,6 @@ public class ScheduledConfiguration implements SchedulingConfigurer {
         threadPoolTaskScheduler.initialize();
         return threadPoolTaskScheduler;
     }
-
-    @Override
-    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-        //TODO check that autowired works and delete this
-/*        ThreadPoolTaskScheduler threadPoolTaskScheduler =new ThreadPoolTaskScheduler();
-        threadPoolTaskScheduler.setThreadNamePrefix("scheduler-thread");
-        threadPoolTaskScheduler.initialize();
-        this.taskScheduler=threadPoolTaskScheduler;*/
-
-        //taskRegistrar.setTaskScheduler(taskScheduler);
-
-        //TODO change this - schedule all jobs in DB
-        //scheduleScanJob(threadPoolTaskScheduler, BatchConfiguration.getCronExpression());
-
-    }
-
-    //{configureTasks(scheduledTaskRegistrar);} //configure le taskScheduler lors de l'initialisation du serveur
-
 
     /*Demande au scheduler de reprogrammer les balayages suivant
     * la cronExpression passée en parametre.*/
@@ -104,7 +86,7 @@ public class ScheduledConfiguration implements SchedulingConfigurer {
                 if(job!=null){
                     job.cancel(true);
                 }
-                batchConfigParamsService.deleteConfig(id);
+                batchConfigParamsService.deleteConfigById(id);
                 return;
             }
         });
