@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
   // @ts-ignore
   public deleteConfig: batchConfig;
 
-  constructor(private batchService: BatchService) { }
+  constructor(private batchService: BatchService) {}
 
   ngOnInit(): void {
     this.getConfigs()

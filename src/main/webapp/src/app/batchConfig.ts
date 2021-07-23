@@ -63,6 +63,7 @@ export class batchConfig {
   }
 
   public generateHumanReadableCronExpression(): void{
+    if(this.cronExpression == "N/A") return;
     this.humanReadableCronExpression =  "Minute: " + this.getMinute() + "\nHeure: " + this.getHour() +"\nJour: " + this.getDay()+
       "\nMois: " + this.getMonth()+"\nJour de la semaine: "+this.getDayOfTheWeek();
 

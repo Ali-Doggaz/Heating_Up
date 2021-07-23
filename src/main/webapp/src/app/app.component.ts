@@ -6,9 +6,7 @@ import * as SockJS from 'sockjs-client';
 // @ts-ignore
 import $ from 'jquery';
 import {environment} from "../environments/environment";
-import {batchConfig} from "./batchConfig";
-import { BatchService } from 'src/app/batch.service';
-import {HttpErrorResponse} from "@angular/common/http";
+import {BatchService} from 'src/app/batch.service';
 
 @Component({
   selector: 'app-root',
@@ -20,16 +18,17 @@ export class AppComponent implements OnInit {
   public title = 'Balayage_UI';
   private stompClient: any;
   private serverUrl = environment.apiBaseUrl+"/socket";
-
+  private ws: SockJS;
+  private recInterval: any;
   constructor(private batchService: BatchService){}
 
   ngOnInit() {
-    this.initializeWebSocketConnection();
+    this.connectWebSocket();
   }
 
-  initializeWebSocketConnection(){
-    let ws = new SockJS(this.serverUrl);
-    this.stompClient = Stomp.over(ws);
+  connectWebSocket(){
+    this.ws = new SockJS(this.serverUrl);
+    this.stompClient = Stomp.over(this.ws);
     let that = this;
     this.stompClient.connect({}, function(frame: any) {
       //Modifier le status du job lorsqu'on le backend nous envoie son nouveau status
@@ -39,6 +38,17 @@ export class AppComponent implements OnInit {
         }
       });
     });
+    clearInterval(this.recInterval);
+    let this_outer = this;
+    this.ws.onclose = function() {
+      console.log("Tentative de reconnexion en cours...")
+      this_outer.ws = null;
+      this_outer.recInterval = setInterval(function() {
+        this_outer.connectWebSocket();
+      }, 2000);
+    };
+
   }
+
 
 }
