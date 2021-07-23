@@ -7,11 +7,41 @@
     <div id="FunctionsTriggerButtons">
       <button class="--action" id="startScan" type="input"
               [disabled]="isScanEnCours()"
-              (click)="startScan()">Commencer le balayage</button>
+              (click)="openNewScanModal()">Commencer le balayage</button>
       <button class="--danger" id="stopScan" type="input"
               [disabled]="!isScanEnCours()"
               (click)="stopScan()">Arreter le balayage en cours</button>
     </div>
+
+    <!-- newScanConfig Modal -->
+    <div class="modal fade" id="newScanConfig" tabindex="-1" role="dialog" aria-labelledby="newScanConfigLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newScanConfigLabel">Configuration</h5>
+          </div>
+          <div class="modal-body">
+            <div class="modal-footer">
+              <form id=newConf #newConf="ngForm" (ngSubmit)="startScan()" novalidate>
+                <br>
+                <label for="pageSize">Nombre de clients par rapport (± taille des chunks)</label>
+                <input type="number" title="Ce champs est obligatoire" required pattern="\d+" id="nbrClientsParRapport"  name="nbrClientsParRapport" [formControl] = "tempNbrClientsParRapport">
+                <label for="chunkSize">Taille des chunks</label>
+                <input type="number" title="Ce champs est obligatoire" required pattern="\d+" id="chunkSize"  name="chunkSize" [formControl] = "tempChunkSize">
+                <label for="pageSize">Taille des pages</label>
+                <input type="number" title="Ce champs est obligatoire" required pattern="\d+" id="pageSize" name="pageSize" [formControl] = "tempPageSize">
+                <div id="newConfButtons">
+                  <button type="button" class="btn --danger" data-dismiss="modal">Annuler</button>
+                  <button (click)="startScan()" class="btn --action" data-dismiss="modal">Lancer le scan</button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
   <!-- Liste des configurations presentes-->
   <div class="container" id="main-container">
@@ -62,7 +92,6 @@
         </div>
       </div>
     </div>
-    </div>
     <!-- Notification for no configs -->
     <div *ngIf="batchConfigs?.length == 0" class="col-lg-12 col-md-12 col-xl-12">
       <div class="alert alert-info" role="alert">
@@ -70,6 +99,7 @@
         <p>Aucune configuration trouvée!</p>
       </div>
     </div>
+  </div>
 
     <!-- Ajout de plannification/configuration -->
   <div id="config">
@@ -77,7 +107,7 @@
       <p>Ajouter une plannification </p>
 
       <form id=changeConfForm #changeConfForm="ngForm" (ngSubmit)="addConfig(changeConfForm)">
-        <label for="pageSize">Nombre de clients par rapport</label>
+        <label for="pageSize">Nombre de clients par rapport (± taille des chunks)</label>
         <input type="number" pattern="\d+" id="nbrClientsParRapport" ngModel name="nbrClientsParRapport" [formControl] = "nbrClientsParRapport">
         <label for="chunkSize">Taille des chunks</label>
         <input type="number" pattern="\d+" id="chunkSize" ngModel name="chunkSize" [formControl] = "chunkSize">

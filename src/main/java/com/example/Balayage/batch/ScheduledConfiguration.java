@@ -76,10 +76,6 @@ public class ScheduledConfiguration{
         scheduledJobsNames.add(scanJob.getName());
     }
 
-    //TODO delete this
-    /*Lorsqu'on modifie la cronExpression de la classe BatchConfiguration, on
-    appele cette méthode pour replanifier l'execution des balayages suivants
-    la nouvelle expression cron*/
     public void deleteScheduledJob(Long id){
         schedulesJobs.forEach((params, job) -> {
             if (params.getId() == id){

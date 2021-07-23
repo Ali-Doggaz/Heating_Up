@@ -18,8 +18,8 @@ export class BatchService {
 
   constructor(private http: HttpClient){}
 
-  public startScan(): Observable<String> {
-    return this.http.get(`${this.apiServerUrl}/Scan/Start`, {responseType: 'text'});
+  public startScan(tempConf: batchConfig): Observable<String> {
+    return this.http.post(`${this.apiServerUrl}/Scan/Start`, tempConf,{responseType: 'text'});
   }
 
   public stopScan(): Observable<String> {

@@ -43,17 +43,19 @@ public class ScanController {
     @Autowired
     private ApplicationContext context;
 
-    @GetMapping("Scan/Start")
-    public ResponseEntity<String> launchJob(){
+    @PostMapping("Scan/Start")
+    @ResponseBody
+    public ResponseEntity<String> launchJob(@RequestBody BatchConfigParams tempConfig){
         try {
-            //TODO check if this works
+
             for(String jobName: scheduledConfiguration.getScheduledJobsNames()) {
                 if (jobExplorer.findRunningJobExecutions(jobName).size() >= 1) {
                     return new ResponseEntity<>("Veuillez attendre la fin du balayage en cours...", HttpStatus.OK);
                 }
             }
             //TODO get new scan's params and inject them to the new job
-            Job scanJob = (Job) context.getBean("ScanJob", 1000, 1000, 3000);
+            Job scanJob = (Job) context.getBean("ScanJob", tempConfig.getChunkSize(),
+                    tempConfig.getPageSize(), tempConfig.getNbrClientsParRapport());
 
             jobLauncher.run(scanJob, new JobParametersBuilder()
                     .addDate("date", new Date())
@@ -139,7 +141,7 @@ public class ScanController {
     @ResponseBody
     public ResponseEntity<String> deleteConfig(@RequestBody Long id) {
         try{
-            batchConfigParamsService.deleteConfigById(id);
+            scheduledConfiguration.deleteScheduledJob(id);
             return new ResponseEntity<>("Succès: Configuration supprimée avec succès", HttpStatus.OK);
         }
         catch (Exception e){

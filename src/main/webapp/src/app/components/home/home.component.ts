@@ -24,11 +24,16 @@ export class HomeComponent implements OnInit {
   minutesArray = new Array(60);
   hoursArray = new Array(24);
   daysArray = new Array(31);
-
+  //FormControllers utilisés pour ajouter une configuration
   cronExpression="";
   chunkSize = new FormControl();
   pageSize = new FormControl();
   nbrClientsParRapport = new FormControl();
+  //FormControllers utilisés pour enregistrer une configuration temporaire (pour demarrer un
+  //balayage manuellement)
+  tempChunkSize = new FormControl();
+  tempPageSize = new FormControl();
+  tempNbrClientsParRapport = new FormControl();
 
   //Liste des configuration/plannifications
   public batchConfigs : batchConfig[] | undefined;
@@ -61,6 +66,15 @@ export class HomeComponent implements OnInit {
   }
 
   public addConfig(changeConfForm: NgForm):void{
+  if(this.chunkSize.value> this.nbrClientsParRapport.value){
+      alert("Erreur: La taille des chunks doit être inférieure au nbr de clients par rapport")
+      return;
+    }
+  if(this.nbrClientsParRapport.value <1 || this.pageSize.value < 1 || this.chunkSize.value < 1){
+      alert("Erreur: Les attributs doivent tous être strictement supérieurs à 0")
+      return;
+    }
+  else {
     let newConfig = new batchConfig(this.chunkSize.value, this.pageSize.value, this.nbrClientsParRapport.value, this.cronExpression);
     this.batchService.addConfig(newConfig).subscribe(
       (response: String) => {
@@ -93,14 +107,24 @@ export class HomeComponent implements OnInit {
         alert(error.message);
       }
     );
+    }
   }
 
   public startScan(): void{
+
     status = $("#scanStatus p").text();
     if (status.indexOf("Balayage terminé")==-1 && status.indexOf("Aucun balayage")==-1)
-      alert("Veuillez attendre la fin du balayage en cours...")
+      alert("Erreur: Veuillez attendre la fin du balayage en cours...")
+    else if(this.tempChunkSize.value>this.tempNbrClientsParRapport.value){
+        alert("Erreur: La taille des chunks doit être inférieure au nbr de clients par rapport")
+    }
+    else if(this.tempNbrClientsParRapport.value <1 || this.tempPageSize.value < 1 || this.tempChunkSize.value < 1){
+      alert("Erreur: Les attributs doivent tous être strictement supérieurs à 0")
+    }
     else {
-      this.batchService.startScan().subscribe(
+      let tempConf = new batchConfig(this.tempChunkSize.value, this.tempPageSize.value,
+        this.tempNbrClientsParRapport.value, "N/A");
+      this.batchService.startScan(tempConf).subscribe(
         (response: String) => {
           console.log(response);
         },
@@ -109,6 +133,18 @@ export class HomeComponent implements OnInit {
         }
       );
     }
+  }
+
+  public openNewScanModal(): void{
+    let container = document.getElementById('Fonctions');
+    let button = document.createElement('button');
+    button.type = 'button';
+    button.style.display = 'none';
+    button.setAttribute('data-toggle', 'modal');
+    button.setAttribute('data-target', '#newScanConfig');
+    //Enregistrer la configuration a supprimer
+    container.appendChild(button);
+    button.click();
   }
 
   public stopScan(): void {
@@ -133,6 +169,10 @@ export class HomeComponent implements OnInit {
       return true;
     }
     return false;
+  }
+
+  checkFormValidity(id: string) : boolean{
+    return $('#'+id)[0].checkValidity();
   }
 
   //Plannificateur
@@ -176,8 +216,8 @@ export class HomeComponent implements OnInit {
 
   }
 
-  public onDeleteConfig(employeeId: number): void {
-    this.batchService.deleteConfig(employeeId).subscribe(
+  public onDeleteConfig(configId: number): void {
+    this.batchService.deleteConfig(configId).subscribe(
       (response: String) => {
         console.log(response);
         this.getConfigs();
@@ -189,8 +229,8 @@ export class HomeComponent implements OnInit {
   }
 
   public onOpenModal(config: batchConfig): void {
-    const container = document.getElementById('main-container');
-    const button = document.createElement('button');
+    let container = document.getElementById('main-container');
+    let button = document.createElement('button');
     button.type = 'button';
     button.style.display = 'none';
     button.setAttribute('data-toggle', 'modal');
