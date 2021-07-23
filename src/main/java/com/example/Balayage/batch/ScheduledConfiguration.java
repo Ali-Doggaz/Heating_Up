@@ -31,18 +31,8 @@ public class ScheduledConfiguration{
     @Autowired
     ThreadPoolTaskScheduler taskScheduler;
 
-    //@Autowired
-    //private ScheduledTaskRegistrar scheduledTaskRegistrar;
-
     private List<String> scheduledJobsNames = new ArrayList<>();
     private Map<BatchConfigParams, ScheduledFuture<?>> schedulesJobs = new HashMap<>();
-
-
-    /*@Bean
-    public ScheduledTaskRegistrar ScheduledTaskRegistrar() {
-        ScheduledTaskRegistrar scheduledTaskRegistrar = new ScheduledTaskRegistrar();
-        return scheduledTaskRegistrar;
-    }*/
 
     @Bean
     public ThreadPoolTaskScheduler taskScheduler(){

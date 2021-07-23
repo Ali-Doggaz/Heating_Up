@@ -133,8 +133,8 @@ public class BatchConfiguration {
     }
 
     //on a besoin d'une bean de type integer pour initialiser la bean "ScanJob" lors de l'initialisation de l'application.
-    //lors de la création des scanJob (scope.Prototype), on créera de nouvelle bean "Job" avec
-    //de vrais parametres au lieu de cette bean int.
+    //(lors de la création des scanJob (scope.Prototype), on créera de nouvelle bean "Job" avec
+    //de vrais parametres au lieu de cette bean int)
     @Bean
     Integer initInt(){
         return 1;

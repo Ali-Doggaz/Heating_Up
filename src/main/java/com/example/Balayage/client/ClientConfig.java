@@ -1,4 +1,5 @@
-/*package com.example.Balayage.client;
+/*
+package com.example.Balayage.client;
 
 import com.example.Balayage.batch.BatchConfigParams;
 import com.example.Balayage.batch.BatchConfigParamsService;
@@ -21,25 +22,27 @@ public class ClientConfig {
     @Bean
     CommandLineRunner commandLineRunner(ClientRepository clientRepository) {
         return args -> {
-            *//*clientRepository.deleteAll();
-            String[] pays = {"Tunisie","Allemagne","Algerie","USA","France","Maroc","Congo","Italie",
-            "Espagne","Mexique","Canada","Australie","Norvege","Chine","Japon","Russie"};
+            clientRepository.deleteAll();
+            String[] pays = {"Tunisie", "Allemagne", "Algerie", "USA", "France", "Maroc", "Congo", "Italie",
+                    "Espagne", "Mexique", "Canada", "Australie", "Norvege", "Chine", "Japon", "Russie"};
 
             ArrayList<Client> clients = new ArrayList<>();
 
-            for(int i=0;i<11000;i++){
+            for (int i = 0; i < 11001; i++) {
                 Random rng = new Random();
                 int min = 18;
                 int max = 100;
                 int upperBound = max - min + 1;
                 int age = min + rng.nextInt(upperBound); // Generer un age aleatoire
                 int rnd = rng.nextInt(pays.length); // Generer un indice de pays aleatoire
-                int minrevenus = 0;int maxrevenus=1000000;
+                int minrevenus = 0;
+                int maxrevenus = 1000000;
                 double revenus = minrevenus + (maxrevenus - minrevenus) * rng.nextDouble();
-                clients.add(new Client(pays[rnd],age,revenus));
+                clients.add(new Client(pays[rnd], age, revenus));
             }
 
-            clientRepository.saveAll(clients);*//*
+            clientRepository.saveAll(clients);
         };
     }
-}*/
+    }
+*/

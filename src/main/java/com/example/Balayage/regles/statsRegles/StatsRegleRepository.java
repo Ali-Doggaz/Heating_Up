@@ -11,8 +11,8 @@ public interface StatsRegleRepository extends JpaRepository<StatsRegle, Long> {
     @Modifying
     @Query( "UPDATE StatsRegle s SET s.triggerNumber = s.triggerNumber + 1 " +
             "WHERE s.jobExecutionID = :jobExecutionID " +
-            "AND s.batchNumber = :batchNumber" +
-            " AND s.ruleNumber = :ruleNumber")
+            "AND s.batchNumber = :batchNumber " +
+            "AND s.ruleNumber = :ruleNumber")
     int incrementNbrDeclenchementRegle(Long jobExecutionID, int batchNumber, int ruleNumber);
 
     @Modifying
