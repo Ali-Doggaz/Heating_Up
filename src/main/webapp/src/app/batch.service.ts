@@ -35,6 +35,7 @@ export class BatchService {
   }
 
   public deleteConfig(id: number): Observable<String>{
+    console.log("id= " + id);
     return this.http.post(`${this.apiServerUrl}/Scan/deleteConfig`, id, {responseType: 'text'});
   }
 }

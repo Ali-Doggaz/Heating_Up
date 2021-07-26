@@ -123,7 +123,7 @@ public class ScanController {
             //schedule the new scanJob
             Job scanJob = (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport);
             scheduledConfiguration.scheduleScanJob(scanJob, batchConfigParams);
-            return new ResponseEntity<>("Succès: La configuration a été modifiée avec succès", HttpStatus.OK);
+            return new ResponseEntity<>("Succès: La configuration a été ajoutée avec succès", HttpStatus.OK);
         }
         catch(Exception e){
             e.printStackTrace();

@@ -60,7 +60,8 @@ export class HomeComponent implements OnInit {
         );
       },
       (error: HttpErrorResponse) => {
-        alert(error.message);
+        console.log(error.message);
+        alert("Erreur: Le serveur n'est pas accessible...")
       }
     );
   }
@@ -81,7 +82,7 @@ export class HomeComponent implements OnInit {
         console.log(response);
         //Colorier les input fields et le form de selection de la cronExpression
         //en vert, pour indiquer le succes de modification de la configuration
-        if (response.indexOf("SUCCES")) {
+        if (response.indexOf("Succès")) {
           let inputFields = $('input')
           let cronBoxes = ($('.cronbox'))
           for (let element of cronBoxes) {
@@ -185,7 +186,6 @@ export class HomeComponent implements OnInit {
 
 
     for ( var index=options.length-1 ; index >= 0; --index) {
-      //console.log(a.options.length);
 
       if(options[index].selected) {
         if( options[index].value == '*' ) {

@@ -67,7 +67,5 @@ export class batchConfig {
     this.humanReadableCronExpression =  "Minute: " + this.getMinute() + "\nHeure: " + this.getHour() +"\nJour: " + this.getDay()+
       "\nMois: " + this.getMonth()+"\nJour de la semaine: "+this.getDayOfTheWeek();
 
-    console.log(this.humanReadableCronExpression);
-
   }
 }

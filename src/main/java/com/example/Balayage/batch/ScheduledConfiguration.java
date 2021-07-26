@@ -68,7 +68,7 @@ public class ScheduledConfiguration{
 
     public void deleteScheduledJob(Long id){
         schedulesJobs.forEach((params, job) -> {
-            if (params.getId() == id){
+            if (params.getId().equals(id)){
                 if(job!=null){
                     job.cancel(true);
                 }

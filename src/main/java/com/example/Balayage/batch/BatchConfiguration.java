@@ -303,8 +303,8 @@ public class BatchConfiguration {
                 clientTestResultService.addAll(testResults);
 
                 //Si on a traité "nbrClientsParRapport"(int) nouveaux clients, on genere un rapport
-                if ((stepExecution.getWriteCount() + chunkSize) % nbrClientsParRapport < chunkSize) {
-                    generateReport(chunkSize);
+                if ((stepExecution.getWriteCount() + testResults.size()) % nbrClientsParRapport < chunkSize) {
+                    generateReport(testResults.size());
                 }
             }
 
@@ -316,7 +316,7 @@ public class BatchConfiguration {
                     Collections.sort(statsRegles);
                     ArrayList<StatsException> statsExceptions = statsExceptionService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
                     Long nbrClientsAnalysed = (stepExecution.getWriteCount()+numberNewProcessedClient) - totalNbrClientsAnalyzed;
-                    totalNbrClientsAnalyzed = Long.valueOf(stepExecution.getWriteCount()+chunkSize);
+                    totalNbrClientsAnalyzed = Long.valueOf(stepExecution.getWriteCount()+numberNewProcessedClient);
                     scanReportGenerator.generateReport(statsRegles, statsExceptions, batchNumber, nbrClientsAnalysed);
                 } catch (IOException e) {
                     e.printStackTrace();
