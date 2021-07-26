@@ -2,15 +2,18 @@
 package com.example.Balayage.batch;
 
 import com.example.Balayage.client.Client;
-import com.example.Balayage.regles.ClientTestResult;
-import com.example.Balayage.regles.StatsException;
-import com.example.Balayage.regles.StatsRegle;
+import com.example.Balayage.client.ClientService;
 import com.example.Balayage.regles.TestRegles;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResultService;
+import com.example.Balayage.regles.statsExceptions.StatsException;
+import com.example.Balayage.regles.statsExceptions.StatsExceptionService;
+import com.example.Balayage.regles.statsRegles.StatsRegle;
+import com.example.Balayage.regles.statsRegles.StatsRegleService;
 import com.example.Balayage.report.ScanReportGenerator;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.annotation.AfterStep;
+import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -27,6 +30,7 @@ import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilde
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -39,7 +43,6 @@ import javax.persistence.EntityManagerFactory;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Créer la configuration initiale de Spring Batch en créant le Job de scan
@@ -50,32 +53,51 @@ import java.util.stream.Collectors;
 public class BatchConfiguration {
 
     @Autowired
-    private TestRegles testRegles;
+    private ClientTestResultService clientTestResultService;
 
-    private static ArrayList<ClientTestResult> clientSuspects;
-    private static ArrayList<StatsRegle> statsRegles;
-    //Cette configuration sera modifiée quelques secondes après le lancement du programme
-    //grace au commandLineRunner (voir ci-dessous)
-    // La configuration stockée dans la table "batch_config_parameters" sera alors utilisée.
-    private static int chunkSize=1000;
-    private static int pageSize=1000;
-    private static String cronExpression="* 10 2 2 2 2 ";
+    @Autowired
+    private TestRegles testRegles;
+    //Nombre de règle à tester:
+    int rulesNumber;
+
+
+    @Autowired
+    private ApplicationContext context;
+
+    @Autowired
+    ScheduledConfiguration scheduledConfiguration;
+
     //initialisation de la configuration des balayages depuis la BD
     @Bean
     CommandLineRunner commandLineRunner() {
         return args -> {
-            BatchConfigParams batchConfigParams = batchConfigParamsService.getConfig();
-            chunkSize = batchConfigParams.getChunkSize();
-            pageSize = batchConfigParams.getPageSize();
-            cronExpression = batchConfigParams.getCronExpression();
-            System.out.println("Configuration initialisee...");
-            System.out.println("Chunksize: " + chunkSize+" , Pagesize= "+pageSize+" , cronExpression= "+cronExpression);
+            List<BatchConfigParams> batchConfigsParams = batchConfigParamsService.getConfigs();
+            int chunkSize = 0; int pageSize = 0; String cronExpression = ""; int nbrClientsParRapport = 0;
+            for(BatchConfigParams batchConfigParams : batchConfigsParams) {
+                chunkSize = batchConfigParams.getChunkSize();
+                pageSize = batchConfigParams.getPageSize();
+                cronExpression = batchConfigParams.getCronExpression();
+                nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
+
+                scheduledConfiguration.scheduleScanJob(
+                        (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport),
+                        batchConfigParams
+                );
+                System.out.println("Configuration initialisee:");
+                System.out.println("Chunksize: " + chunkSize + " , Pagesize= " + pageSize + " , nbr_clients_par_rapport= " +
+                        nbrClientsParRapport + ", cronExpression= " + cronExpression);
+            }
         };
     }
-    //numéro du batch/chunk actuel
-    private int batchNumber;
 
-    private static String  uniqueJobName;
+    @Autowired
+    private ClientService clientService;
+
+    @Autowired
+    private StatsRegleService statsRegleService;
+
+    @Autowired
+    private StatsExceptionService statsExceptionService;
 
     @Autowired
     private JobExplorer jobExplorer;
@@ -93,16 +115,8 @@ public class BatchConfiguration {
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    private ItemReader<Client> clientReader;
-
-    @Autowired
     JobRegistry jobRegistry;
 
-    @Autowired
-    private ItemWriter<ClientTestResult> clientProcessingWriter;
-
-    @Autowired
-    private ItemProcessor<Client, ClientTestResult> clientProcessor;
 
     @Autowired
     BatchConfigParamsService batchConfigParamsService;
@@ -111,20 +125,29 @@ public class BatchConfiguration {
     Job scanJob;
 
     //utilisé pour les websockets
-    private final SimpMessagingTemplate template;
+    private final SimpMessagingTemplate template ;
 
     @Autowired
     BatchConfiguration(SimpMessagingTemplate template){
         this.template = template;
-        BalayageTask.setBatchConfiguration(this);
-        ScanController.setBatchConfiguration(this);
     }
 
+    //on a besoin d'une bean de type integer pour initialiser la bean "ScanJob" lors de l'initialisation de l'application.
+    //(lors de la création des scanJob (scope.Prototype), on créera de nouvelle bean "Job" avec
+    //de vrais parametres au lieu de cette bean int)
+    @Bean
+    Integer initInt(){
+        return 1;
+    }
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public Job ScanJob() {
-        JobExecutionListener listener = myjoblistener();
+    public Job ScanJob(Integer chunkSize, Integer pageSize, Integer nbrClientsParRapport) {
+        JobExecutionListener listener = myjoblistener(nbrClientsParRapport);
+        ItemProcessor<Client, ClientTestResult> clientProcessor = processor(nbrClientsParRapport);
+        ItemWriter<ClientTestResult> clientProcessingWriter = writer(chunkSize, nbrClientsParRapport);
+        ItemReader<Client> clientReader = reader(pageSize);
+
         Step step = stepBuilderFactory.get("Traitement-donnees-client")
                 .<Client, ClientTestResult>chunk(chunkSize)
                 .reader(clientReader)
@@ -134,7 +157,7 @@ public class BatchConfiguration {
                 .throttleLimit(1)
                 .build();
         //Genere un Job avec un nom unique
-        uniqueJobName = "Scan_Clients"+UUID.randomUUID().toString();
+        String uniqueJobName = "Scan_Clients"+UUID.randomUUID().toString();
         return jobBuilderFactory.get(uniqueJobName)
                 .start(step)
                 .listener(listener)
@@ -143,9 +166,10 @@ public class BatchConfiguration {
 
 
     @Bean
-    public JobExecutionListener myjoblistener() {
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public JobExecutionListener myjoblistener(Integer nbrClientsParRapport) {
 
-        JobExecutionListener listener = new JobExecutionListener() {
+        return new JobExecutionListener() {
             /**
              * S'occupe de l'initialisation du job de scan
              * 1. Lecture des règles metiers depuis le fichier texte specifié (voir classe TestRegles)
@@ -154,17 +178,18 @@ public class BatchConfiguration {
              */
             @Override
             public void beforeJob(JobExecution jobExecution) {
+
+
                 // Si un scan est deja en cours, annule le declenchement du nouveau Job en levant une exception
                 int runningJobsCount = jobExplorer.findRunningJobExecutions(jobExecution.getJobInstance().getJobName()).size();
                 if(runningJobsCount > 1){
-                    //TODO remove comment
-                    //throw new RuntimeException("Veuillez attendre la fin du balayage en cours");
+                    throw new RuntimeException("Veuillez attendre la fin du balayage en cours");
                 }
 
 
                 System.out.println("Initialisation du scan...");
                 try {
-                    testRegles.readRulesFromFile();
+                    rulesNumber = testRegles.readRulesFromFile();
                 }
                 catch(IOException e){
                     JobOperator jobOperator = BatchRuntime.getJobOperator();
@@ -172,22 +197,14 @@ public class BatchConfiguration {
                     System.out.println("Le fichier contenant les règles metiers est introuvable...");
                 }
 
-                //Initialise le nombre de declenchement de chaque regle à 0
-                Map<Integer, Integer> nbrDeclenchementRegles = new HashMap<>();
-                Map<Integer, Integer> nbrDeclenchementExceptionsRegle = new HashMap<>();
-                for (int i = 1; i <= testRegles.getRegles().length; i++) {
-                    nbrDeclenchementRegles.put(i, 0);
-                    nbrDeclenchementExceptionsRegle.put(i, 0);
+                int nbrOfBatches = (int) Math.ceil(clientService.getNumberOfClients()/(float) nbrClientsParRapport);
+                Long jobExecutionId = jobExecution.getId();
+                for(int batch=0;batch<nbrOfBatches;batch++){
+                    for(int ruleNumber=1; ruleNumber<=rulesNumber;ruleNumber++)
+                    statsRegleService.initRow(jobExecutionId, batch, ruleNumber);
                 }
-                ClientTestResult.setNbrDeclenchementRegles(nbrDeclenchementRegles);
-                ClientTestResult.setNbrExceptionsRegles(nbrDeclenchementExceptionsRegle);
-                //Initialise le reste des variables statiques à 0
-                ClientTestResult.setNbrSuspectsDetectes(0);
-                ClientTestResult.setNbrClientsTestes(0);
-                //Initialise le nombre de suspects detectés a 0
-                TestRegles.setStatsExceptions(new ArrayList<StatsException>());
 
-                batchNumber = 0;
+
                 //Envoyer une socket a l'UI pour l'informer que le job a demarré
                 String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
                 template.convertAndSend("/JobStatus", "Status: Balayage en cours - Heure de démarrage du balayge: " + timeStamp);
@@ -201,8 +218,6 @@ public class BatchConfiguration {
                 template.convertAndSend("/JobStatus", "Status: Balayage terminé - Etat de sortie: " + jobExecution.getExitStatus().getExitCode() +" - Heure: " + timeStamp);
             }
         };
-
-        return listener ;
     }
 
     /**
@@ -210,7 +225,8 @@ public class BatchConfiguration {
      */
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ItemReader<Client> reader() {
+    public ItemReader<Client> reader(Integer pageSize) {
+
         String Query = "FROM client ORDER BY id";
         return new JpaPagingItemReaderBuilder<Client>().name("scan-reader")
                 .queryString(Query)
@@ -219,20 +235,30 @@ public class BatchConfiguration {
                 .build();
     }
 
-
     /**
      * Declenche la méthode "fireAll(Client c)" qui va tester toutes les
      * règles métiers sur le client à traiter, et retourne une instance de ClientTestResult
      * qui contient les résultat de ces tests
      */
     @Bean
-    public ItemProcessor<Client, ClientTestResult> processor() {
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public ItemProcessor<Client, ClientTestResult> processor(Integer nbrClientsParRapport) {
+
         return new ItemProcessor<Client, ClientTestResult>() {
+            private Long jobExecutionID;
+            private StepExecution stepExecution;
+
+            @BeforeStep
+            public void saveStepExecution(StepExecution stepExecution) {
+                jobExecutionID = stepExecution.getJobExecutionId();
+                this.stepExecution = stepExecution;
+            }
             @Override
             public ClientTestResult process(Client client) throws Exception {
                 //on effectue les tests et on retourne le resultat sous forme d'instance de
                 //la classe ClientTestResult
-                return(testRegles.fireAll(client));
+                int batchNumber = stepExecution.getWriteCount() / nbrClientsParRapport;
+                return(testRegles.fireAll(client, jobExecutionID, batchNumber));
             }
         };
     }
@@ -242,51 +268,53 @@ public class BatchConfiguration {
      * un rapport sommaire des tests efféctués
      */
     @Bean
-    public ItemWriter<ClientTestResult> writer() {
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public ItemWriter<ClientTestResult> writer(int chunkSize, int nbrClientsParRapport) {
         return new ItemWriter<ClientTestResult>() {
+
+            private StepExecution stepExecution;
+            private Long totalNbrClientsAnalyzed = Long.valueOf(0);
+
+            @BeforeStep
+            public void saveStepExecution(StepExecution stepExecution) {
+                this.stepExecution = stepExecution;
+            }
+
+            @AfterStep
+            public void writeLastClients() {
+                //Si certains clients n'ont pas encore été écrit dans un rapport
+                if (stepExecution.getWriteCount() % nbrClientsParRapport != 0) {
+                    generateReport(0);
+                }
+                //reinitalize number of analyzed customers
+                totalNbrClientsAnalyzed = Long.valueOf(0);
+            }
+
             @Override
             public void write(List<? extends ClientTestResult> testResults) throws Exception {
-                batchNumber++;
-                clientSuspects = new ArrayList<>();
-                testResults = testResults.stream().filter(client -> !client.isTestsReussis()).collect(Collectors.toList());
-                clientSuspects.addAll(testResults);
-                //On genere la collection "statsRegles" qui contient les statistiques de toutes les regles
-                //Et qui sera utilisée pour la generation du rapport (JasperReport)
-                statsRegles = new ArrayList<StatsRegle>();
-                for (Map.Entry<Integer, Integer> statRegle : ClientTestResult.getNbrDeclenchementRegles().entrySet()) {
-                    //TODO modify constructor to take number of exceptions triggered
-                    int numRegle = statRegle.getKey();
-                    statsRegles.add(new StatsRegle(
-                            numRegle,
-                            statRegle.getValue(),
-                            ClientTestResult.getNbrExceptionsRegles().get(numRegle)
-                            )
-                    );
+                //Update la DB avec les nouveaux clientTestResults
+                clientTestResultService.addAll(testResults);
+
+                //Si on a traité "nbrClientsParRapport"(int) nouveaux clients, on genere un rapport
+                if ((stepExecution.getWriteCount() + testResults.size()) % nbrClientsParRapport < chunkSize) {
+                    generateReport(testResults.size());
                 }
-                Collections.sort(statsRegles);
+            }
+
+            public void generateReport(int numberNewProcessedClient){
                 try {
                     ScanReportGenerator scanReportGenerator = new ScanReportGenerator();
-                    scanReportGenerator.generateReport(clientSuspects, statsRegles, TestRegles.getStatsExceptions(), batchNumber);
-                }
-                catch(IOException e){
+                    int batchNumber = stepExecution.getWriteCount() / nbrClientsParRapport;
+                    ArrayList<StatsRegle> statsRegles = statsRegleService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
+                    Collections.sort(statsRegles);
+                    ArrayList<StatsException> statsExceptions = statsExceptionService.getBatchStats(stepExecution.getJobExecutionId(), batchNumber);
+                    Long nbrClientsAnalysed = (stepExecution.getWriteCount()+numberNewProcessedClient) - totalNbrClientsAnalyzed;
+                    totalNbrClientsAnalyzed = Long.valueOf(stepExecution.getWriteCount()+numberNewProcessedClient);
+                    scanReportGenerator.generateReport(statsRegles, statsExceptions, batchNumber, nbrClientsAnalysed);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
-                //Reinitialise tous les parametres pour generer le rapport du prochain batch
-                //Reinitialise le nombre de declenchement de chaque regle à 0, ainsi que le
-                //nombre d'exception generé par chaque règle à 0
-                Map<Integer, Integer> nbrDeclenchementRegles = new HashMap<>();
-                Map<Integer, Integer> nbrDeclenchementExceptionsRegle = new HashMap<>();
-                for (int i = 1; i <= testRegles.getRegles().length; i++) {
-                    nbrDeclenchementRegles.put(i, 0);
-                    nbrDeclenchementExceptionsRegle.put(i, 0);
-                }
-                ClientTestResult.setNbrDeclenchementRegles(nbrDeclenchementRegles);
-                ClientTestResult.setNbrExceptionsRegles(nbrDeclenchementExceptionsRegle);
 
-                //Initialise le reste des variables statiques à 0
-                ClientTestResult.setNbrSuspectsDetectes(0);
-                ClientTestResult.setNbrClientsTestes(0);
-                TestRegles.setStatsExceptions(new ArrayList<StatsException>());
             }
         };
     }
@@ -307,61 +335,10 @@ public class BatchConfiguration {
         return jobLauncher;
     }
 
-    public static int getChunkSize() {
-        return chunkSize;
-    }
-
-    public static void setChunkSize(int chunkSize) {
-        BatchConfiguration.chunkSize = chunkSize;
-    }
-
-    public static int getPageSize() {
-        return pageSize;
-    }
-
-    public static void setPageSize(int pageSize) {
-        BatchConfiguration.pageSize = pageSize;
-    }
-
-    public static String getCronExpression() {
-        return cronExpression;
-    }
-
-    public static void setCronExpression(String cronExpression) {
-        BatchConfiguration.cronExpression = cronExpression;
-    }
-
     public JobLauncher getJobLauncher() {
         return jobLauncher;
     }
 
-    public ItemReader<Client> getClientReader() {
-        return clientReader;
-    }
-
-    public void setClientReader(ItemReader<Client> clientReader) {
-        this.clientReader = clientReader;
-    }
-
-    public ItemWriter<ClientTestResult> getClientProcessingWriter() {
-        return clientProcessingWriter;
-    }
-
-    public void setClientProcessingWriter(ItemWriter<ClientTestResult> clientProcessingWriter) {
-        this.clientProcessingWriter = clientProcessingWriter;
-    }
-
-    public ItemProcessor<Client, ClientTestResult> getClientProcessor() {
-        return clientProcessor;
-    }
-
-    public void setClientProcessor(ItemProcessor<Client, ClientTestResult> clientProcessor) {
-        this.clientProcessor = clientProcessor;
-    }
-
-    public static String getUniqueJobName() {
-        return uniqueJobName;
-    }
 }
 
 

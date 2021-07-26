@@ -26,6 +26,7 @@ public class BatchConfigParams {
 
     private int chunkSize;
     private int pageSize;
+    private int nbrClientsParRapport;
     private String cronExpression;
 
     public int getChunkSize() {
@@ -60,9 +61,18 @@ public class BatchConfigParams {
         this.cronExpression = cronExpression;
     }
 
-    public BatchConfigParams(int chunkSize, int pageSize, String cronExpression) {
+    public int getNbrClientsParRapport() {
+        return nbrClientsParRapport;
+    }
+
+    public void setNbrClientsParRapport(int nbrClientsParRapport) {
+        this.nbrClientsParRapport = nbrClientsParRapport;
+    }
+
+    public BatchConfigParams(int chunkSize, int pageSize, int nbrClientsParRapport, String cronExpression) {
         this.chunkSize = chunkSize;
         this.pageSize = pageSize;
+        this.nbrClientsParRapport = nbrClientsParRapport;
         this.cronExpression = cronExpression;
     }
 

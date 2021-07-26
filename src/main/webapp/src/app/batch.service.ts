@@ -18,16 +18,24 @@ export class BatchService {
 
   constructor(private http: HttpClient){}
 
-  public startScan(): Observable<String> {
-    return this.http.get(`${this.apiServerUrl}/Scan/Start`, {responseType: 'text'});
+  public startScan(tempConf: batchConfig): Observable<String> {
+    return this.http.post(`${this.apiServerUrl}/Scan/Start`, tempConf,{responseType: 'text'});
   }
 
   public stopScan(): Observable<String> {
     return this.http.get(`${this.apiServerUrl}/Scan/Stop`, {responseType: 'text'});
   }
 
-  public changeConfig(newConfig: batchConfig): Observable<String> {
+  public addConfig(newConfig: batchConfig): Observable<String> {
     return this.http.post(`${this.apiServerUrl}/Scan/SetConfig`, newConfig, {responseType: 'text'});
   }
 
+  public getConfigs(): Observable<batchConfig[]>{
+    return this.http.get<batchConfig[]>(`${this.apiServerUrl}/Scan/getConfigs`);
+  }
+
+  public deleteConfig(id: number): Observable<String>{
+    console.log("id= " + id);
+    return this.http.post(`${this.apiServerUrl}/Scan/deleteConfig`, id, {responseType: 'text'});
+  }
 }

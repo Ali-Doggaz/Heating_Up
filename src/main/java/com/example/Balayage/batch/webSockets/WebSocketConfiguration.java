@@ -1,4 +1,4 @@
-package com.example.Balayage.webSockets;
+package com.example.Balayage.batch.webSockets;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

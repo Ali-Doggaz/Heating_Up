@@ -7,17 +7,108 @@
     <div id="FunctionsTriggerButtons">
       <button class="--action" id="startScan" type="input"
               [disabled]="isScanEnCours()"
-              (click)="startScan()">Commencer le balayage</button>
+              (click)="openNewScanModal()">Commencer le balayage</button>
       <button class="--danger" id="stopScan" type="input"
               [disabled]="!isScanEnCours()"
               (click)="stopScan()">Arreter le balayage en cours</button>
     </div>
+
+    <!-- newScanConfig Modal -->
+    <div class="modal fade" id="newScanConfig" tabindex="-1" role="dialog" aria-labelledby="newScanConfigLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newScanConfigLabel">Configuration</h5>
+          </div>
+          <div class="modal-body">
+            <div class="modal-footer">
+              <form id=newConf #newConf="ngForm" (ngSubmit)="startScan()" novalidate>
+                <br>
+                <label for="pageSize">Nombre de clients par rapport (± taille des chunks)</label>
+                <input type="number" title="Ce champs est obligatoire" required pattern="\d+" id="nbrClientsParRapport"  name="nbrClientsParRapport" [formControl] = "tempNbrClientsParRapport">
+                <label for="chunkSize">Taille des chunks</label>
+                <input type="number" title="Ce champs est obligatoire" required pattern="\d+" id="chunkSize"  name="chunkSize" [formControl] = "tempChunkSize">
+                <label for="pageSize">Taille des pages</label>
+                <input type="number" title="Ce champs est obligatoire" required pattern="\d+" id="pageSize" name="pageSize" [formControl] = "tempPageSize">
+                <div id="newConfButtons">
+                  <button type="button" class="btn --danger" data-dismiss="modal">Annuler</button>
+                  <button (click)="startScan()" class="btn --action" data-dismiss="modal">Lancer le scan</button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
+  <!-- Liste des configurations presentes-->
+  <div class="container" id="main-container">
+    <p>Plannifications: </p>
+    <div class="row">
+      <div *ngFor="let batchConfig of batchConfigs" class="col-md-6 col-xl-3">
+        <div class="card m-b-30">
+          <div class="card-body row">
+            <div class="col-6">
+              <a href=""><img src="https://img.icons8.com/color/48/000000/apple-settings.png" alt="" class="img-fluid rounded-circle w-60"></a>
+            </div>
+            <div class="col-6 card-title align-self-center mb-0">
+              <h5>ID</h5>
+              <p class="m-0">{{batchConfig?.id}}</p>
+            </div>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><i class="fa float-right"></i>Taille des Chunks: {{batchConfig?.chunkSize}}</li>
+            <li class="list-group-item"><i class="fa float-right"></i>Taille des pages : {{batchConfig?.pageSize}}</li>
+            <li class="list-group-item"><i class="fa float-right"></i>Nbr de clients par rapport : {{batchConfig?.nbrClientsParRapport}}</li>
+            <li style="white-space: pre-line" class="list-group-item"><i class="fa float-right"></i> <b> Plannification :</b> <br> {{batchConfig?.humanReadableCronExpression}}</li>
+          </ul>
+          <div class="card-body">
+            <div class="float-right btn-group btn-group-sm">
+              <a (click)="onOpenModal(batchConfig)" class="btn btn-secondary tooltips" data-placement="top" data-original-title="Delete"><i class="fa fa-times"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteConfigModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModelLabel">Supprimer la configuration</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Êtes-vous sûr de vouloir supprimer cette configuration?</p>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Non</button>
+              <button (click)="onDeleteConfig(deleteConfig?.id)" class="btn btn-danger" data-dismiss="modal">Oui</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Notification for no configs -->
+    <div *ngIf="batchConfigs?.length == 0" class="col-lg-12 col-md-12 col-xl-12">
+      <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">Aucune Configuration</h4>
+        <p>Aucune configuration trouvée!</p>
+      </div>
+    </div>
+  </div>
+
+    <!-- Ajout de plannification/configuration -->
   <div id="config">
     <div id="parametres_generaux">
-      <p>Configuration du balayage </p>
+      <p>Ajouter une plannification </p>
 
-      <form id=changeConfForm #changeConfForm="ngForm" (ngSubmit)="changeConfig(changeConfForm)">
+      <form id=changeConfForm #changeConfForm="ngForm" (ngSubmit)="addConfig(changeConfForm)">
+        <label for="pageSize">Nombre de clients par rapport (± taille des chunks)</label>
+        <input type="number" pattern="\d+" id="nbrClientsParRapport" ngModel name="nbrClientsParRapport" [formControl] = "nbrClientsParRapport">
         <label for="chunkSize">Taille des chunks</label>
         <input type="number" pattern="\d+" id="chunkSize" ngModel name="chunkSize" [formControl] = "chunkSize">
         <label for="pageSize">Taille des pages</label>
@@ -105,8 +196,8 @@
 
     <br><br>
 
+    </form>
+  </div>
+  </div>
 
-  </form>
   </div>
-  </div>
-</div>

@@ -2,6 +2,11 @@ package com.example.Balayage.regles;
 
 import com.example.Balayage.client.Client;
 import com.example.Balayage.client.ClientService;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResult;
+import com.example.Balayage.regles.clientsTestResults.ClientTestResultService;
+import com.example.Balayage.regles.statsExceptions.StatsException;
+import com.example.Balayage.regles.statsExceptions.StatsExceptionService;
+import com.example.Balayage.regles.statsRegles.StatsRegleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -12,16 +17,18 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 @Component
 public class TestRegles {
 
     @Autowired
     private ClientService clientService;
+    @Autowired
+    private StatsRegleService statsRegleService;
+    @Autowired
+    private StatsExceptionService statsExceptionService;
 
-    // Contient la liste de toutes les exceptions declenchées
-    private static ArrayList<StatsException> statsExceptions;
 
     private String[] regles;
     private final String RULES_FOLDER = "src/main/resources/rules.txt";
@@ -30,7 +37,7 @@ public class TestRegles {
      * Lis toutes les règles métiers à partir du fichier
      * "RULES_FOLDER" (attribut statique)
      */
-    public void readRulesFromFile() throws IOException {
+    public int readRulesFromFile() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(RULES_FOLDER));
         String line;
         StringBuilder sb = new StringBuilder();
@@ -39,6 +46,7 @@ public class TestRegles {
         }
         br.close();
         regles = sb.toString().split("---------------------RULE---------------------");
+        return regles.length;
     }
 
 
@@ -50,14 +58,13 @@ public class TestRegles {
      * @param client -- client à tester
      * @return ClientTestResult -- Instance contenant les stats du balayage/Scan
      */
-    public ClientTestResult fireAll(Client client) {
+    public ClientTestResult fireAll(Client client, Long jobExecutionID, int batchNumber) {
 
         ExpressionParser parser = new SpelExpressionParser();
         //create EvaluationContext
         StandardEvaluationContext clientContext = new StandardEvaluationContext(client);
         Boolean boolTestResult;
         //Boucle sur toutes les règles
-        outLoop:
         for (int i=1; i<=regles.length; i++) {
             String regle = regles[i-1];
             try {
@@ -68,33 +75,40 @@ public class TestRegles {
                 // On est dans le cas ou la règle testée a provoqué une erreur imprévue
 
                 //Incrementer le nombre d'exceptions provoquée par la régle actuelle (numéro i)
-                ClientTestResult.incrementNbrExceptionsRegle(i);
-                for(StatsException statsException: statsExceptions) {
-                    // Si la meme exception (meme type et meme message) existe deja dans notre tableau de StatsException,
-                    // on incremente son nombre d'occurences
-                    if (statsException.equals(e)) {
-                        //On incremente le nbr de declenchement de cette exception
-                        statsException.setNombreOccurences(statsException.getNombreOccurences()+1);
-                        //Ajoute le client qui a declenché l'exception a la liste
-                        statsException.setIdsClientsConcernees(statsException.getIdsClientsConcernees() + ", "+client.getId());
-                        //Si la règle declenche cette exception pour la premiere fois, le signal a l'instance statsException
-                        if (!statsException.getReglesConcernees().contains(" "+i +" ")) {
-                            statsException.setReglesConcernees(statsException.getReglesConcernees()+", "+i +" ");
-                        }
-                        continue outLoop;
+                statsRegleService.incrementNbrExceptionsRegle(jobExecutionID, batchNumber, i);
+
+
+                List<StatsException> statsExceptionList = statsExceptionService.getStatsException(jobExecutionID, batchNumber, e.getMessage(), e.getClass().getCanonicalName());
+                //if exception already exists
+                if (statsExceptionList.size()>0) {
+                    StatsException statsException = statsExceptionService.getStatsException(jobExecutionID, batchNumber, e.getMessage(), e.getClass().getCanonicalName()).get(0);
+                    //On incremente le nbr de declenchement de cette exception
+                    statsException.setNombreOccurences(statsException.getNombreOccurences()+1);
+                    //Ajoute le client qui a declenché l'exception a la liste
+                    statsException.setIdsClientsConcernees(statsException.getIdsClientsConcernees() + ", "+client.getId());
+                    //Si la règle declenche cette exception pour la premiere fois, le signal a l'instance statsException
+                    if (!statsException.getReglesConcernees().contains(" "+i +" ")) {
+                        statsException.setReglesConcernees(statsException.getReglesConcernees()+", "+i +" ");
                     }
+                    //enregister les modification des stats de l'exception dans la BD
+                    statsExceptionService.updateStatsException(statsException);
+                    continue;
                 }
-                //Si l'exception est provoquée pour la première fois, on l'ajoute a notre liste
-                statsExceptions.add(new StatsException(e.getClass().getCanonicalName(), e.getMessage(), 1, " "+i+" ", " "+client.getId()));
-                continue;
+                else{
+                    statsExceptionService.addStatsException(new StatsException(jobExecutionID, batchNumber, e.getClass().getCanonicalName(), e.getMessage(), 1, " "+i+" ", " "+client.getId()));
+                    continue;
+                }
+
             }
+
             // On est dans le cas ou le test a eu lieu sans exceptions/imprévus
             //Si un test a echoué, on créer le clientTestResult et on arrete le traitement
             if (!boolTestResult) {
-                ClientTestResult clientTestResult = new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus(), i);
+                ClientTestResult clientTestResult = new ClientTestResult(client, i, jobExecutionID, batchNumber);
+                statsRegleService.incrementNbrDeclenchementRegle(jobExecutionID, batchNumber, i);
+
                 if(!client.isSuspect()) {
                     // Update le client dans la BD
-                    clientTestResult.setSuspect(true);
                     clientService.updateClientSuspicionStatus(client, true);
                 }
                 return clientTestResult;
@@ -106,7 +120,8 @@ public class TestRegles {
             clientService.updateClientSuspicionStatus(client, false);
         }
 
-        return(new ClientTestResult(client.getId(), client.getNationalite(), client.getAge(), client.getRevenus()));
+        return new ClientTestResult(client, jobExecutionID, batchNumber);
+
     }
 
 
@@ -114,11 +129,4 @@ public class TestRegles {
         return regles;
     }
 
-    public static ArrayList<StatsException> getStatsExceptions() {
-        return statsExceptions;
-    }
-
-    public static void setStatsExceptions(ArrayList<StatsException> statsExceptions) {
-        TestRegles.statsExceptions = statsExceptions;
-    }
 }
