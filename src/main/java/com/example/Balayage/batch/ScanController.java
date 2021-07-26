@@ -53,7 +53,7 @@ public class ScanController {
                     return new ResponseEntity<>("Veuillez attendre la fin du balayage en cours...", HttpStatus.OK);
                 }
             }
-            //TODO get new scan's params and inject them to the new job
+
             Job scanJob = (Job) context.getBean("ScanJob", tempConfig.getChunkSize(),
                     tempConfig.getPageSize(), tempConfig.getNbrClientsParRapport());
 
@@ -73,7 +73,6 @@ public class ScanController {
 
     @GetMapping("Scan/Stop")
     public ResponseEntity<String> stopScanJob(){
-            //TODO check if this works
             Boolean boolScanTrouves = false;
 
             Set<JobExecution> newJobExecutions = new HashSet<>();
@@ -113,10 +112,7 @@ public class ScanController {
         int chunkSize = batchConfigParams.getChunkSize();
         int pageSize = batchConfigParams.getPageSize();
         int nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
-        String cronExpression = batchConfigParams.getCronExpression();
 
-        //TODO add this check in the form
-        //if(chunkSize<1 || pageSize<1) return "";
         try {
             //add config to db
             batchConfigParamsService.addConfig(batchConfigParams);

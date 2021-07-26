@@ -78,12 +78,12 @@ public class BatchConfiguration {
                 pageSize = batchConfigParams.getPageSize();
                 cronExpression = batchConfigParams.getCronExpression();
                 nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
-                //TODO check if scheduling works
+
                 scheduledConfiguration.scheduleScanJob(
                         (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport),
                         batchConfigParams
                 );
-                System.out.println("Configuration initialisee...");
+                System.out.println("Configuration initialisee:");
                 System.out.println("Chunksize: " + chunkSize + " , Pagesize= " + pageSize + " , nbr_clients_par_rapport= " +
                         nbrClientsParRapport + ", cronExpression= " + cronExpression);
             }
@@ -143,7 +143,6 @@ public class BatchConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public Job ScanJob(Integer chunkSize, Integer pageSize, Integer nbrClientsParRapport) {
-        System.out.println("chunkSize = " + chunkSize);
         JobExecutionListener listener = myjoblistener(nbrClientsParRapport);
         ItemProcessor<Client, ClientTestResult> clientProcessor = processor(nbrClientsParRapport);
         ItemWriter<ClientTestResult> clientProcessingWriter = writer(chunkSize, nbrClientsParRapport);
@@ -169,8 +168,6 @@ public class BatchConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public JobExecutionListener myjoblistener(Integer nbrClientsParRapport) {
-        //TODO delete this
-        System.out.println("Listener - nbrClientParRapport = " + nbrClientsParRapport);
 
         return new JobExecutionListener() {
             /**
@@ -229,8 +226,6 @@ public class BatchConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ItemReader<Client> reader(Integer pageSize) {
-        //TODO delete this
-        System.out.println("Reader - pagesize = " + pageSize);
 
         String Query = "FROM client ORDER BY id";
         return new JpaPagingItemReaderBuilder<Client>().name("scan-reader")
@@ -248,8 +243,6 @@ public class BatchConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ItemProcessor<Client, ClientTestResult> processor(Integer nbrClientsParRapport) {
-        //TODO delete this
-        System.out.println("Processor - nbrClientsParRapport = " + nbrClientsParRapport);
 
         return new ItemProcessor<Client, ClientTestResult>() {
             private Long jobExecutionID;
