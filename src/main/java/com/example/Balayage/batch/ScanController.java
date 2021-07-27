@@ -114,8 +114,8 @@ public class ScanController {
         int nbrClientsParRapport = batchConfigParams.getNbrClientsParRapport();
 
         try {
-            //add config to db
-            batchConfigParamsService.addConfig(batchConfigParams);
+            //add config to db (and get the saved version of the config, that contains the assigned id)
+            batchConfigParams = batchConfigParamsService.addConfig(batchConfigParams);
             //schedule the new scanJob
             Job scanJob = (Job) context.getBean("ScanJob", chunkSize, pageSize, nbrClientsParRapport);
             scheduledConfiguration.scheduleScanJob(scanJob, batchConfigParams);
