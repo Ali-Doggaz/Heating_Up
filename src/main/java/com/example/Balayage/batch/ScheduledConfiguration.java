@@ -66,17 +66,31 @@ public class ScheduledConfiguration{
         scheduledJobsNames.add(scanJob.getName());
     }
 
+
     public void deleteScheduledJob(Long id){
-        schedulesJobs.forEach((params, job) -> {
+        // Getting a Set of Key-value pairs
+        Set entrySet = schedulesJobs.entrySet();
+
+        // Obtaining an iterator for the entry set
+        Iterator it = entrySet.iterator();
+
+        while(it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            BatchConfigParams params = (BatchConfigParams) entry.getKey();
             if (params.getId().equals(id)){
+                ScheduledFuture<?> job = (ScheduledFuture<?>) entry.getValue();
                 if(job!=null){
                     job.cancel(true);
                 }
                 batchConfigParamsService.deleteConfigById(id);
+                it.remove();
                 return;
             }
-        });
+        }
+
+
     }
+
 
     public List<String> getScheduledJobsNames() {
         return scheduledJobsNames;

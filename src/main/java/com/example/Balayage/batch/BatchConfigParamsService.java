@@ -17,8 +17,8 @@ public class BatchConfigParamsService {
     }
 
     @Transactional
-    public void addConfig(BatchConfigParams newbatchConfigParams){
-        batchConfigParamsRepository.save(newbatchConfigParams);
+    public BatchConfigParams addConfig(BatchConfigParams newbatchConfigParams){
+        return batchConfigParamsRepository.save(newbatchConfigParams);
     }
 
     public void deleteConfigById(Long id){

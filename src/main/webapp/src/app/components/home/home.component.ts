@@ -79,10 +79,9 @@ export class HomeComponent implements OnInit {
     let newConfig = new batchConfig(this.chunkSize.value, this.pageSize.value, this.nbrClientsParRapport.value, this.cronExpression);
     this.batchService.addConfig(newConfig).subscribe(
       (response: String) => {
-        console.log(response);
         //Colorier les input fields et le form de selection de la cronExpression
         //en vert, pour indiquer le succes de modification de la configuration
-        if (response.indexOf("Succès")) {
+        if (response.indexOf("SUCCESS")) {
           let inputFields = $('input')
           let cronBoxes = ($('.cronbox'))
           for (let element of cronBoxes) {
