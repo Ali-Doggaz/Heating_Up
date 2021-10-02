@@ -26,12 +26,8 @@ public class Controller {
     public ClientRepository clientRepository;
 
     @Autowired
-    public WeatherApiScraper weatherApiScraper;
-
-    @Autowired
     public Controller(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
-        this.weatherApiScraper = weatherApiScraper;
     }
 
     //inscription client REST API
@@ -46,8 +42,9 @@ public class Controller {
         List<Alert> alerts = new ArrayList<>(); //TODO change 10 for the total number of tests
         String temp_test_result;
         try {
-            Map<String, String> CurrentWeatherDetails = weatherApiScraper.getCurrentWeatherDetails(city);
-            temp_test_result = Test_Dehydration.calculateRisk(Integer.parseInt(CurrentWeatherDetails.get("temp_f")), Integer.parseInt(CurrentWeatherDetails.get("humidity")));
+            Map<String, String> CurrentWeatherDetails = WeatherApiScraper.getCurrentWeatherDetails(city);
+            temp_test_result = Test_Dehydration.calculateRisk((int)Float.parseFloat(CurrentWeatherDetails.get("temp_f")), Integer.parseInt(CurrentWeatherDetails.get("humidity")));
+            System.out.println(temp_test_result);
             if (temp_test_result.contains("Alert")) {
                 alerts.add(new Alert("High heat index!", temp_test_result));
             }
@@ -56,8 +53,9 @@ public class Controller {
             e.printStackTrace();
         }
         try {
-            List<Map<String, String>> FutureWeatherDetails = weatherApiScraper.getFutureWeatherDetails(city);
+            List<Map<String, String>> FutureWeatherDetails = WeatherApiScraper.getFutureWeatherDetails(city);
             temp_test_result = TestBigTemperatureIncrease.checkBigTemperatureIncrease(FutureWeatherDetails);
+            System.out.println(temp_test_result);
             if (temp_test_result.contains("Alert")) {
                 alerts.add(new Alert("High upcoming temperature increase!", temp_test_result));
             }
