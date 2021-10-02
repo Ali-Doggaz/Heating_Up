@@ -1,64 +1,10 @@
 import React,{useState,createContext, useContext} from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBell,faChevronLeft,faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
-
+import axios from 'axios'
 
 const notifContext = createContext();
-
-const problem_table = [
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-    {
-        title:"This forest is on fire",
-        location: "San Francisco" ,
-        description: "lorem dlskfjslfjlqkfjqmlkd jfkd lqjfdslfjqmlfdkj "
-    },
-]
-
+    
 function Circle(){
 
     const {nbrNotifs,setNotifShown} = useContext(notifContext)
@@ -106,13 +52,35 @@ function NotifsContainer(){
 }
 
 export default function Notifications() {
+    const [problemTable, setProblemTable] = useState([])
     const [nbrNotifs, setNbrNotifs] = useState(problem_table.length)
     const [notifShown, setNotifShown] = useState(true)
+
+    const fetchNotif =async ()=>{
+
+        const userData = JSON.parse(localStorage.getItem('userData'));
+
+        await axios.get("http://localhost:8080/Heating/getNews",{params:{
+            country:userData.country,
+            city:userData.state, 
+            email:userData.email
+        }}).then(response=>{
+            setProblemTable(response.data);
+        })
+    }
+
+    useEffect(async()=>{
+        await fetchNotif(); 
+        setInterval(async()=>{
+            await fetchNotif();
+        },60000)
+    },[])
+
 
     const value ={
         notifShown , setNotifShown,
         nbrNotifs, setNbrNotifs,
-        problem_table
+        problem_table:problemTable
     }
 
     return (
