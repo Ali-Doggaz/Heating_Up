@@ -20,7 +20,7 @@ import java.util.Map;
 public class WeatherApiScraper {
 
     // Calls the WeatherAPI endpoint and collects all climatic data related to your city/country, for the current time
-    public Map<String, String> getCurrentWeatherDetails(String city) throws JSONException, IOException, InterruptedException {
+    public static Map<String, String> getCurrentWeatherDetails(String city) throws JSONException, IOException, InterruptedException {
 
         Map<String, String> values = new HashMap<String, String>() {{
             put("location", city);
@@ -58,7 +58,7 @@ public class WeatherApiScraper {
     }
 
     // Calls the WeatherAPI endpoint and collects all climatic data related to your city/country, for the current time
-    public List<Map<String, String>> getFutureWeatherDetails(String city) throws JSONException, IOException, InterruptedException {
+    public static List<Map<String, String>> getFutureWeatherDetails(String city) throws JSONException, IOException, InterruptedException {
         List<Map<String, String>> list_upcoming_weathers = new ArrayList<Map<String, String>>();
         Map<String, String> values = new HashMap<String, String>() {{
             put("location", city);
@@ -93,7 +93,7 @@ public class WeatherApiScraper {
             temp_climatic_variables.put("min_temp_c", temp_weather.getString("min_temp_c"));
             temp_climatic_variables.put("max_temp_f", temp_weather.getString("max_temp_f"));
             temp_climatic_variables.put("min_temp_f", temp_weather.getString("min_temp_f"));
-            temp_climatic_variables.put("chance_of_rain", temp_weather.getString("chance_of_rain"));
+            //temp_climatic_variables.put("chance_of_rain", temp_weather.getString("chance_of_rain"));
             list_upcoming_weathers.add(temp_climatic_variables);
         }
         return list_upcoming_weathers;
