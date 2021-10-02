@@ -1,6 +1,8 @@
 package com.example.Balayage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.tomcat.util.json.JSONParser;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -55,6 +57,19 @@ public class BalayageApplication {
 					HttpResponse.BodyHandlers.ofString());
 
 			System.out.println(response.body());
+
+			//Map json answer to variables
+			JSONObject obj = new JSONObject(response.body());
+
+
+			Integer humidity = obj.getInt("humidity");
+			Integer temp_c = obj.getInt("temp_c");
+			Integer feels_like_c = obj.getInt("feels_like_c");
+			Integer cloud_percentage = obj.getInt("cloud");
+			String condition = obj.getString("condition");
+			Float wind_kph = Float.parseFloat(obj.getString("wind_kph"));
+
+
 		};
 	}
 
