@@ -1,15 +1,21 @@
 package com.example.Balayage;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.*;
 
 
 @SpringBootApplication
@@ -20,6 +26,37 @@ public class BalayageApplication {
 		SpringApplication.run(BalayageApplication.class, args);
 	}
 
+
+
+
+	@Bean
+	CommandLineRunner commandLineRunner() {
+		return args -> {
+			String country = "Paris"; //Todo change this
+			//Initialize the post request parameters
+			Map<String, String> values = new HashMap<String, String>() {{
+				put("location", country);
+			}};
+
+			ObjectMapper objectMapper = new ObjectMapper();
+			String requestBody = objectMapper
+					.writeValueAsString(values);
+
+			//Create the POST request
+			HttpClient client = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+					.uri(URI.create("https://api.m3o.com/v1/weather/Now"))
+					.setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+					.setHeader("Authorization", "Bearer Mjc2OGVmMjUtZTIxNi00NWQ2LWIzMDctYzk2ODA2MWFjYjlh")
+					.POST(HttpRequest.BodyPublishers.ofString(requestBody))
+					.build();
+
+			HttpResponse<String> response = client.send(request,
+					HttpResponse.BodyHandlers.ofString());
+
+			System.out.println(response.body());
+		};
+	}
 
 	@Bean
 	public CorsFilter corsFilter() {

@@ -16,7 +16,7 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
-    @Transactional
+    /*@Transactional
     public void updateClientSuspicionStatus(Client client, boolean suspect) {
         client.setSuspect(suspect);
         clientRepository.save(client);
@@ -25,5 +25,5 @@ public class ClientService {
     public Long getNumberOfClients(){
         return clientRepository.count();
     }
-
+    */
 }
