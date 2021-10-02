@@ -20,10 +20,10 @@ import java.util.Map;
 public class WeatherApiScraper {
 
     // Calls the WeatherAPI endpoint and collects all climatic data related to your city/country, for the current time
-    public Map<String, String> getCurrentWeatherDetails(String country) throws JSONException, IOException, InterruptedException {
+    public Map<String, String> getCurrentWeatherDetails(String city) throws JSONException, IOException, InterruptedException {
 
         Map<String, String> values = new HashMap<String, String>() {{
-            put("location", country);
+            put("location", city);
         }};
 
         ObjectMapper objectMapper = new ObjectMapper();
