@@ -28,7 +28,7 @@ public class Test_Dehydration {
 
     String calculateRisk(int Temperature, int humidity){
         double heatindex = calculateHeatIndex(Temperature,humidity);
-        if (heatindex< 91) return "";
+        if (heatindex < 91) return "";
         else if (heatindex < 105) return "Alert: heatindex is currently " + heatindex+ ". Be cautious and remember to drink water!";
         else if (heatindex < 130) return "Alert: heatindex is currently " + heatindex + ". You have to be extremely cautious! Remember to drink water!";
         else return "Alert: Heatindex is currently " + heatindex + ". This is extremely high and requires you to be as vigilent as possible. Stay home and don't forget to drink water! ";

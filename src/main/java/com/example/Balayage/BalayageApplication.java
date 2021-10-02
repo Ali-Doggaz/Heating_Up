@@ -31,7 +31,7 @@ public class BalayageApplication {
 
 
 
-
+	//TODO remove this
 	@Bean
 	CommandLineRunner commandLineRunner() {
 		return args -> {
@@ -40,6 +40,7 @@ public class BalayageApplication {
 		};
 	}
 
+	//Deal with cors policy
 	@Bean
 	public CorsFilter corsFilter() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();

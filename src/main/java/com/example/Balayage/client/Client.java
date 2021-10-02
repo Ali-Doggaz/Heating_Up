@@ -25,15 +25,44 @@ public class Client {
     protected Long id;
 
     protected String email;
-    protected String Country;
-    protected String City;
+    protected String country;
+    protected String city;
 
     public Client() {
     }
 
     public Client(String email, String country, String city) {
         this.email = email;
-        Country = country;
-        City = city;
+        this.country = country;
+        this.city = city;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 }
