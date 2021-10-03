@@ -18,76 +18,42 @@ This way, people can **prepare themselves to big heat waves, stay informed of lo
 ### App Demo
 [![Watch the video](https://img.youtube.com/vi/PdGPmb-Gd00/maxresdefault.jpg)](https://youtu.be/PdGPmb-Gd00)
 
-
-## Try it out
-**Chrome extension**  
-1. [Download the extension](https://github.com/larkinds/EthicalTargeting/releases)
-1. Unzip it into a folder you won't delete until you uninstall the extension
-1. Open `chrome://extensions` and switch on developer mode
-1. Drag the folder into the Chrome extensions tab
-1. Enjoy!
-
-Ad management UI: <https://glz5x-riaaa-aaaab-aa6bq-cai.ic0.app>
-
 ## Development
 
-**Prerequisites**  
-- [Yarn](https://yarnpkg.com/)
-- [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) if building on Windows, due to a Bash build script
+**Technologies used**  
+- [Spring Boot](https://spring.io/projects/spring-boot)
+- [Maven](https://maven.apache.org/)
+- [Tomcat](https://tomcat.apache.org/)
+- [elenctronJs](https://www.electronjs.org/)
+- [React Js](https://fr.reactjs.org/)
+- [npm](https://www.npmjs.com/)
 
-Building is straightforward:
-
-```sh
-git clone https://github.com/larkinds/EthicalTargeting.git
-cd EthicalTargeting
-yarn install
-yarn build
-```
-
-## How we built it
-The backend service runs on the [DFINITY Internet Computer](https://dfinity.org/), a decentralized network of independent data centers enabling a public ad network that is:
-
-* **Transparent:** anyone can see what ads are in the ledger (past/present/future) and who funded them  
-* **Private:** nobody will know who clicked on an ad or what their interests/demographics are  
-* **Targeted:** actually relevant to the user, making them more useful to the user and effective for the advertiser  
-* **Truly open:** not stored in any one data center and controlled by community governance in the future
-
-Browsers running our extension pull the entire ledger of ads from the backend service, and filter them through the user's current profile to find ads that are relevant and useful to that specific person.
-
-The extension is built with React, Tailwind CSS, HTML, and vanilla JavaScript.
 
 ## Challenges we ran into
-* **Motoko:** The first-party language of the Internet Computer, at just 17 months old, is missing a lot of standard library functions and features common in older languages. Learning a new language from incomplete documentation was a welcome challenge.
-* **Chrome extension documentation:** Not to be outdone by Motoko, Chrome's extension API has incomplete and inconsistent documentation. Shout-out to Stack Overflow and our fellow pod members for helping us figure out the API!
-* **Webpage categorization:** Big Tech has put millions of dollars into how they infer our interests, and attempting to recreate that in just 3 weeks was a daunting task. We're proud of how well our demo interests generator works.
-* **Extension bundling:** Chrome extensions have additional restrictions on what libraries and npm packages can be used, resulting in confusing errors and convoluted bundling setups.
+* **First time creating a desktop app:** It was difficult to learn so many new technologies in just 24 hours and to develop a fully functional project, but we had fun and learned many new things! 
+* **Finding relevant datasets and API:** We had an entire subteam of 3 members dedicated to searching for relevant datasets. Many data found online was inaccurate or didn't provide the exact informations we needed. Therefore, we had to spend a good amount of time looking things up and figuring out which APIs and datasets to use
 
 ## Accomplishments that we're proud of
-- Managing to finish such a large and complex project in just 3 weeks
-- Writing a JSON serializer from scratch in Motoko, without type introspection
-- The extension is able to infer user interests a lot better than expected
-- Learning Chrome's Extension API and the Internet Computer environment
-- As a team, we met every day and organized several pair programming sessions
+- Learning how to develop a desktop app in such a short time span
+- Using the java built-in JSON serializer was tricky.
+- The app works very smoothly (no lag at all), and the backend is doing it's job! We didn't expect it to work that well to be honest.
 
 ## What we learned
-- Motoko (and the Internet Computer)
+- Spring 
 - React
-- Chrome's Extension API
-- Webpack (though we ended up not using it)
+- Electron.js
+- Desktop app development
 
 ## What's next for Ethical Targeting
-- Finalize multi-profile support
-- Add a way to disable tracking for a certain period of time, instead of having to reactivate it each time
-- Add a blocklist of websites where your activity won't get tracked
-- Add monetization
-- Make the weight of the interests appear in the user's profile
-- Finish developing the ad management console (including login system)
+- Finalizing this prototype version
+- Add advanced search for other cities/countries, and correcting some bugs (+- 1month)
+- Release the beta version of our app and invite a limited number of beta testers
+- Collect their feedback and implement them in our app, while enhancing the UI and the server's performance
+- Release our app and start working on a website and a mobile app as well
 
 ## Contributors
-* [Larkin Smith](https://github.com/larkinds)
-* [Ali Doggaz](https://github.com/Ali-Doggaz)
-* [Prabal Chhatkuli](https://github.com/prabalchhatkuli)
-* [James Martindale](http://github.com)
-
-### Ethical Targeting backend service
-[@jkmartindale/ethical_targeting-backend](https://github.com/jkmartindale/ethical_targeting-backend)
+* Salsabil Houij
+* Dali Sahnoun
+* Aicha Khalfaoui
+* Yasine Ben Slimene
+* Ali Doggaz
