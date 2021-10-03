@@ -15,7 +15,7 @@ It then passes these variables to a battery of tests, that look for all kind of 
 This way, people can **prepare themselves to big heat waves, stay informed of local wildfires, sea level increase, and more generally, they can be more aware of how climate is changing in their area.**
 
 
-### App Demo
+### App Demo (click on the picture to watch the demo and see the app's UI)
 [![Watch the video](https://img.youtube.com/vi/PdGPmb-Gd00/maxresdefault.jpg)](https://youtu.be/PdGPmb-Gd00)
 
 ## Development
