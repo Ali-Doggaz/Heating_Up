@@ -43,10 +43,9 @@ export default function HomePage() {
         var observer = new IntersectionObserver(function(entries,observer){
             entries.forEach(entry=>{
                 if(!entry.isIntersecting){
-                    entry.target.classList.remove("visible")
-                }else{
-                    entry.target.classList.add("visible")
-                }
+                    return;
+                }   
+                entry.target.classList.add("visible");
             })
         }, options);
 
@@ -70,7 +69,8 @@ export default function HomePage() {
                 <Link to="/" className={showNav?"visible":""}>Change Settings</Link>
             </div>
             <div className="top-news container">
-                <h3>top news</h3>
+                <h3>TOP NEWS <Link to="/search">Search</Link></h3>
+                
                 <div className="news-container">
                     {
                         top_news.map((top_new,index)=>(
@@ -79,7 +79,7 @@ export default function HomePage() {
                                 <div className="content">
                                     <h3> {top_new.title.toUpperCase()} </h3>
                                     <p className="location"> {top_new.location} </p>
-                                    <p> {top_new.description} </p>
+                                    <p className="description"> {top_new.description} </p>
                                 </div>
                             </div>
                         ))

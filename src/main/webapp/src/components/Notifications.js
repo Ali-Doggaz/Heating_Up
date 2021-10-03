@@ -1,7 +1,8 @@
-import React,{useState,createContext, useContext} from 'react'
+import React,{useState,createContext, useContext,useEffect,useMemo} from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBell,faChevronLeft,faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import { faBell,faChevronLeft,faExclamationTriangle,faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
+import uniqid from 'uniqid'
 
 const notifContext = createContext();
     
@@ -22,6 +23,7 @@ function Circle(){
 function Notif({problem}){
 
     const [shown, setShown] = useState(false)
+    const {setProblemTable} = useContext(notifContext)
 
     return (
         <>
@@ -32,6 +34,11 @@ function Notif({problem}){
                     {problem.description}
                 </div>
                 <FontAwesomeIcon icon={faChevronLeft} className={"arrow "+(shown?"bottom":"")}/>
+                <FontAwesomeIcon 
+                    icon={faTrashAlt} 
+                    className="remove" 
+                    onClick={()=>{setProblemTable(prev=>prev.filter(prob=>prob.id!==problem.id))}}
+                />
             </div>
             <hr />
         </>
@@ -40,37 +47,57 @@ function Notif({problem}){
 
 function NotifsContainer(){
 
-    const {notifShown,problem_table} = useContext(notifContext)
+    const {notifShown,problemTable} = useContext(notifContext)
 
     return (
         <div className={"notifications "+(notifShown?"visible":"")}>
-            {problem_table.map(problem=>(
-                <Notif problem={problem}/>
+            {problemTable.map(problem=>(
+                <Notif problem={problem} key={problem.id}/>
             ))}
         </div>
     )
 }
 
 export default function Notifications() {
-    const [problemTable, setProblemTable] = useState([])
-    const [nbrNotifs, setNbrNotifs] = useState(problem_table.length)
-    const [notifShown, setNotifShown] = useState(true)
+    const [problemTable, setProblemTable] = useState([
+        {
+            id:1,
+            title:"hello",description: "something happened",
+            location:"dar"
+        }
+    ])
+    const nbrNotifs = useMemo(()=>problemTable.length,[problemTable])
 
-    const fetchNotif =async ()=>{
 
-        const userData = JSON.parse(localStorage.getItem('userData'));
+    const [notifShown, setNotifShown] = useState(false)
 
-        await axios.get("http://localhost:8080/Heating/getNews",{params:{
-            country:userData.country,
-            city:userData.state, 
-            email:userData.email
-        }}).then(response=>{
-            setProblemTable(response.data);
-        })
-    }
+    useEffect(()=>{
 
-    useEffect(async()=>{
-        await fetchNotif(); 
+        const fetchNotif =async ()=>{
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            await axios.get("http://localhost:8080/Heating/getNews",{params:{
+                country:userData.country,
+                city:userData.state, 
+                email:userData.email
+            }}).then(response=>{
+                //getting location from localStorage
+                const locationString = JSON.parse(localStorage.getItem("userData")).state 
+                        + " - " + JSON.parse(localStorage.getItem("userData")).country ;
+
+                response.data.forEach(data=>{
+                    const {title,description} = data
+                     
+                    setProblemTable(prev=>[...prev,{
+                        id:uniqid(),
+                        title, description,
+                        location: locationString
+                    }]);
+                })
+                
+            })
+        }
+
+        fetchNotif(); 
         setInterval(async()=>{
             await fetchNotif();
         },60000)
@@ -79,8 +106,8 @@ export default function Notifications() {
 
     const value ={
         notifShown , setNotifShown,
-        nbrNotifs, setNbrNotifs,
-        problem_table:problemTable
+        nbrNotifs, 
+        problemTable,setProblemTable
     }
 
     return (
