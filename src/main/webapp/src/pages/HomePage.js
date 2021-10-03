@@ -4,25 +4,31 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCog } from '@fortawesome/free-solid-svg-icons'
 import earthImage from '../assets/images/earth-heating.jpg'
 import Notifications from '../components/Notifications'
+import usDroughtImg from '../assets/images/us-drought-monitor.jpg'
+import africaWarming from '../assets/images/africa-warming.jpg'
+import wildFireImg from '../assets/images/wildfire.jpg'
+
 
 const top_news =[
     {
-        image: earthImage,
-        title:'forest on fire',
-        location:'California, United states',
-        description:'lorem dklqjfqdmlfj dlfjqlmfkjq sdfsdlfksd sdfqdfqd dsf dfqsd qdqdmfqkj'
+        image: usDroughtImg,
+        title:'US Drought Monitor',
+        location:'United states',
+        description:`The Drought Monitor focuses on broad-scale conditions.
+        Local conditions may vary. For more information on the
+        Drought Monitor, go to https://droughtmonitor.unl.edu/About.aspx`
     },
     {
-        image: earthImage,
-        title:'forest on fire',
-        location:'California, United states',
-        description:'lorem dklqjfqdmlfj dlfjqlmfkjq sdfsdlfksd sdfqdfqd dsf dfqsd qdqdmfqkj lorem dklqjfqdmlfj dlfjqlmfkjq sdfsdlfksd sdfqdfqd dsf dfqsd qdqdmfqkj lorem dklqjfqdmlfj dlfjqlmfkjq sdfsdlfksd sdfqdfqd dsf dfqsd qdqdmfqkj'
+        image: africaWarming,
+        title:'Africa And the Climate Crisis',
+        location:'Africa',
+        description:`The African continent will be hit the hardest by climate change, despite contributing only 4% to global carbon emissions. This vulnerability is driven by high levels of poverty across the continent leaving many without the resources to buffer themselves and recover from the changing climate.`
     },
     {
-        image: earthImage,
-        title:'forest on fire',
-        location:'California, United states',
-        description:'lorem dklqjfqdmlfj dlfjqlmfkjq sdfsdlfksd sdfqdfqd dsf dfqsd qdqdmfqkj'
+        image: wildFireImg,
+        title:'2021 North American Wildfire Season',
+        location:'Canada and the United states',
+        description:'Both countries are unable to share resources as they fight multiple wildfires within their respective borders.'
     },
 ]
 
@@ -69,7 +75,7 @@ export default function HomePage() {
                 <Link to="/" className={showNav?"visible":""}>Change Settings</Link>
             </div>
             <div className="top-news container">
-                <h3>TOP NEWS <Link to="/search">Search</Link></h3>
+                <h3>DAILY NEWS <Link to="/search">Search(soon)</Link></h3>
                 
                 <div className="news-container">
                     {
