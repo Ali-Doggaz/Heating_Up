@@ -5,7 +5,7 @@ import axios from 'axios'
 import uniqid from 'uniqid'
 
 const notifContext = createContext();
-    
+
 function Circle(){
 
     const {nbrNotifs,setNotifShown} = useContext(notifContext)
@@ -34,9 +34,9 @@ function Notif({problem}){
                     {problem.description}
                 </div>
                 <FontAwesomeIcon icon={faChevronLeft} className={"arrow "+(shown?"bottom":"")}/>
-                <FontAwesomeIcon 
-                    icon={faTrashAlt} 
-                    className="remove" 
+                <FontAwesomeIcon
+                    icon={faTrashAlt}
+                    className="remove"
                     onClick={()=>{setProblemTable(prev=>prev.filter(prob=>prob.id!==problem.id))}}
                 />
             </div>
@@ -60,11 +60,6 @@ function NotifsContainer(){
 
 export default function Notifications() {
     const [problemTable, setProblemTable] = useState([
-        {
-            id:1,
-            title:"hello",description: "something happened",
-            location:"dar"
-        }
     ])
     const nbrNotifs = useMemo(()=>problemTable.length,[problemTable])
 
@@ -77,27 +72,27 @@ export default function Notifications() {
             const userData = JSON.parse(localStorage.getItem('userData'));
             await axios.get("http://localhost:8080/Heating/getNews",{params:{
                 country:userData.country,
-                city:userData.state, 
+                city:userData.state,
                 email:userData.email
             }}).then(response=>{
                 //getting location from localStorage
-                const locationString = JSON.parse(localStorage.getItem("userData")).state 
+                const locationString = JSON.parse(localStorage.getItem("userData")).state
                         + " - " + JSON.parse(localStorage.getItem("userData")).country ;
 
                 response.data.forEach(data=>{
                     const {title,description} = data
-                     
+
                     setProblemTable(prev=>[...prev,{
                         id:uniqid(),
                         title, description,
                         location: locationString
                     }]);
                 })
-                
+
             })
         }
 
-        fetchNotif(); 
+        fetchNotif();
         setInterval(async()=>{
             await fetchNotif();
         },60000)
@@ -106,7 +101,7 @@ export default function Notifications() {
 
     const value ={
         notifShown , setNotifShown,
-        nbrNotifs, 
+        nbrNotifs,
         problemTable,setProblemTable
     }
 

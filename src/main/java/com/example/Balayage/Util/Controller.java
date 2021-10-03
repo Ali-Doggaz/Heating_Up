@@ -70,7 +70,7 @@ public class Controller {
             Integer AQI = Integer.parseInt(FireAndAirQualityScraper.getAirQuality(city));
             String test_result = Test_AirQuality.AssessAirQuality(AQI);
             if (test_result.contains("Alert")) {
-                alerts.add(new Alert("High upcoming temperature increase!", test_result, city));
+                alerts.add(new Alert("The air quality could be problematic!", test_result, city));
             }
         }
         catch (Exception e){
