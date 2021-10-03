@@ -57,3 +57,13 @@ This way, people can **prepare themselves to big heat waves, stay informed of lo
 * Aicha Khalfaoui
 * Yasine Ben Slimene
 * Ali Doggaz
+
+## Sources
+- https://docs.ambeedata.com/#aq-intro
+- https://droughtmonitor.unl.edu/
+- http://www.airqualityontario.com/science/aqi_description.php
+- https://www.airnow.gov/aqi/aqi-basics/
+- https://www.cdc.gov/pictureofamerica/pdfs/picture_of_america_heat-related_illness.pdf
+- https://www.lagons-plages.com/humidite-tropiques.php
+- https://m3o.com/weather/api#Now
+
