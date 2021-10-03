@@ -49,10 +49,10 @@ public class WeatherApiScraper {
         climatic_variables.put("humidity", obj.getString("humidity"));
         climatic_variables.put("temp_c", obj.getString("temp_c"));
         climatic_variables.put("temp_f", obj.getString("temp_f"));
-        climatic_variables.put("feels_like_c", obj.getString("feels_like_c"));
-        climatic_variables.put("cloud", obj.getString("cloud"));
-        climatic_variables.put("condition", obj.getString("condition"));
-        climatic_variables.put("wind_kph", obj.getString("wind_kph"));
+        //climatic_variables.put("feels_like_c", obj.getString("feels_like_c"));
+        //climatic_variables.put("cloud", obj.getString("cloud"));
+        //climatic_variables.put("condition", obj.getString("condition"));
+        //climatic_variables.put("wind_kph", obj.getString("wind_kph"));
 
         return climatic_variables;
     }

@@ -2,7 +2,9 @@ package com.example.Balayage.Util;
 
 import com.example.Balayage.Alert.Alert;
 import com.example.Balayage.Risk_assessment_tests.TestBigTemperatureIncrease;
+import com.example.Balayage.Risk_assessment_tests.Test_AirQuality;
 import com.example.Balayage.Risk_assessment_tests.Test_Dehydration;
+import com.example.Balayage.Scraper.FireAndAirQualityScraper;
 import com.example.Balayage.Scraper.WeatherApiScraper;
 import com.example.Balayage.client.Client;
 import org.codehaus.jettison.json.JSONException;
@@ -46,7 +48,7 @@ public class Controller {
             temp_test_result = Test_Dehydration.calculateRisk((int)Float.parseFloat(CurrentWeatherDetails.get("temp_f")), Integer.parseInt(CurrentWeatherDetails.get("humidity")));
             System.out.println(temp_test_result);
             if (temp_test_result.contains("Alert")) {
-                alerts.add(new Alert("High heat index!", temp_test_result));
+                alerts.add(new Alert("High heat index!", temp_test_result, city));
             }
         }
         catch(Exception e){
@@ -57,14 +59,35 @@ public class Controller {
             temp_test_result = TestBigTemperatureIncrease.checkBigTemperatureIncrease(FutureWeatherDetails);
             System.out.println(temp_test_result);
             if (temp_test_result.contains("Alert")) {
-                alerts.add(new Alert("High upcoming temperature increase!", temp_test_result));
+                alerts.add(new Alert("High upcoming temperature increase!", temp_test_result, city));
             }
         }
         catch (Exception e){
             e.printStackTrace();
         }
-        //TODO add tests
 
+        try {
+            Integer AQI = Integer.parseInt(FireAndAirQualityScraper.getAirQuality(city));
+            String test_result = Test_AirQuality.AssessAirQuality(AQI);
+            if (test_result.contains("Alert")) {
+                alerts.add(new Alert("High upcoming temperature increase!", test_result, city));
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        //ADD fire tests
+
+
+
+        if (alerts.size()>0){
+            //send email to the user to notify him
+        }
+
+        //todo remove these tests
+        alerts.add(new Alert("test","test","test"));
+        alerts.add(new Alert("test2","test2","test2"));
         return ResponseEntity.ok(alerts);
     }
 }
