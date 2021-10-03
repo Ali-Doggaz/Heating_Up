@@ -3,10 +3,12 @@ package com.example.Balayage.Alert;
 public class Alert {
     String title;
     String description;
+    String location;
 
-    public Alert(String title, String description) {
+    public Alert(String title, String description, String location) {
         this.title = title;
         this.description = description;
+        this.location = location;
     }
 
     public String getTitle() {
