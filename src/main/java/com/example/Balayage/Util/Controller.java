@@ -85,9 +85,8 @@ public class Controller {
             //send email to the user to notify him
         }
 
-        //todo remove these tests
-        alerts.add(new Alert("test","test","test"));
-        alerts.add(new Alert("test2","test2","test2"));
+        //todo remove these sample alerts - tests
+        alerts.add(new Alert("Wildfires near you!","We detected a wildfire in the Carson National Forest, in your city. Be cautious and do not get close to the fire!","Carson,USA"));
         return ResponseEntity.ok(alerts);
     }
 }
